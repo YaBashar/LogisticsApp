@@ -1,11 +1,16 @@
 import { requestAuthRegister, requestAuthLogin, requestRefreshToken, requestDelete } from '../requestHelpers';
+import mongoose from 'mongoose';
 
-beforeEach(() => {
-  requestDelete();
+beforeEach(async () => {
+  await requestDelete();
 });
 
-afterEach(() => {
-  requestDelete();
+afterEach(async () => {
+  await requestDelete();
+});
+
+afterAll(async () => {
+  await mongoose.connection.close();
 });
 
 describe('Success Cases', () => {
@@ -15,7 +20,7 @@ describe('Success Cases', () => {
     const cookie = res1.headers['set-cookie'];
 
     const res2 = await requestRefreshToken(cookie);
-    const data = JSON.parse(res2.body.toString());
+    const data = res2.body;
     expect(data).toStrictEqual({ token: expect.any(String) });
     expect(res2.statusCode).toStrictEqual(200);
   });
@@ -25,7 +30,7 @@ describe('Error Cases', () => {
   test('Invalid Token', async () => {
     const invalidCookie = 'jwt=wrongRefreshToken';
     const res = await requestRefreshToken(invalidCookie);
-    const data = JSON.parse(res.body.toString());
+    const data = res.body;
     expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
