@@ -1,5 +1,5 @@
 import axios from 'axios'
-const BASE_URL = "http://localhost:3229"
+const BASE_URL = "http://192.168.0.49:3299"
 
 export default axios.create({
     baseURL: BASE_URL,

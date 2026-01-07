@@ -9,7 +9,7 @@ export default function Index() {
       
       <View style={{flexDirection: "column", gap: 10}}>
         <Pressable 
-          onPress={() => router.push('/login')} 
+          onPress={() => router.push('/register')} 
           style={({ pressed }) => ({
             paddingHorizontal: 10, 
             paddingVertical: 12, 
@@ -21,6 +21,7 @@ export default function Index() {
         </Pressable>
 
         <Pressable 
+          onPress={() => router.push('/login')}
           style={({ pressed }) => ({
             paddingHorizontal: 10, 
             paddingVertical: 12, 
