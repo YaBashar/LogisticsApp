@@ -1,9 +1,6 @@
-import { checkEmail, checkPassword, checkName, hashPassword, checkNewPasswd } from './utils/authHelper';
+import { checkEmail, checkPassword, checkName, hashPassword } from './utils/authHelper';
 import { UserModel } from './models/userModel';
-
-
-
-
+import logger from './utils/logger';
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
@@ -15,21 +12,36 @@ const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 **/
 
 async function registerUser(firstName: string, lastName: string, password: string, email: string): Promise<string> {
-  const name = firstName + ' ' + lastName;
+  
+  // Sanitize inputs for security
+  const sanitizedFirstName = firstName.trim();
+  const sanitizedLastName = lastName.trim();
+  const normalisedEmail = email.toLowerCase().trim();
+  const name = `${sanitizedFirstName} ${sanitizedLastName}`;
 
   try {
     checkName(name);
-    await checkEmail(email);
+    await checkEmail(normalisedEmail);
     checkPassword(password);
   } catch (error) {
-    throw new Error(error.message);
+    logger.warn('Registration validation failed', {
+      error: error.message,
+      email: normalisedEmail, 
+      timestamp: new Date().toISOString()
+    });
+
+    throw new Error('Registration failed. Please check your information and try again.');
   }
 
   const hashedPassword = await hashPassword(password);
   const newUser = new UserModel({
     name: name,
+    email: email,
     password: hashedPassword,
-    email: email
+    refreshTokens: [],
+    role: 'customer',
+    loginAttempts: 0,
+    accountLocked: false,
   });
 
   await newUser.save();
@@ -114,12 +126,12 @@ async function authRefresh(refreshToken: string) {
   }
 
   const accessToken = jwt.sign(
-    { userId: user._id, name: user.name, email: user.email, role: user.role },
+    { userId: user._id, role: user.role },
     SECRET,
     { expiresIn: '10m' });
 
   const newRefreshToken = jwt.sign(
-    { userId: user._id, name: user.name, email: user.email, role: user.role },
+    { userId: user._id, role: user.role },
     REFRESH_SECRET,
     { expiresIn: '1d' }
   );

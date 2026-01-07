@@ -34,12 +34,27 @@ app.delete('/clear', async(req: Request, res: Response) => {
   }
 })
 
-app.post('/auth/register', async (req: Request, res:Response) => {
-  const { firstName, lastName, email, password } = req.body;
+const registrationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,                     
+  message: 'Too many registration attempts. Please try again later.',
+  standardHeaders: true,      
+  legacyHeaders: false,       
+  keyGenerator: (req) => {
+    return `${req.ip}-${req.body.email || 'no-email'}`;
+  }
+});
 
+app.post('/auth/register', registrationLimiter,async (req: Request, res:Response) => {
+  
   try {
+    const { firstName, lastName, email, password } = req.body;
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
     const result = await registerUser(firstName, lastName, password, email);
-    res.status(200).json({ userId: result });
+    return res.status(201).json({ userId: result });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
