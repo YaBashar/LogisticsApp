@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import config from '../config.json';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
 
 import { authRefresh, registerUser, userDetails, userLogin } from './auth';
 import { clear } from './clear';
@@ -44,32 +45,68 @@ app.post('/auth/register', async (req: Request, res:Response) => {
   }
 });
 
-app.post('/auth/login', async (req: Request, res: Response) => {
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: 'Too many login attempts, please try again later',
+  standardHeaders: true,
+  legacyHeaders: true
+});
+
+app.post('/auth/login', loginLimiter, async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
     const { accessToken, refreshToken } = await userLogin(email, password);
-    res.cookie('jwt', refreshToken, {
+    res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000,
+      path: '/auth'
     });
 
-    res.status(200).json({ token: accessToken });
+    return res.status(200).json({ token: accessToken });
   } catch (error) {
-    return res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: 'Invalid Credentials' });
   }
 });
 
-app.get('/auth/refresh', async (req: Request, res: Response) =>{
-  const cookies = req.cookies;
-  if (!cookies?.jwt) return res.status(401).json({ error: 'Unauthorised' });
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: 'Too many refresh attempts please try again later',
+  standardHeaders: true,
+  legacyHeaders: true
+})
 
-  const refreshToken = cookies.jwt;
+app.post('/auth/refresh', refreshLimiter, async (req: Request, res: Response) =>{
 
-  try {
-    const result = await authRefresh(refreshToken);
-    res.status(200).json({ token: result });
+  const refreshToken = req.cookies?.jwt;
+  if (!refreshToken) return res.status(401).json({ error: 'Authentication Required' });
+
+  try { 
+    const {accessToken, refreshToken: newRefreshToken} = await authRefresh(refreshToken);
+    
+    res.cookie('jwt', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000,
+      path: '/auth'
+    });
+
+    return res.status(200).json({ token: accessToken });
+
   } catch (error) {
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/auth'
+    });
+
     return res.status(400).json({ error: error.message });
   }
 });
