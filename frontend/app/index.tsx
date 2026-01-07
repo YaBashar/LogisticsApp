@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Image } from "react-native";
+import { router } from "expo-router";
 
 export default function Index() {
   return (
@@ -8,6 +9,7 @@ export default function Index() {
       
       <View style={{flexDirection: "column", gap: 10}}>
         <Pressable 
+          onPress={() => router.push('/login')} 
           style={({ pressed }) => ({
             paddingHorizontal: 10, 
             paddingVertical: 12, 
