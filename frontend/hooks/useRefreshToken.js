@@ -3,7 +3,7 @@ import axios from '../services/axios'
 
 const useRefreshToken = () => {
   const refresh = async() => {
-    const response = await axios.get('/auth/refresh', {
+    const response = await axios.post('/auth/refresh', {
         withCredentials: true
     });
 
