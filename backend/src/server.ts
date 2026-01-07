@@ -13,7 +13,10 @@ import { verifyJWT } from './middleware';
 export const app = express();
 app.use(json());
 app.use(morgan('dev'));
-app.use(cors());
+app.use(cors({
+  origin: true, // Allow all origins for mobile apps
+  credentials: true,
+}));
 app.use(cookieParser())
 
 dotenv.config();
@@ -57,7 +60,7 @@ app.post('/auth/login', async (req: Request, res: Response) => {
   }
 });
 
-app.post('/auth/refresh', async (req: Request, res: Response) =>{
+app.get('/auth/refresh', async (req: Request, res: Response) =>{
   const cookies = req.cookies;
   if (!cookies?.jwt) return res.status(401).json({ error: 'Unauthorised' });
 
@@ -88,7 +91,7 @@ app.get('/auth/user-details', verifyJWT, async (req: Request, res: Response) => 
 // ====================================================================
 
 const PORT: number = parseInt(process.env.port || config.port);
-const HOST: string = process.env.host || '127.0.0.1';
+const HOST: string = process.env.host || '0.0.0.0';
 
 export const server = app.listen(PORT, HOST, () => {
   console.log(`Server listening on port ${PORT} at host ${HOST}`);
