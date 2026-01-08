@@ -1,7 +1,7 @@
-import { checkEmail, checkPassword, checkName, hashPassword, generateVerificationCode } from './utils/authHelper';
-import { UserModel } from './models/userModel';
-import { newSignUpTemplate, verifyEmailTemplate } from './utils/emailTemplates';
-import logger from './utils/logger';
+import { checkEmail, checkPassword, checkName, hashPassword, generateVerificationCode } from '../utils/authHelper';
+import { UserModel } from '../models/userModel';
+import { newSignUpTemplate, verifyEmailTemplate } from '../utils/emailTemplates';
+import logger from '../utils/logger';
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';

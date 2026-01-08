@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 const SECRET = process.env.JWT_SECRET;
-
+import rateLimit from 'express-rate-limit';
 import { Request, Response, NextFunction } from 'express';
 
 const verifyJWT = (req: Request, res: Response, next: NextFunction) => {
@@ -20,4 +20,31 @@ const verifyJWT = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { verifyJWT };
+const registrationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,                     
+  message: 'Too many registration attempts. Please try again later.',
+  standardHeaders: true,      
+  legacyHeaders: false,       
+  keyGenerator: (req) => {
+    return `${req.ip}-${req.body.email || 'no-email'}`;
+  }
+});
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: 'Too many login attempts, please try again later',
+  standardHeaders: true,
+  legacyHeaders: true
+});
+
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: 'Too many refresh attempts please try again later',
+  standardHeaders: true,
+  legacyHeaders: true
+})
+
+export { verifyJWT, registrationLimiter, loginLimiter, refreshLimiter };
