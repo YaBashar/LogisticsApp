@@ -193,6 +193,33 @@ async function verifyEmail(verificationCode: string) {
   return { success: true }
 }
 
+async function resendVerificationCode(email: string) {
+  const user = await UserModel.findOne({ email: email });
+  if (!user) {
+    throw new Error('Email not found');
+  }
+
+  const { verificationCode, expiry } = generateVerificationCode();
+
+  await UserModel.findOneAndUpdate(
+    { _id: user._id },
+    { $set: { verificationCode: verificationCode, verificationCodeExpiry: expiry }}
+  )
+
+  const verifyEmail = verifyEmailTemplate(email, verificationCode);
+
+  if (process.env.NODE_ENV !== 'test') {
+    try {
+      await transporter.sendMail(verifyEmail);
+    } catch (error) {
+      console.error("Email error" + error);
+    }
+  }
+  
+  await user.save()
+  return { success: true }
+}
+
 async function userDetails(userId: string) {
   const currUser = await UserModel.findById(userId);
 
@@ -208,4 +235,4 @@ async function userDetails(userId: string) {
   };
 }
 
-export { registerUser, userLogin, authRefresh, userDetails, verifyEmail };
+export { registerUser, userLogin, authRefresh, userDetails, verifyEmail, resendVerificationCode };

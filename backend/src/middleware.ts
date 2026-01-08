@@ -27,15 +27,6 @@ const registrationLimiter = rateLimit({
   standardHeaders: true,      
   legacyHeaders: false,     
   skip: (req) => process.env.NODE_ENV === 'test',  
-  keyGenerator: (req) => {
-    // Always use IP address - can't be manipulated by attacker
-    const ip = req.ip || 
-               req.headers['x-forwarded-for']?.toString().split(',')[0].trim() ||
-               req.socket.remoteAddress || 
-               'unknown';
-    
-    return `registration:${ip}`;
-  }
 });
 
 const loginLimiter = rateLimit({
@@ -54,4 +45,23 @@ const refreshLimiter = rateLimit({
   legacyHeaders: true
 })
 
-export { verifyJWT, registrationLimiter, loginLimiter, refreshLimiter };
+const resendVerifLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 3,
+  keyGenerator: (req) => req.body.email, // Rate limit per email
+  message: 'Too many attempts to resend verification code, Please try again later',
+  standardHeaders: true,
+  legacyHeaders: true
+})
+
+const verifyEmailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  keyGenerator: (req) => req.body.email, // Per email
+  message: 'Too many verification attempts. Please request a new code.',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+
+export { verifyJWT, registrationLimiter, loginLimiter, refreshLimiter, resendVerifLimiter, verifyEmailLimiter};
