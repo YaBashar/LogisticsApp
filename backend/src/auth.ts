@@ -1,11 +1,23 @@
-import { checkEmail, checkPassword, checkName, hashPassword } from './utils/authHelper';
+import { checkEmail, checkPassword, checkName, hashPassword, generateVerificationCode } from './utils/authHelper';
 import { UserModel } from './models/userModel';
+import { newSignUpTemplate, verifyEmailTemplate } from './utils/emailTemplates';
 import logger from './utils/logger';
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 const SECRET = process.env.JWT_SECRET;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+const transporter = nodemailer.createTransport({
+    host: "smtp.sendgrid.net",
+    port:  587,
+    secure: false,
+    auth: {
+      user:'apikey',
+      pass: process.env.SENDGRID_SECRET
+    }
+  })
 
 /** [1] AuthRegister
   * Registers a user with an email, password, and name
@@ -33,6 +45,20 @@ async function registerUser(firstName: string, lastName: string, password: strin
     throw new Error('Registration failed. Please check your information and try again.');
   }
 
+  const { verificationCode, expiry } = generateVerificationCode();
+  const welcomeEmail = newSignUpTemplate(sanitizedFirstName, normalisedEmail);
+  const verificationEmail = verifyEmailTemplate(normalisedEmail, verificationCode);
+  
+  try {
+    await transporter.sendMail(welcomeEmail);
+    await transporter.sendMail(verificationEmail);
+
+    logger.info('Welcome and verification emails sent', { email: normalisedEmail });
+  } catch (error) {
+    // Decide what to do if email fails
+    console.error('Email error:', error);
+  }
+
   const hashedPassword = await hashPassword(password);
   const newUser = new UserModel({
     name: name,
@@ -42,6 +68,9 @@ async function registerUser(firstName: string, lastName: string, password: strin
     role: 'customer',
     loginAttempts: 0,
     accountLocked: false,
+    verificationCode: verificationCode,
+    verificationCodeExpiry: expiry,
+    emailVerified: false
   });
 
   await newUser.save();

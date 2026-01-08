@@ -83,6 +83,7 @@ app.post('/auth/login', loginLimiter, async (req: Request, res: Response) => {
 
     return res.status(200).json({ token: accessToken });
   } catch (error) {
+    console.error('Login error:', error);
     return res.status(400).json({ error: 'Invalid Credentials' });
   }
 });

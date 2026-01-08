@@ -1,6 +1,8 @@
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 import { UserModel } from '../models/userModel';
+import crypto from 'crypto';
+
 
 export function checkName(name: string): void {
 
@@ -42,8 +44,6 @@ export function checkPassword(password: string): void {
 
 export async function checkEmail(normalisedEmail: string): Promise<void> {
 
-  const normalisedeEmail = normalisedEmail.toLowerCase().trim();
-
   if (!validator.isEmail(normalisedEmail)) {
     throw new Error('invalid email');
   }
@@ -76,4 +76,10 @@ export async function hashPassword(password: string): Promise<string> {
   const salt = await bcrypt.genSalt(saltRounds);
   const hash = await bcrypt.hash(password, salt);
   return hash;
+}
+
+export function generateVerificationCode() {
+  const verificationCode = crypto.randomInt(100000, 1000000).toString();
+  const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+  return { verificationCode, expiry };
 }

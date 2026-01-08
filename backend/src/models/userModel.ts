@@ -15,7 +15,10 @@ const userSchema = new mongoose.Schema({
     lockUntil: { type: Date },
     accountLocked: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: Date.now },
+    verificationCode: { type: String },
+    verificationCodeExpiry: { type: Date }, 
+    emailVerified: { type: Boolean, default: false }
 })
 
 export const UserModel = mongoose.model<User>('User', userSchema);
