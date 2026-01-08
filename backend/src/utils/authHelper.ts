@@ -6,6 +6,10 @@ import crypto from 'crypto';
 
 export function checkName(name: string): void {
 
+  if (typeof name !== 'string') {
+    throw new Error('Invalid name format');
+  }
+
   const trimmedName = name.trim();
 
   if (trimmedName.length < 2 || trimmedName.length > 20) {
@@ -25,8 +29,17 @@ export function checkName(name: string): void {
 }
 
 export function checkPassword(password: string): void {
+
+  if (typeof password !== 'string') {
+    throw new Error('Invalid password format');
+  }
+
   if (password.length < 12) {
     throw new Error('password must be at least 12 characters long');
+  }
+
+  if (password.length > 50) {
+    throw new Error('password is too long cannot exceed 50 characters')
   }
 
   const hasLower = (/[a-z]/).test(password);
@@ -43,6 +56,10 @@ export function checkPassword(password: string): void {
 }
 
 export async function checkEmail(normalisedEmail: string): Promise<void> {
+
+  if (typeof normalisedEmail !== 'string') {
+    throw new Error('invalid email format');
+  }
 
   if (!validator.isEmail(normalisedEmail)) {
     throw new Error('invalid email');
@@ -72,7 +89,7 @@ export async function checkNewPasswd(previousPasswds: string[], newPassword: str
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  const saltRounds = 10;
+  const saltRounds = 14;
   const salt = await bcrypt.genSalt(saltRounds);
   const hash = await bcrypt.hash(password, salt);
   return hash;

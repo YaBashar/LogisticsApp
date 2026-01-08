@@ -27,7 +27,15 @@ const registrationLimiter = rateLimit({
   standardHeaders: true,      
   legacyHeaders: false,     
   skip: (req) => process.env.NODE_ENV === 'test',  
-  keyGenerator: (req) => req.body.email || 'no-email'
+  keyGenerator: (req) => {
+    // Always use IP address - can't be manipulated by attacker
+    const ip = req.ip || 
+               req.headers['x-forwarded-for']?.toString().split(',')[0].trim() ||
+               req.socket.remoteAddress || 
+               'unknown';
+    
+    return `registration:${ip}`;
+  }
 });
 
 const loginLimiter = rateLimit({

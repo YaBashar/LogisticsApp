@@ -6,16 +6,17 @@ import bcrypt from 'bcrypt';
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
+import mongoose from 'mongoose';
 const SECRET = process.env.JWT_SECRET;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.sendgrid.net",
-    port:  587,
-    secure: false,
+    host: "smtp.resend.com",
+    port:  465,
+    secure: true,
     auth: {
-      user:'apikey',
-      pass: process.env.SENDGRID_SECRET
+      user:'resend',
+      pass: process.env.RESEND_SECRET
     }
   })
 
@@ -46,39 +47,37 @@ async function registerUser(firstName: string, lastName: string, password: strin
   }
 
   const { verificationCode, expiry } = generateVerificationCode();
-  const welcomeEmail = newSignUpTemplate(sanitizedFirstName, normalisedEmail);
-  const verificationEmail = verifyEmailTemplate(normalisedEmail, verificationCode);
-  
-  try {
-    // Don't await in test environment - fire and forget
-    if (process.env.NODE_ENV !== 'test') {
-      await transporter.sendMail(welcomeEmail);
-      await transporter.sendMail(verificationEmail);
-    }
-
-    // logger.info('Welcome and verification emails sent', { email: normalisedEmail });
-  } catch (error) {
-    console.error('Email error:', error);
-  }
-
-  
   const hashedPassword = await hashPassword(password);
   const newUser = new UserModel({
     name: name,
-    email: email,
+    email: normalisedEmail,
     password: hashedPassword,
     refreshTokens: [],
     role: 'customer',
     loginAttempts: 0,
     accountLocked: false,
-    verificationCode: verificationCode,
+    verificationCode: verificationCode, // change to hash for prod
     verificationCodeExpiry: expiry,
     emailVerified: false
   });
 
   await newUser.save();
+
+  if (process.env.NODE_ENV !== 'test') {
+    const welcomeEmail = newSignUpTemplate(sanitizedFirstName, normalisedEmail);
+    const verificationEmail = verifyEmailTemplate(normalisedEmail, verificationCode);
+    
+    try {
+      await transporter.sendMail(welcomeEmail);
+      await transporter.sendMail(verificationEmail);
+    } catch (emailError) {
+      console.error('Error sending email:', emailError);
+    }
+  }
+
   return newUser._id.toString();
-}
+}  
+
 
 /** [2] Auth Login
   * Logs in a user

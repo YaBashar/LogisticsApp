@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import { clear } from './clear';
 import { authRouter } from './routes/auth';
+import mongoSanitize from 'express-mongo-sanitize'
 
 export const app = express();
 app.use(json());
@@ -15,6 +16,8 @@ app.use(cors({
 }));
 
 app.use(cookieParser())
+app.use(mongoSanitize())
+
 dotenv.config();
 
 // Utility endpoint for testing
