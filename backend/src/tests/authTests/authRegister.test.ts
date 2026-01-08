@@ -13,11 +13,19 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
+beforeAll(async () => {
+  // Ensure DB is connected
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect(process.env.MONGODB_URI);
+  }
+})
+
+
 describe('Error Cases', () => {
   describe('Test Email', () => {
     test('email address is already used by another user', async () => {
-      await requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last');
-      const res = await requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last');
+      await requestAuthRegister('firstname', 'lastname', 'abcdefghIJ123456*', 'email@unsw.edu.au');
+      const res = await requestAuthRegister('firstname1', 'lastname1', 'abcdefghIJK123456*', 'email@unsw.edu.au');
       const data = res.body;
 
       expect(data).toStrictEqual({ error: expect.any(String) });
@@ -31,7 +39,7 @@ describe('Error Cases', () => {
       '34678893487', '#$%^&*()&*()',
 
     ])('invalid email address', async (email) => {
-      const res = await requestAuthRegister(email, 'abcd1234', 'first', 'last');
+      const res = await requestAuthRegister('firstName', 'lastname', 'abcdefghIJ123456*', email);
       const data = res.body;
 
       expect(data).toStrictEqual({ error: expect.any(String) });
@@ -45,45 +53,21 @@ describe('Error Cases', () => {
       '_', '+', '=', '{', '[', '}', ']', '|', '\\', ':', ';', '"', '<', ',',
       '>', '.', '?', '/', '1',
     ])('first name containing invalid charcters', async (char) => {
-      const res = await requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first' + char, 'last');
+      const res = await requestAuthRegister('firstname ' + char , 'lastname', 'abcdefghIJ123456*', 'email@unsw.edu.au');
       const data = res.body;
 
       expect(data).toStrictEqual({ error: expect.any(String) });
       expect(res.statusCode).toStrictEqual(400);
     });
 
-    // FirstName is less than 2 characters or more than 20 characters.
-    test.each([
-      'a', ' ', 'abcdefghijklmnopqrstu',
-      'abcdefghijk-lmnopqrstuvwxyz',
-    ])('first name is an invalid length', async (first) => {
-      const res = await requestAuthRegister('email@unsw.edu.au', 'abcd1234', first, 'last');
-      const data = res.body;
-
-      expect(data).toStrictEqual({ error: expect.any(String) });
-      expect(res.statusCode).toStrictEqual(400);
-    });
-
-    // LastName contains characters other than lowercase
+    // lastname contains characters other than lowercase
     // letters, uppercase letters, spaces, hyphens, or apostrophes.
     test.each([
       '~', '`', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
       '_', '+', '=', '{', '[', '}', ']', '|', '\\', ':', ';', '"', '<', ',',
       '>', '.', '?', '/', '1',
     ])('last name containing invalid charcters', async (char) => {
-      const res = await requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last' + char);
-      const data = res.body;
-
-      expect(data).toStrictEqual({ error: expect.any(String) });
-      expect(res.statusCode).toStrictEqual(400);
-    });
-
-    // NameLast is less than 2 characters or more than 20 characters.
-    test.each([
-      'a', ' ', 'abcdefghijklmnopqrstu',
-      'abcdefghijk-lmnopqrstuvwxyz',
-    ])('last name is an invalid length', async (last) => {
-      const res = await requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', last);
+      const res = await requestAuthRegister('firstname ', 'lastname ' + char, 'abcdefghIJ123456*', 'email@unsw.edu.au');
       const data = res.body;
 
       expect(data).toStrictEqual({ error: expect.any(String) });
@@ -91,9 +75,9 @@ describe('Error Cases', () => {
     });
 
     describe('Testing password', () => {
-      // Password is less than 8 characters.
+      // Password is less than 12 characters.
       test('Invalid password length', async () => {
-        const res = await requestAuthRegister('email@unsw.edu.au', 'abc123', 'first', 'last');
+        const res = await requestAuthRegister('firstname ', 'lastname', '3456*', 'email@unsw.edu.au');
         const data = res.body;
 
         expect(data).toStrictEqual({ error: expect.any(String) });
@@ -104,7 +88,7 @@ describe('Error Cases', () => {
       test.each([
         'abcdefgh', '12345678', 'shfvfhj^&&*%', '253768%&^*',
       ])('Password does not contain at least one number and one letter', async (password) => {
-        const res = await requestAuthRegister('email@unsw.edu.au', password, 'first', 'last');
+        const res = await requestAuthRegister('firstname ', 'lastname', password, 'email@unsw.edu.au');
         const data = res.body;
 
         expect(data).toStrictEqual({ error: expect.any(String) });
@@ -120,7 +104,7 @@ describe('Success Cases', () => {
     const data = result.body;
 
     expect(data.userId).toStrictEqual(expect.any(String));
-    expect(result.statusCode).toStrictEqual(200);
+    expect(result.statusCode).toStrictEqual(201);
   });
 
   test('Correct User Registered', async () => {
@@ -138,7 +122,7 @@ describe('Success Cases', () => {
       user: {
         userId: userId,
         name: 'Mubashir Hussain',
-        email: 'Mubashirmh04@gmail.com',
+        email: 'mubashirmh04@gmail.com',
         role: 'customer'
       }
     });

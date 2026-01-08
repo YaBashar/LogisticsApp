@@ -13,10 +13,18 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
+beforeAll(async () => {
+  // Ensure DB is connected
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect(process.env.MONGODB_URI);
+  }
+})
+
+
 describe('Error Case', () => {
   test('Invalid Token', async () => {
-    await requestAuthRegister('Mubashir', 'Hussain', 'Abcdefg123$', 'example@gmail.com');
-    await requestAuthLogin('example@gmail.com', 'Abcdefg123$');
+    await requestAuthRegister('Mubashir', 'Hussain', 'Abcdefgh1234$', 'example@gmail.com');
+    await requestAuthLogin('example@gmail.com', 'Abcdefgh1234$');
 
     const res1 = await requestAuthUserDetails('Invalid Token');
     const data1 = res1.body;
@@ -27,8 +35,8 @@ describe('Error Case', () => {
 
 describe('Success Case', () => {
   test('Success', async () => {
-    await requestAuthRegister('Mubashir', 'Hussain', 'Abcdefg123$', 'example@gmail.com');
-    const res = await requestAuthLogin('example@gmail.com', 'Abcdefg123$');
+    await requestAuthRegister('Mubashir', 'Hussain', 'Abcdefgh1234$', 'example@gmail.com');
+    const res = await requestAuthLogin('example@gmail.com', 'Abcdefgh1234$');
     const data = res.body;
     const token = data.token;
 

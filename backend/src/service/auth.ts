@@ -36,11 +36,11 @@ async function registerUser(firstName: string, lastName: string, password: strin
     await checkEmail(normalisedEmail);
     checkPassword(password);
   } catch (error) {
-    logger.warn('Registration validation failed', {
-      error: error.message,
-      email: normalisedEmail, 
-      timestamp: new Date().toISOString()
-    });
+    // logger.warn('Registration validation failed', {
+    //   error: error.message,
+    //   email: normalisedEmail, 
+    //   timestamp: new Date().toISOString()
+    // });
 
     throw new Error('Registration failed. Please check your information and try again.');
   }
@@ -51,15 +51,12 @@ async function registerUser(firstName: string, lastName: string, password: strin
   
   try {
     // Don't await in test environment - fire and forget
-    if (process.env.NODE_ENV === 'test') {
-      transporter.sendMail(welcomeEmail).catch(err => console.error('Welcome email error:', err));
-      transporter.sendMail(verificationEmail).catch(err => console.error('Verification email error:', err));
-    } else {
+    if (process.env.NODE_ENV !== 'test') {
       await transporter.sendMail(welcomeEmail);
       await transporter.sendMail(verificationEmail);
     }
 
-    logger.info('Welcome and verification emails sent', { email: normalisedEmail });
+    // logger.info('Welcome and verification emails sent', { email: normalisedEmail });
   } catch (error) {
     console.error('Email error:', error);
   }

@@ -28,19 +28,18 @@ export const login = async (req: Request, res: Response) => {
     });
     return res.status(200).json({ token: accessToken });
   } catch (error) {
-    console.error('Login error:', error);
     return res.status(400).json({ error: 'Invalid Credentials' });
   }
 }
 
 export const refresh = async (req: Request, res: Response) =>{
-  const refreshToken = req.cookies?.jwt;
+  const refreshToken = req.cookies?.refreshToken;
   if (!refreshToken) return res.status(401).json({ error: 'Authentication Required' });
 
   try { 
     const {accessToken, refreshToken: newRefreshToken} = await authRefresh(refreshToken);
 
-    res.cookie('jwt', newRefreshToken, {
+    res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
