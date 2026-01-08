@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { registerUser, userLogin, authRefresh, userDetails } from '../service/auth';
+import { registerUser, userLogin, authRefresh, userDetails, verifyEmail } from '../service/auth';
 
 export const register = async (req: Request, res:Response) => {
   try {
@@ -60,6 +60,15 @@ export const refresh = async (req: Request, res: Response) =>{
   }
 }
 
+export const userVerifyEmail = async (req: Request, res: Response) => {
+  const { verificationCode } = req.body;
+  try {
+    const result = await verifyEmail(verificationCode);
+    res.status(200).json({message: "Successfully Verified"})
+  } catch (error) {
+    res.status(400).json({error: error.message})
+  }
+}
 
 export const userInfo = async (req: Request, res: Response) => {
   const userId = (req as any).userId;

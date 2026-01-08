@@ -50,15 +50,21 @@ async function registerUser(firstName: string, lastName: string, password: strin
   const verificationEmail = verifyEmailTemplate(normalisedEmail, verificationCode);
   
   try {
-    await transporter.sendMail(welcomeEmail);
-    await transporter.sendMail(verificationEmail);
+    // Don't await in test environment - fire and forget
+    if (process.env.NODE_ENV === 'test') {
+      transporter.sendMail(welcomeEmail).catch(err => console.error('Welcome email error:', err));
+      transporter.sendMail(verificationEmail).catch(err => console.error('Verification email error:', err));
+    } else {
+      await transporter.sendMail(welcomeEmail);
+      await transporter.sendMail(verificationEmail);
+    }
 
     logger.info('Welcome and verification emails sent', { email: normalisedEmail });
   } catch (error) {
-    // Decide what to do if email fails
     console.error('Email error:', error);
   }
 
+  
   const hashedPassword = await hashPassword(password);
   const newUser = new UserModel({
     name: name,
@@ -171,7 +177,25 @@ async function authRefresh(refreshToken: string) {
   return {accessToken, refreshToken: newRefreshToken};
 }
 
+async function verifyEmail(verificationCode: string) {
 
+  const user = await UserModel.findOne({ verificationCode: verificationCode });
+  if (!user) {
+    throw new Error('Invalid Verification Code');
+  }
+
+  if (user.verificationCodeExpiry && user.verificationCodeExpiry < new Date()) {
+    throw new Error('Verification code has expired');
+  }
+
+  user.verificationCode = null;
+  user.verificationCodeExpiry = null;
+  user.emailVerified = true;
+  user.updatedAt = new Date();
+
+  await user.save()
+  return { success: true }
+}
 
 async function userDetails(userId: string) {
   const currUser = await UserModel.findById(userId);
@@ -188,4 +212,4 @@ async function userDetails(userId: string) {
   };
 }
 
-export { registerUser, userLogin, authRefresh, userDetails };
+export { registerUser, userLogin, authRefresh, userDetails, verifyEmail };

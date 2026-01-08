@@ -7,4 +7,5 @@ export const authRouter = express.Router();
 authRouter.post('/register', registrationLimiter, AuthController.register);
 authRouter.post('/login', loginLimiter, AuthController.login);
 authRouter.post('/refresh', refreshLimiter, AuthController.refresh);
-authRouter.get('/auth/user-details', verifyJWT, AuthController.userInfo);
+authRouter.get('/user-details', verifyJWT, AuthController.userInfo);
+authRouter.post('/verify-email', AuthController.userVerifyEmail)
