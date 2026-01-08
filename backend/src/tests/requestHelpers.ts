@@ -29,6 +29,10 @@ export const requestVerifyEmail = async (verificationCode: string) => {
   return await request(app).post('/auth/verify-email').send({verificationCode});
 }
 
+export const requestResendVerification = async (email: string) => {
+  return await request(app).post('/auth/resend-verification').send({email})
+}
+
 export const requestRefreshToken = async (cookie: string) => {
   return await request(app)
     .post('/auth/refresh')

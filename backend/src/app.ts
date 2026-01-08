@@ -1,4 +1,4 @@
-import express, { json, Request, Response } from 'express';
+import express, { json, Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -16,7 +16,10 @@ app.use(cors({
 }));
 
 app.use(cookieParser())
-app.use(mongoSanitize())
+
+if (process.env.NODE_ENV !== 'test') {
+  app.use(mongoSanitize());
+}
 
 dotenv.config();
 
@@ -32,3 +35,9 @@ app.delete('/clear', async(req: Request, res: Response) => {
 
 // Core app features
 app.use('/auth', authRouter)
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error('ERROR CAUGHT:', err);
+  console.error('Stack:', err.stack);
+  res.status(500).json({ error: err.message, stack: err.stack });
+});
