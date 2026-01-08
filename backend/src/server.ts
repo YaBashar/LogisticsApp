@@ -9,9 +9,11 @@ export const server = app.listen(PORT, HOST, () => {
   console.log(`Server listening on port ${PORT} at host ${HOST}`);
 });
 
-mongoose.connect(process.env.MONGODB_URI, {
-})
-  .then(() => console.log('DB Connection Successful'));
+export const connectDB = async () => {
+  return await mongoose.connect(process.env.MONGODB_URI);
+};
+
+connectDB().then(() => console.log('DB Connected'));
 
 
 process.on('SIGINT', () => {

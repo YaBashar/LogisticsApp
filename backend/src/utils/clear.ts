@@ -1,6 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-export async function clear (): Promise<Record<string, never>> {
-  await mongoose.connection.db.dropDatabase();
+export async function clear(): Promise<Record<string, never>> {
+  const collections = mongoose.connection.collections;
+  
+  for (const key in collections) {
+    await collections[key].deleteMany({});
+  }
+  
   return {};
 }

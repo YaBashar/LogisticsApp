@@ -1,7 +1,6 @@
 
 import request from 'supertest';
-import { app }  from '../server'
-
+import { app }  from '../app'
 
 
 // Clear
@@ -26,12 +25,9 @@ export const requestAuthUserDetails = async (token: string) => {
     .set('Authorization', `Bearer ${token}`);
 };
 
-export const requestAuthLogout = async (accessToken: string, cookie: string) => {
-  return await request(app)
-    .post('/auth/logout')
-    .set('Cookie', cookie)
-    .set('Authorization', `Bearer ${accessToken}`);
-};
+export const requestVerifyEmail = async (verificationCode: string) => {
+  return await request(app).post('/auth/verify-email').send({verificationCode});
+}
 
 export const requestRefreshToken = async (cookie: string) => {
   return await request(app)

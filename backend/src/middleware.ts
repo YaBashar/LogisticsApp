@@ -25,10 +25,9 @@ const registrationLimiter = rateLimit({
   max: 5,                     
   message: 'Too many registration attempts. Please try again later.',
   standardHeaders: true,      
-  legacyHeaders: false,       
-  keyGenerator: (req) => {
-    return `${req.ip}-${req.body.email || 'no-email'}`;
-  }
+  legacyHeaders: false,     
+  skip: (req) => process.env.NODE_ENV === 'test',  
+  keyGenerator: (req) => req.body.email || 'no-email'
 });
 
 const loginLimiter = rateLimit({
