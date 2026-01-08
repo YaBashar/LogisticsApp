@@ -4,7 +4,7 @@
 
     "start": "ts-node -T src/server.ts",
 
-    "test": "jest --detectOpenHandles",
+    "test": "NODE_ENV=test jest --detectOpenHandles",
 
     "lint": "eslint 'src/**/*.{ts,js}'",
 
