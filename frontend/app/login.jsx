@@ -1,11 +1,25 @@
+import axios from '@/services/axios';
 import React from 'react'
 import { useState } from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native'
+import { View, Text, TextInput, StyleSheet, Pressable } from 'react-native'
+import useAuth from '@/hooks/useAuth';
+import { router } from 'expo-router';
 
 export default function Login() {
 
     const[email, setEmail] = useState("");
     const[password, setPassword] = useState("");
+    const {setAccessToken} = useAuth()
+
+    const handleSubmit = async () => {
+        try {
+            const response = await axios.post('/auth/login', {email, password});
+            setAccessToken(response.data.token);
+            router.push('/profile')
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return(
             <View style={{ flex: 1, flexDirection: "column", justifyContent: "flex-start", alignItems: "center", backgroundColor: "white" }}>
@@ -19,6 +33,7 @@ export default function Login() {
                 <Text style={{ fontSize: 12, color: "black", marginTop: 15, marginHorizontal: 10, fontFamily: "System", textAlign: "center" }}>By Continuing You agree to Terms and Policy</Text>
                 
                 <Pressable 
+                    onPress={handleSubmit}
                     style={({ pressed }) => ({
                     paddingHorizontal: 10, 
                     paddingVertical: 12, 

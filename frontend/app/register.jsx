@@ -18,8 +18,8 @@ export default function Register() {
         try {
             const response = await axios.post('/auth/register', { firstName, lastName, password, email})
             setUserId(response.data.userId);
-            alert(`Signed Up Successfully, Please Login to Continue`)
-            router.push('/login');
+            alert(`Signed Up Successfully, Please Verify Email to Continue`)
+            router.push('/verifyEmail');
 
         } catch (error) {
             alert('Sign Up Failed')
