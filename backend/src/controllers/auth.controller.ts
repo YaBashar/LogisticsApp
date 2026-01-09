@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { registerUser, userLogin, authRefresh, userDetails, verifyEmail, resendVerificationCode } from '../service/auth';
+import { registerUser, userLogin, authRefresh, userDetails, verifyEmail, resendVerificationCode, requestResetPassword } from '../service/auth';
 
 export const register = async (req: Request, res:Response) => {
   try {
@@ -77,6 +77,17 @@ export const resendVerifyEmail = async (req: Request, res: Response) => {
     res.status(200).json(result)
   } catch (error) {
     res.status(400).json({error : error.message})
+  }
+}
+
+export const requestPasswordReset = async (req: Request, res: Response ) => {
+  const { email } = req.body;
+
+  try {
+    const result = await requestResetPassword(email);
+    res.status(200).json({result})
+  } catch (error) {
+    res.status(400).json({ error: error.message })
   }
 }
 

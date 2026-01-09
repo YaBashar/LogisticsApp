@@ -1,6 +1,6 @@
-import { checkEmail, checkPassword, checkName, hashPassword, generateVerificationCode } from '../utils/authHelper';
+import { checkEmail, checkPassword, checkName, hashPassword, generateCode } from '../utils/authHelper';
 import { UserModel } from '../models/userModel';
-import { newSignUpTemplate, verifyEmailTemplate } from '../utils/emailTemplates';
+import { newSignUpTemplate, resetPasswordTemplate, verifyEmailTemplate } from '../utils/emailTemplates';
 import logger from '../utils/logger';
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
@@ -46,7 +46,7 @@ async function registerUser(firstName: string, lastName: string, password: strin
     throw new Error('Registration failed. Please check your information and try again.');
   }
 
-  const { verificationCode, expiry } = generateVerificationCode();
+  const { code, expiry } = generateCode();
   const hashedPassword = await hashPassword(password);
   const newUser = new UserModel({
     name: name,
@@ -56,7 +56,7 @@ async function registerUser(firstName: string, lastName: string, password: strin
     role: 'customer',
     loginAttempts: 0,
     accountLocked: false,
-    verificationCode: verificationCode, // change to hash for prod
+    verificationCode: code, // change to hash for prod
     verificationCodeExpiry: expiry,
     emailVerified: false
   });
@@ -65,7 +65,7 @@ async function registerUser(firstName: string, lastName: string, password: strin
 
   if (process.env.NODE_ENV !== 'test') {
     const welcomeEmail = newSignUpTemplate(sanitizedFirstName, normalisedEmail);
-    const verificationEmail = verifyEmailTemplate(normalisedEmail, verificationCode);
+    const verificationEmail = verifyEmailTemplate(normalisedEmail, code);
     
     try {
       await transporter.sendMail(welcomeEmail);
@@ -199,14 +199,14 @@ async function resendVerificationCode(email: string) {
     throw new Error('Email not found');
   }
 
-  const { verificationCode, expiry } = generateVerificationCode();
+  const { code, expiry } = generateCode();
 
   await UserModel.findOneAndUpdate(
     { _id: user._id },
-    { $set: { verificationCode: verificationCode, verificationCodeExpiry: expiry }}
+    { $set: { verificationCode: code, verificationCodeExpiry: expiry }}
   )
 
-  const verifyEmail = verifyEmailTemplate(email, verificationCode);
+  const verifyEmail = verifyEmailTemplate(email, code);
 
   if (process.env.NODE_ENV !== 'test') {
     try {
@@ -217,6 +217,31 @@ async function resendVerificationCode(email: string) {
   }
   
   await user.save()
+  return { success: true }
+}
+
+async function requestResetPassword(email: string) {
+  const user = await UserModel.findOne({email: email});
+  if (!user) {
+    throw new Error('Email not found');
+  }
+
+  const { code, expiry } = generateCode();
+
+  user.resetCode = code;
+  user.resetCodeExpiry = expiry;
+
+  await user.save()
+
+  if (process.env.NODE_ENV !== 'test') {
+    try {
+      const resetPasswordEmail = resetPasswordTemplate(email, code);
+      await transporter.sendMail(resetPasswordEmail);
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  
   return { success: true }
 }
 
@@ -235,4 +260,4 @@ async function userDetails(userId: string) {
   };
 }
 
-export { registerUser, userLogin, authRefresh, userDetails, verifyEmail, resendVerificationCode };
+export { registerUser, userLogin, authRefresh, userDetails, verifyEmail, resendVerificationCode, requestResetPassword };

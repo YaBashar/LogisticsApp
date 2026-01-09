@@ -13,5 +13,7 @@ export interface User {
     updatedAt: Date,
     verificationCode: string,
     verificationCodeExpiry: Date,
+    resetCode: string,
+    resetCodeExpiry: Date
     emailVerified: Boolean
 }

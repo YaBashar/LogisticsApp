@@ -9,4 +9,5 @@ authRouter.post('/login', loginLimiter, AuthController.login);
 authRouter.post('/refresh', refreshLimiter, AuthController.refresh);
 authRouter.post('/verify-email', verifyEmailLimiter, AuthController.userVerifyEmail)
 authRouter.post('/resend-verification', resendVerifLimiter, AuthController.resendVerifyEmail);
+authRouter.post('/request-reset-password', AuthController.requestPasswordReset);
 authRouter.get('/user-details', verifyJWT, AuthController.userInfo);

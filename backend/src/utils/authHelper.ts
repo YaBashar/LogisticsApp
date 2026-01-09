@@ -95,8 +95,8 @@ export async function hashPassword(password: string): Promise<string> {
   return hash;
 }
 
-export function generateVerificationCode() {
-  const verificationCode = crypto.randomInt(100000, 1000000).toString();
+export function generateCode() {
+  const code = crypto.randomInt(100000, 1000000).toString();
   const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
-  return { verificationCode, expiry };
+  return { code, expiry };
 }

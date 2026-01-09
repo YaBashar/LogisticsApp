@@ -30,3 +30,18 @@ export const verifyEmailTemplate = (normalisedEmail: string, verificationCode: s
 
  return { subject, text, from, html, to };
 }
+
+
+export const resetPasswordTemplate = (normalisedEmail: string, resetCode: string) => {
+  const subject = 'Verify Email';
+  const text = `Please verify your email`;
+  const from = "onboarding@resend.dev"
+  const html = `
+  <div style="font-family: Arial, sans-serif;">
+    <p>Please reset your password using the following code ${resetCode}</p>
+    <p>Please note that this code will expire in 15 minutes</p>
+  </div>`
+  const to = normalisedEmail;
+
+ return { subject, text, from, html, to };
+}
