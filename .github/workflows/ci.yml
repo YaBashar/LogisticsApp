@@ -9,12 +9,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # Define a service container for MongoDB
     services:
       mongodb:
         image: mongo:latest
         ports:
           - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     container:
       image: node:20
@@ -31,13 +35,13 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./backend
-        run: npm install
+        run: npm ci
 
-      - name: Run tests
+      - name: Run tests with server
         working-directory: ./backend
         env: 
+          NODE_ENV: test
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
-          MONGODB_URI: mongodb://localhost:27017/logistics
-
+          MONGODB_URI: mongodb://mongodb:27017/logistics_test
         run: npm run test:ci

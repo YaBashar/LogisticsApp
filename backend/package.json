@@ -6,7 +6,7 @@
 
     "test": "NODE_ENV=test jest --detectOpenHandles",
 
-    "test:ci": "node src/server.js & sleep 5 && npm test; kill $!",
+    "test:ci": "NODE_ENV=test ts-node src/server.ts & sleep 10 && npm test -- --forceExit; kill $(jobs -p)",
 
     "lint": "eslint 'src/**/*.{ts,js}'",
 
@@ -36,8 +36,6 @@
 
     "nodemailer": "^7.0.12",
 
-    "ts-node": "^10.9.2",
-
     "validator": "^13.15.26"
 
   },
@@ -58,6 +56,8 @@
 
     "@types/morgan": "^1.9.10",
 
+    "@types/node": "^25.0.5",
+
     "@types/nodemailer": "^7.0.4",
 
     "@types/supertest": "^6.0.3",
@@ -77,6 +77,8 @@
     "supertest": "^7.1.4",
 
     "ts-jest": "^29.4.6",
+
+    "ts-node": "^10.9.2",
 
     "types": "^0.1.1",
 
