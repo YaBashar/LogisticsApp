@@ -43,6 +43,6 @@ jobs:
           NODE_ENV: test
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
-          RESENT_SECRET: ${{secrets.RESEND_SECRET}}
+          RESEND_SECRET: ${{secrets.RESEND_SECRET}}
           MONGODB_URI: mongodb://mongodb:27017/logistics_test
         run: npm run test:ci

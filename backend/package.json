@@ -6,7 +6,7 @@
 
     "test": "NODE_ENV=test jest --detectOpenHandles",
 
-    "test:ci": "NODE_ENV=test ts-node src/server.ts & sleep 10 && npm test -- --forceExit; kill $(jobs -p)",
+    "test:ci": "NODE_ENV=test ts-node src/server.ts & sleep 10 && npm test -- --forceExit",
 
     "lint": "eslint 'src/**/*.{ts,js}'",
 
