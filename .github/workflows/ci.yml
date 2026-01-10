@@ -35,7 +35,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./backend
-        run: npm ci
+        run: npm install
 
       - name: Run tests with server
         working-directory: ./backend
