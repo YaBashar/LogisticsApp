@@ -310,6 +310,43 @@ async function userDetails(userId: string) {
   };
 }
 
+async function userChangePassword(userId: string, currentPassword: string, newPassword: string) {
+  if (newPassword.length < 12) {
+    throw new Error('Password must be at least 8 characters');
+  }
+
+  const user = await UserModel.findById(userId);
+  
+  if (!user) {
+    throw new Error('Invalid or expired reset code');
+  }
+
+  // Verify current password is valid
+  const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+  if (!isCurrentPasswordValid) {
+    throw new Error('Current password is incorrect');
+  }
+
+  // Check if new password is same as current
+  if (await bcrypt.compare(newPassword, user.password)) {
+    throw new Error('New password must be different from your current password');
+  }
+
+  try {
+    checkPassword(newPassword)
+  } catch (error) {
+    throw new Error('Invalid password, please follow password rules')
+  }
+
+  const hashedPassword = await hashPassword(newPassword);
+  user.password = hashedPassword;
+  user.updatedAt = new Date();
+
+  await user.save()
+
+  return { success: true }
+}
+ 
 export { 
   registerUser, 
   userLogin, 
@@ -319,5 +356,6 @@ export {
   resendVerificationCode, 
   requestResetPassword, 
   userResetPassword,
-  userVerifyResetCode
+  userVerifyResetCode,
+  userChangePassword
 };

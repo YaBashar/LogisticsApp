@@ -12,4 +12,5 @@ authRouter.post('/resend-verification', resendVerifLimiter, AuthController.resen
 authRouter.post('/request-reset-password', AuthController.requestPasswordReset);
 authRouter.post('/verify-reset-code', AuthController.verifyResetCode);
 authRouter.post('/reset-password', AuthController.resetPassword);
+authRouter.post('/change-password', verifyJWT, AuthController.changePassword);
 authRouter.get('/user-details', verifyJWT, AuthController.userInfo);

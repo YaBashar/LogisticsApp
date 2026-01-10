@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { registerUser, userLogin, authRefresh, userDetails, verifyEmail, resendVerificationCode, requestResetPassword, userResetPassword, userVerifyResetCode } from '../service/auth';
+import { registerUser, userLogin, authRefresh, userDetails, verifyEmail, resendVerificationCode, requestResetPassword, userResetPassword, userVerifyResetCode, userChangePassword } from '../service/auth';
 
 export const register = async (req: Request, res:Response) => {
   try {
@@ -111,6 +111,22 @@ export const verifyResetCode = async (req: Request, res: Response ) => {
 
   try {
     const result = await userVerifyResetCode(resetCode);
+    res.status(200).json({result});
+  } catch (error) {
+    res.status(400).json({error: error.message});
+  }
+}
+
+export const changePassword = async (req: Request, res: Response ) => {
+  const userId = (req as any).userId;
+  const { currentPassword, newPassword } = req.body;
+
+  if (!newPassword || !currentPassword) {
+    return res.status(400).json({ error: 'Reset code and password are required' });
+  }
+
+  try {
+    const result = await userChangePassword(userId, currentPassword, newPassword);
     res.status(200).json({result});
   } catch (error) {
     res.status(400).json({error: error.message});
