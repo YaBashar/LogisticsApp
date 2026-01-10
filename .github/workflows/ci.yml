@@ -1,0 +1,48 @@
+name: CI Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    container:
+      image: node:20
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Write config.json from secret
+        working-directory: ./backend/src
+        run: |
+          echo "$CONFIG_JSON" > config.json
+        env:
+          CONFIG_JSON: ${{ secrets.CONFIG_JSON }}
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run tests with server
+        working-directory: ./backend
+        env: 
+          NODE_ENV: test
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          RESEND_SECRET: ${{secrets.RESEND_SECRET}}
+          MONGODB_URI: mongodb://mongodb:27017/logistics_test
+        run: npm run test:ci
