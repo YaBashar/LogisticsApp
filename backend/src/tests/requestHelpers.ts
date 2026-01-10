@@ -25,6 +25,13 @@ export const requestAuthUserDetails = async (token: string) => {
     .set('Authorization', `Bearer ${token}`);
 };
 
+export const requestChangePassword = async (token: string, currentPassword: string, newPassword: string) => {
+  return await request(app)
+    .post('/auth/change-password')
+    .send({currentPassword, newPassword})
+    .set('Authorization', `Bearer ${token}`);
+};
+
 export const requestVerifyEmail = async (verificationCode: string) => {
   return await request(app).post('/auth/verify-email').send({verificationCode});
 }
