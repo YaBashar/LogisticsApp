@@ -39,6 +39,14 @@ export const requestRefreshToken = async (cookie: string) => {
     .set('Cookie', cookie);
 };
 
+export const resetPassword = async (resetCode: string, newPassword: string) => {
+  return await request(app).post('/auth/reset-password').send({resetCode, newPassword});
+}
+
+export const requestVerifyResetCode = async(resetCode: string) => {
+  return await request(app).post('/auth/verify-reset-code').send({resetCode})
+}
+
 export const requestResetPassword = async (email: string) => {
   return await request(app).post('/auth/request-reset-password').send({email})
 }
