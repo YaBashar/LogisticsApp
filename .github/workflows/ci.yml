@@ -1,0 +1,48 @@
+name: CI Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # Define a service container for MongoDB
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './backend/package-lock.json'
+
+      - name: Write config.json from secret
+        working-directory: ./backend/src
+        run: |
+          echo "$CONFIG_JSON" > config.json
+        env:
+          CONFIG_JSON: ${{ secrets.CONFIG_JSON }}
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run tests
+        working-directory: ./backend
+        env: 
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          MONGODB_URI: mongodb://localhost:27017/logistics
+
+        run: npm run test:ci

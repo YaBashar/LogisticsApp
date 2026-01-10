@@ -6,6 +6,8 @@
 
     "test": "NODE_ENV=test jest --detectOpenHandles",
 
+    "test:ci": "start-server-and-test start http://localhost:3299 test",
+
     "lint": "eslint 'src/**/*.{ts,js}'",
 
     "lint-fix": "eslint --fix 'src/**/*.{ts,js}'"
