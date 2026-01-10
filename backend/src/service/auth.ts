@@ -216,12 +216,37 @@ async function resendVerificationCode(email: string) {
     }
   }
   
-  await user.save()
+  return { success: true }
+}
+
+async function userResendResetCode(email: string) {
+  const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
+  if (!user) {
+    throw new Error('Email not found');
+  }
+
+  const { code, expiry } = generateCode();
+
+  await UserModel.findOneAndUpdate(
+    { _id: user._id },
+    { $set: { resetCode: code, resetCodeExpiry: expiry }}
+  )
+
+  const resetCodeEmail = resetPasswordTemplate(email, code);
+
+  if (process.env.NODE_ENV !== 'test') {
+    try {
+      await transporter.sendMail(resetCodeEmail);
+    } catch (error) {
+      console.error("Email error" + error);
+    }
+  }
+  
   return { success: true }
 }
 
 async function requestResetPassword(email: string) {
-  const user = await UserModel.findOne({email: email});
+  const user = await UserModel.findOne({email: email.toLowerCase().trim()});
   if (!user) {
     throw new Error('Email not found');
   }
@@ -357,5 +382,6 @@ export {
   requestResetPassword, 
   userResetPassword,
   userVerifyResetCode,
-  userChangePassword
+  userChangePassword,
+  userResendResetCode
 };

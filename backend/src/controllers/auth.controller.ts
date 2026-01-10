@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { registerUser, userLogin, authRefresh, userDetails, verifyEmail, resendVerificationCode, requestResetPassword, userResetPassword, userVerifyResetCode, userChangePassword } from '../service/auth';
+import { registerUser, userLogin, authRefresh, userDetails, verifyEmail, resendVerificationCode, requestResetPassword, userResetPassword, userVerifyResetCode, userChangePassword, userResendResetCode } from '../service/auth';
 
 export const register = async (req: Request, res:Response) => {
   try {
@@ -10,6 +10,7 @@ export const register = async (req: Request, res:Response) => {
     const result = await registerUser(firstName, lastName, password, email);
     return res.status(201).json({ userId: result });
   } catch (error) {
+    console.log(error.message);
     return res.status(400).json({ error: error.message });
   }
 }
@@ -74,6 +75,17 @@ export const resendVerifyEmail = async (req: Request, res: Response) => {
 
   try {
     const result = await resendVerificationCode(email);
+    res.status(200).json(result)
+  } catch (error) {
+    res.status(400).json({error : error.message})
+  }
+}
+
+export const resendResetCode = async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  try {
+    const result = await userResendResetCode(email);
     res.status(200).json(result)
   } catch (error) {
     res.status(400).json({error : error.message})
