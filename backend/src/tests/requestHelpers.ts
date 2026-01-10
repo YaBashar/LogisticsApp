@@ -40,6 +40,10 @@ export const requestResendVerification = async (email: string) => {
   return await request(app).post('/auth/resend-verification').send({email})
 }
 
+export const requestResendResetCode = async (email: string) => {
+  return await request(app).post('/auth/resent-reset-code').send({email});
+}
+
 export const requestRefreshToken = async (cookie: string) => {
   return await request(app)
     .post('/auth/refresh')
