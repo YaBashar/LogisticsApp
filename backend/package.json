@@ -10,7 +10,9 @@
 
     "lint": "eslint 'src/**/*.{ts,js}'",
 
-    "lint-fix": "eslint --fix 'src/**/*.{ts,js}'"
+    "lint-fix": "eslint --fix 'src/**/*.{ts,js}'",
+
+    "create-admin": "ts-node src/createAdmin.ts"
 
   },
 
