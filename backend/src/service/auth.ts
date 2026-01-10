@@ -245,6 +245,56 @@ async function requestResetPassword(email: string) {
   return { success: true }
 }
 
+async function userVerifyResetCode(resetCode: string) {
+  const user = await UserModel.findOne({ 
+    resetCode,
+    resetCodeExpiry: { $gt: new Date() } // Check expiry in one query
+  });
+  
+  if (!user) {
+    throw new Error('Invalid or expired reset code');
+  }
+
+  return { success: true }
+}
+
+async function userResetPassword(resetCode: string, newPassword: string) {
+  
+  if (newPassword.length < 12) {
+    throw new Error('Password must be at least 8 characters');
+  }
+
+  const user = await UserModel.findOne({ 
+    resetCode,
+    resetCodeExpiry: { $gt: new Date() }
+  });
+  
+  if (!user) {
+    throw new Error('Invalid or expired reset code');
+  }
+
+  // Check if new password is same as current
+  if (await bcrypt.compare(newPassword, user.password)) {
+    throw new Error('New password must be different from your current password');
+  }
+
+  try {
+    checkPassword(newPassword)
+  } catch (error) {
+    throw new Error('Invalid password, please follow password rules')
+  }
+
+  const hashedPassword = await hashPassword(newPassword);
+  user.password = hashedPassword;
+  user.resetCode = undefined;
+  user.resetCodeExpiry = undefined;
+  user.updatedAt = new Date();
+
+  await user.save()
+
+  return { success: true }
+}
+
 async function userDetails(userId: string) {
   const currUser = await UserModel.findById(userId);
 
@@ -260,4 +310,14 @@ async function userDetails(userId: string) {
   };
 }
 
-export { registerUser, userLogin, authRefresh, userDetails, verifyEmail, resendVerificationCode, requestResetPassword };
+export { 
+  registerUser, 
+  userLogin, 
+  authRefresh, 
+  userDetails, 
+  verifyEmail, 
+  resendVerificationCode, 
+  requestResetPassword, 
+  userResetPassword,
+  userVerifyResetCode
+};

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { registerUser, userLogin, authRefresh, userDetails, verifyEmail, resendVerificationCode, requestResetPassword } from '../service/auth';
+import { registerUser, userLogin, authRefresh, userDetails, verifyEmail, resendVerificationCode, requestResetPassword, userResetPassword, userVerifyResetCode } from '../service/auth';
 
 export const register = async (req: Request, res:Response) => {
   try {
@@ -88,6 +88,32 @@ export const requestPasswordReset = async (req: Request, res: Response ) => {
     res.status(200).json({result})
   } catch (error) {
     res.status(400).json({ error: error.message })
+  }
+}
+
+export const resetPassword = async (req: Request, res: Response ) => {
+  const { resetCode, newPassword } = req.body;
+
+  if (!resetCode || !newPassword) {
+    return res.status(400).json({ error: 'Reset code and password are required' });
+  }
+
+  try {
+    const result = await userResetPassword(resetCode, newPassword);
+    res.status(200).json({result});
+  } catch (error) {
+    res.status(400).json({error: error.message});
+  }
+}
+
+export const verifyResetCode = async (req: Request, res: Response ) => {
+  const { resetCode } = req.body;
+
+  try {
+    const result = await userVerifyResetCode(resetCode);
+    res.status(200).json({result});
+  } catch (error) {
+    res.status(400).json({error: error.message});
   }
 }
 
