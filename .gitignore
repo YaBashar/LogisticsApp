@@ -1,5 +1,7 @@
 *.json
 !package.json
+!tsconfig.json
+!config.json
 node_modules
 build
 .DS_store
