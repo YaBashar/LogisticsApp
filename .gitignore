@@ -3,6 +3,7 @@
 !tsconfig.json
 !config.json
 !eas.json
+!app.json
 node_modules
 build
 .DS_store
