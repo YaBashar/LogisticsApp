@@ -5,12 +5,15 @@ function AuthProvider({children}) {
 
     const [userId, setUserId] = useState("")
     const [accessToken, setAccessToken] = useState("")
+    const [role, setRole] = useState("")
 
     const contextValue = {
         userId, 
         setUserId,
         accessToken,
-        setAccessToken
+        setAccessToken,
+        role,
+        setRole
     }
 
     return (
