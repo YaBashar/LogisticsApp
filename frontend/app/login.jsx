@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable } from 'react-native'
 import useAuth from '@/hooks/useAuth';
 import { router } from 'expo-router';
+import { font } from '../styles/font';
 
 export default function Login() {
 
@@ -15,6 +16,8 @@ export default function Login() {
         try {
             const response = await axios.post('/auth/login', {email, password});
             setAccessToken(response.data.token);
+            const decoded = jwtDecode(response.data.token);
+            setRole(decoded.role);
             router.push('/profile')
         } catch (error) {
             console.log(error);
@@ -22,32 +25,31 @@ export default function Login() {
     }
 
     return(
-            <View style={{ flex: 1, flexDirection: "column", justifyContent: "flex-start", alignItems: "center", backgroundColor: "white" }}>
-                <Text style={{ fontSize: 30, color: "black", marginTop: 50, marginHorizontal: 10, fontFamily: "System" }}>Welcome Back</Text>
-    
-                <View style={{ flexDirection:"column", gap: 20, marginTop: 10}}>
-                    <TextInput value={email} onChangeText={setEmail} style={styles.input} placeholder="Enter your Email"></TextInput>
-                    <TextInput value={password} onChangeText={setPassword} style={styles.input} secureTextEntry={true} placeholder="Enter your Password"></TextInput>
-                </View>
-               
-                <Text style={{ fontSize: 12, color: "black", marginTop: 15, marginHorizontal: 10, fontFamily: "System", textAlign: "center" }}>By Continuing You agree to Terms and Policy</Text>
-                
-                <Pressable 
-                    onPress={handleSubmit}
-                    style={({ pressed }) => ({
-                    paddingHorizontal: 10, 
-                    paddingVertical: 12, 
-                    backgroundColor: pressed ? "#87CEEB" : "lightblue",  
-                    borderRadius: 10,
-                    opacity: pressed ? 0.7 : 1  
-                })}>
-                    <Text>Login</Text>
-                </Pressable>
-                
+        <View style={{ flex: 1, flexDirection: "column", justifyContent: "flex-start", alignItems: "center", backgroundColor: "white" }}>
+            <Text style={[font, { fontSize: 24, color: "#004F3B", marginTop: 70, marginHorizontal: 10 }]}>Welcome Back</Text>
+
+            <View style={{ flexDirection:"column", gap: 20, marginTop: 10}}>
+                <TextInput value={email} onChangeText={setEmail} style={styles.input} placeholder="Enter your Email" placeholderTextColor="#A6A09B"></TextInput>
+                <TextInput value={password} onChangeText={setPassword} style={styles.input} secureTextEntry={true} placeholder="Enter your Password" placeholderTextColor="#A6A09B"></TextInput>
             </View>
-        )
+            
+            <Pressable>
+                <Text onPress={() => router.push('/requestResetPassword')} style={[font, {marginTop: 10, color: '004F3B', textAlign: 'left', width: 300, fontSize: 16}]}>Forgot your password?</Text>
+            </Pressable>
+            
+            <Pressable onPress={handleSubmit} style={{marginTop: 25, marginBottom:50, backgroundColor: '#A4F4CF',  paddingVertical: 10, paddingHorizontal: 10, borderRadius: 15, width: 250}}>
+                <Text style={[font, {color: '004F3B', textAlign: 'center', fontSize: 20}]}>Login</Text>
+            </Pressable>
+
+            <Pressable onPress={() => router.push('/register')}>
+                <Text style={[font, {textAlign: 'center', fontSize: 20}]}>Don't Have an account?</Text>
+                <Text style={[font, {color: '#004F3B', textAlign: 'center', fontSize: 20, textDecorationLine: 'underline'}]}>Sign Up</Text>
+            </Pressable>
+            
+        </View>
+    )
 }
 
 const styles = StyleSheet.create({
-    input: { width: 300, height: 60, borderWidth: 1, borderColor: "gray", borderRadius: 10 }
+    input: { width: 300, height: 60, borderColor:'#004F3B', borderWidth: 2, borderRadius: 10, paddingHorizontal: 10 }
 })

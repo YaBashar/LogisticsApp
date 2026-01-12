@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now },
     verificationCode: { type: String, unique: true },
     verificationCodeExpiry: { type: Date }, 
-    resetCode: { type: String, unique: true },
+    resetCode: { type: String },
     resetCodeExpiry: { type: Date },
     emailVerified: { type: Boolean, default: false }
 })
