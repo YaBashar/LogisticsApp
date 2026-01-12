@@ -1,8 +1,7 @@
 import { app } from './app'
-import config from '../config.json';
 import mongoose from 'mongoose';
 
-const PORT: number = parseInt(process.env.port || config.port);
+const PORT: number = parseInt(process.env.PORT || '3229');
 const HOST: string = process.env.host || '0.0.0.0';
 
 export const server = app.listen(PORT, HOST, () => {
