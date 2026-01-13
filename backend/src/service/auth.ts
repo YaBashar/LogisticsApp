@@ -5,20 +5,10 @@ import logger from '../utils/logger';
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
-import mongoose from 'mongoose';
+import { sendEmail } from './email';
 const SECRET = process.env.JWT_SECRET;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
-const transporter = nodemailer.createTransport({
-    host: "smtp.resend.com",
-    port:  465,
-    secure: true,
-    auth: {
-      user:'resend',
-      pass: process.env.RESEND_SECRET
-    }
-  })
 
 /** [1] AuthRegister
   * Registers a user with an email, password, and name
@@ -67,12 +57,13 @@ async function registerUser(firstName: string, lastName: string, password: strin
     const welcomeEmail = newSignUpTemplate(sanitizedFirstName, normalisedEmail);
     const verificationEmail = verifyEmailTemplate(normalisedEmail, code);
     
-    try {
-      await transporter.sendMail(welcomeEmail);
-      await transporter.sendMail(verificationEmail);
-    } catch (emailError) {
-      console.error('Error sending email:', emailError);
-    }
+    Promise.all([
+      sendEmail(welcomeEmail.to, welcomeEmail.subject, welcomeEmail.html),
+      sendEmail(verificationEmail.to, verificationEmail.subject, verificationEmail.html)
+    ]).catch(emailError => {
+      console.error('Error sending emails:', emailError);
+      // Don't fail registration if emails fail
+    });
   }
 
   return newUser._id.toString();
@@ -209,11 +200,8 @@ async function resendVerificationCode(email: string) {
   const verifyEmail = verifyEmailTemplate(email, code);
 
   if (process.env.NODE_ENV !== 'test') {
-    try {
-      await transporter.sendMail(verifyEmail);
-    } catch (error) {
-      console.error("Email error" + error);
-    }
+    sendEmail(verifyEmail.to, verifyEmail.subject, verifyEmail.html)
+    .catch(error => console.error("Email error:", error));
   }
   
   return { success: true }
@@ -235,11 +223,8 @@ async function userResendResetCode(email: string) {
   const resetCodeEmail = resetPasswordTemplate(email, code);
 
   if (process.env.NODE_ENV !== 'test') {
-    try {
-      await transporter.sendMail(resetCodeEmail);
-    } catch (error) {
-      console.error("Email error" + error);
-    }
+    sendEmail(resetCodeEmail.to, resetCodeEmail.subject, resetCodeEmail.html)
+    .catch(error => console.error("Email error:", error));
   }
   
   return { success: true }
@@ -259,12 +244,9 @@ async function requestResetPassword(email: string) {
   await user.save()
 
   if (process.env.NODE_ENV !== 'test') {
-    try {
-      const resetPasswordEmail = resetPasswordTemplate(email, code);
-      await transporter.sendMail(resetPasswordEmail);
-    } catch (error) {
-      console.error(error)
-    }
+    const resetPasswordEmail = resetPasswordTemplate(email, code);
+    sendEmail(resetPasswordEmail.to, resetPasswordEmail.subject, resetPasswordEmail.html)
+    .catch(error => console.error("Email error:", error));
   }
   
   return { success: true }
