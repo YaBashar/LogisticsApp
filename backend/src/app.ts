@@ -6,6 +6,10 @@ import cookieParser from 'cookie-parser';
 import { clear } from './clear';
 import { authRouter } from './routes/auth';
 
+// Load dotenv FIRST, but only if vars aren't already set (e.g., in CI)
+if (!process.env.MONGODB_URI) {
+  dotenv.config();
+}
 
 export const app = express();
 
@@ -19,7 +23,7 @@ app.use(cors({
 }));
 
 app.use(cookieParser())
-dotenv.config();
+
 
 // Utility endpoint for testing
 app.delete('/clear', async(req: Request, res: Response) => {
