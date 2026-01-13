@@ -8,7 +8,7 @@ export const server = app.listen(PORT, HOST, () => {
   console.log(`Server listening on port ${PORT} at host ${HOST}`);
 });
 
-mongoose.connect(process.env.MONGODB_URI_DEV, {
+mongoose.connect(process.env.MONGODB_URI_PROD, {
 })
   .then(() => console.log('DB Connection Successful'));
 

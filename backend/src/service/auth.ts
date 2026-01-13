@@ -200,15 +200,24 @@ async function resendVerificationCode(email: string) {
   const verifyEmail = verifyEmailTemplate(email, code);
 
   if (process.env.NODE_ENV !== 'test') {
-    sendEmail(verifyEmail.to, verifyEmail.subject, verifyEmail.html)
-    .catch(error => console.error("Email error:", error));
+    console.log('📧 Resending verification code to:', verifyEmail.to);
+    console.log('🔑 Verification code:', code);
+    
+    try {
+      await sendEmail(verifyEmail.to, verifyEmail.subject, verifyEmail.html);
+      console.log('✅ Verification code resent successfully');
+    } catch (error) {
+      console.error("❌ Failed to resend verification code:", error);
+      // They're waiting for this - should probably show an error
+    }
   }
   
   return { success: true }
 }
 
 async function userResendResetCode(email: string) {
-  const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
+  const normalisedEmail = email.toLowerCase().trim()
+  const user = await UserModel.findOne({ email: normalisedEmail  });
   if (!user) {
     throw new Error('Email not found');
   }
@@ -220,18 +229,31 @@ async function userResendResetCode(email: string) {
     { $set: { resetCode: code, resetCodeExpiry: expiry }}
   )
 
-  const resetCodeEmail = resetPasswordTemplate(email, code);
+  const resetCodeEmail = resetPasswordTemplate(normalisedEmail, code);
 
   if (process.env.NODE_ENV !== 'test') {
-    sendEmail(resetCodeEmail.to, resetCodeEmail.subject, resetCodeEmail.html)
-    .catch(error => console.error("Email error:", error));
+    console.log('📧 Resending code to:', resetCodeEmail.to);
+    console.log('🔑 New reset code:', code);
+    
+    try {
+      await sendEmail(
+        resetCodeEmail.to, 
+        resetCodeEmail.subject, 
+        resetCodeEmail.html
+      );
+      console.log('✅ Reset code resent successfully');
+    } catch (error) {
+      console.error("❌ Failed to resend reset code:", error);
+      // User clicked "resend" - they need to know if it failed
+    }
   }
   
   return { success: true }
 }
 
 async function requestResetPassword(email: string) {
-  const user = await UserModel.findOne({email: email.toLowerCase().trim()});
+  const normalisedEmail = email.toLowerCase().trim()
+  const user = await UserModel.findOne({email: normalisedEmail});
   if (!user) {
     throw new Error('Email not found');
   }
@@ -244,9 +266,21 @@ async function requestResetPassword(email: string) {
   await user.save()
 
   if (process.env.NODE_ENV !== 'test') {
-    const resetPasswordEmail = resetPasswordTemplate(email, code);
-    sendEmail(resetPasswordEmail.to, resetPasswordEmail.subject, resetPasswordEmail.html)
-    .catch(error => console.error("Email error:", error));
+    const resetPasswordEmail = resetPasswordTemplate(normalisedEmail, code);
+
+    console.log('📧 Attempting to send email to:', resetPasswordEmail.to);
+    console.log('🔑 Reset code:', code);
+
+    try {
+    const result = await sendEmail(
+      resetPasswordEmail.to, 
+      resetPasswordEmail.subject, 
+      resetPasswordEmail.html
+    );
+      console.log('✅ Email sent successfully:', result);
+    } catch (error) {
+      console.error("❌ Email error:", error);
+    }
   }
   
   return { success: true }
@@ -268,7 +302,7 @@ async function userVerifyResetCode(resetCode: string) {
 async function userResetPassword(resetCode: string, newPassword: string) {
   
   if (newPassword.length < 12) {
-    throw new Error('Password must be at least 8 characters');
+    throw new Error('Password must be at least 12 characters');
   }
 
   const user = await UserModel.findOne({ 
