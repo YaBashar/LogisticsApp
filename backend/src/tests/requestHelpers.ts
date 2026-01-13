@@ -41,7 +41,7 @@ export const requestResendVerification = async (email: string) => {
 }
 
 export const requestResendResetCode = async (email: string) => {
-  return await request(app).post('/auth/resent-reset-code').send({email});
+  return await request(app).post('/auth/resend-reset-code').send({email});
 }
 
 export const requestRefreshToken = async (cookie: string) => {
