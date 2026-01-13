@@ -8,6 +8,9 @@ import { authRouter } from './routes/auth';
 
 
 export const app = express();
+
+app.set('trust proxy', 1); // Trust first proxy (Render's proxy)
+
 app.use(json());
 app.use(morgan('dev'));
 app.use(cors({
