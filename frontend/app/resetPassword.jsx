@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { View, Text, TextInput, Image, Pressable, StyleSheet } from 'react-native'
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { font } from '../styles/font';
 
@@ -18,7 +18,7 @@ export default function ResetPassword() {
     const handleSubmit = async () => {
         console.log('Reset Code:', resetCode);
         try {
-            await axios.post('/auth/reset-password', { resetCode, password });
+            await axios.post('/auth/reset-password', { resetCode, newPassword: password });
             alert('Password Reset Successfully! You can now log in.');
             router.push('/login');
         } catch (error) {
@@ -43,3 +43,7 @@ export default function ResetPassword() {
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    input: { width: 300, height: 60, borderColor:'#004F3B', borderWidth: 2, borderRadius: 10, paddingHorizontal: 10 }
+})

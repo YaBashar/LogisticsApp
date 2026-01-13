@@ -14,7 +14,7 @@ export default function RequestResetPassword() {
         try {
             await axios.post('/auth/request-reset-password', { email });
             console.log('Email Sent')
-            router.push('/verifyResetCode')
+            router.push('/verifyResetCode', { email: email });
         } catch (error) {
             console.log(error);
         }

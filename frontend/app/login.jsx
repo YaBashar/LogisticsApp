@@ -5,12 +5,13 @@ import { View, Text, TextInput, StyleSheet, Pressable } from 'react-native'
 import useAuth from '@/hooks/useAuth';
 import { router } from 'expo-router';
 import { font } from '../styles/font';
+import { jwtDecode } from 'jwt-decode';
 
 export default function Login() {
 
     const[email, setEmail] = useState("");
     const[password, setPassword] = useState("");
-    const {setAccessToken} = useAuth()
+    const {setAccessToken, setRole} = useAuth()
 
     const handleSubmit = async () => {
         try {
