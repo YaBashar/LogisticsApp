@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import { router } from 'expo-router';
 import { font } from '../styles/font';
 import NumericalCodeEntry from '../components/NumericalCodeEntry';
+import { useLocalSearchParams } from 'expo-router';
 
 import axios from '../services/axios'
 
@@ -12,6 +13,7 @@ export default function VerifyResetCode() {
     // If successful go to login page.
     
     const [code, setCode] = useState(['', '', '', '', '', '']);
+    const { email } = useLocalSearchParams();
 
     const handleVerify = async () => {
         const resetCode = code.join('');
@@ -28,7 +30,7 @@ export default function VerifyResetCode() {
 
     const handleResend = async () => {
         try {
-            await axios.post('/auth/resend-reset-code');
+            await axios.post('/auth/resend-reset-code', { email });
             alert('Reset code resent to your email.');
         } catch (error) {
             console.log('Resend Error:', error);
