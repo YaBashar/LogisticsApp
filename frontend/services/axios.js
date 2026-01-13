@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Constants from 'expo-constants';
 
 const LOCAL_URL = "http://192.168.0.49:3229";
 const PROD_URL = Constants.expoConfig?.extra?.apiUrl || "https://logisticsapp-uldj.onrender.com";
