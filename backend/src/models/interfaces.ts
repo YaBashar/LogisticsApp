@@ -17,3 +17,14 @@ export interface User {
     resetCodeExpiry: Date
     emailVerified: Boolean
 }
+
+export interface Shipments {
+    name: string,
+    itemDescription: string,
+    quantity: number,
+    country: string,
+    trackingNumber: string,
+    arriveBy: Date,
+    destination: string,
+    origin: string
+}

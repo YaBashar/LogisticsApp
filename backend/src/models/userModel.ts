@@ -20,7 +20,12 @@ const userSchema = new mongoose.Schema({
     verificationCodeExpiry: { type: Date }, 
     resetCode: { type: String },
     resetCodeExpiry: { type: Date },
-    emailVerified: { type: Boolean, default: false }
+    emailVerified: { type: Boolean, default: false },
+
+    shipments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Shipments'
+    }]
 })
 
 export const UserModel = mongoose.model<User>('User', userSchema);

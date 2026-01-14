@@ -48,7 +48,8 @@ async function registerUser(firstName: string, lastName: string, password: strin
     accountLocked: false,
     verificationCode: code, // change to hash for prod
     verificationCodeExpiry: expiry,
-    emailVerified: false
+    emailVerified: false,
+    shipments: []
   });
 
   await newUser.save();

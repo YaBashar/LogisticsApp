@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import { clear } from './clear';
 import { authRouter } from './routes/auth';
+import { shipmentsCustomerRouter } from './routes/shipmentsCustomer';
 
 // Load dotenv FIRST, but only if vars aren't already set (e.g., in CI)
 if (!process.env.MONGODB_URI) {
@@ -37,6 +38,7 @@ app.delete('/clear', async(req: Request, res: Response) => {
 
 // Core app features
 app.use('/auth', authRouter)
+app.use('/shipments-customer', shipmentsCustomerRouter)
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('ERROR CAUGHT:', err);

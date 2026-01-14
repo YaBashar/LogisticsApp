@@ -62,3 +62,5 @@ export const requestResetPassword = async (email: string) => {
   return await request(app).post('/auth/request-reset-password').send({email})
 }
 
+
+// ShipmentCustomers
