@@ -19,6 +19,7 @@ export interface User {
 }
 
 export interface Shipments {
+    userId: string,
     name: string,
     itemDescription: string,
     quantity: number,
