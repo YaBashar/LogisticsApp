@@ -1,7 +1,7 @@
 
 
-// Validation functions
-function validateName(sanitisedName: string) {
+// Validation export functions
+export function validateName(sanitisedName: string) {
 
     if (typeof sanitisedName !== 'string') {
         throw new Error('Invalid format');
@@ -18,7 +18,7 @@ function validateName(sanitisedName: string) {
     
 }
 
-function validateItemDescription(sanitisedDescription: string) {
+export function validateItemDescription(sanitisedDescription: string) {
 
     if (typeof sanitisedDescription !== 'string') {
         throw new Error('Invalid format');
@@ -34,7 +34,7 @@ function validateItemDescription(sanitisedDescription: string) {
     
 }
 
-function validateQuantity(quantity: number) {
+export function validateQuantity(quantity: number) {
 
     if (typeof quantity !== 'number') {
         throw new Error('Invalid format');
@@ -54,7 +54,7 @@ function validateQuantity(quantity: number) {
     
 }
 
-function validateArriveBy(arriveBy: Date) {
+export function validateArriveBy(arriveBy: Date) {
 
     if (!(arriveBy instanceof Date) || isNaN(arriveBy.getTime())) {
         throw new Error('Invalid arrival date');
@@ -74,7 +74,7 @@ function validateArriveBy(arriveBy: Date) {
 }
 
 
-function validateLocations(origin: string, destination: string): void {
+export function validateLocations(origin: string, destination: string): void {
 
     if (typeof origin !== 'string' || typeof destination !== 'string') {
         throw new Error('Invalid format');
