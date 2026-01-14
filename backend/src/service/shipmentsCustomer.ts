@@ -23,6 +23,7 @@ async function userCreateShipment(userId: string, name: string, itemDescription:
     validateLocations(sanitisedOrigin, sanitisedDestination);
     
     const shipment = new ShipmentModel({
+        userId: user._id,
         name: sanitisedName,
         itemDescription: sanitisedDescription,
         quantity: quantity,
@@ -32,13 +33,42 @@ async function userCreateShipment(userId: string, name: string, itemDescription:
         completed: false
     });
 
-    await shipment.save()
-    return shipment._id.toString()
+    await shipment.save();
+    return shipment._id.toString();
 }
 
 // 2 -> Edit Shipment order (only allow before admin approves) 
 // 3 -> Delete Shipment order (only allow before admin approves)
-// 4 -> View all active orders 
-// 5 -> View all completed orders
 
-export { userCreateShipment }
+
+// 4 -> View all active orders 
+async function userGetActiveOrders(userId: string) {
+    const user = UserModel.findById(userId);
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    const shipments = await ShipmentModel.find({
+        userId: userId,
+        completed: false
+    }).sort({ arriveBy: 1})
+
+    return shipments;
+}
+
+// 5 -> View all completed orders
+async function userGetCompletedOrders(userId: string) {
+    const user = UserModel.findById(userId);
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    const shipments = ShipmentModel.find({
+        userId: userId,
+        completed: true
+    })
+
+    return shipments;
+}
+
+export { userCreateShipment, userGetActiveOrders, userGetCompletedOrders }

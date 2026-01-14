@@ -5,3 +5,5 @@ import * as ShipmentsController from '../controllers/shipmentsCustomer.controlle
 export const shipmentsCustomerRouter = express.Router();
 
 shipmentsCustomerRouter.post('/', verifyJWT, ShipmentsController.createShipment);
+shipmentsCustomerRouter.get('/active', verifyJWT, ShipmentsController.getActiveOrders);
+shipmentsCustomerRouter.get('/completed', verifyJWT, ShipmentsController.getCompletedOrders);

@@ -1,5 +1,5 @@
 import { Response, Request } from "express";
-import { userCreateShipment } from "../service/shipmentsCustomer";
+import { userCreateShipment, userGetActiveOrders, userGetCompletedOrders } from "../service/shipmentsCustomer";
 
 export const createShipment = async (req: Request, res: Response) => {
     const userId = req.userId;
@@ -11,5 +11,27 @@ export const createShipment = async (req: Request, res: Response) => {
         res.status(200).json({result});
     } catch (error) {
         res.status(400).json({error: error.message});
+    }
+}
+
+export const getActiveOrders = async (req: Request, res: Response) => {
+    const userId = req.userId;
+
+    try {
+        const result = await userGetActiveOrders(userId);
+        res.status(200).json({result});
+    } catch (error) {
+        res.status(400).json({error: error.message})
+    }
+}
+
+export const getCompletedOrders = async (req: Request, res: Response) => {
+    const userId = req.userId;
+
+    try {
+        const result = await userGetCompletedOrders(userId);
+        res.status(200).json({result});
+    } catch (error) {
+        res.status(400).json({error: error.message})
     }
 }
