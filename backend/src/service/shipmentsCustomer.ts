@@ -1,5 +1,6 @@
 import { UserModel } from "../models/userModel"
 import { ShipmentModel } from "../models/shipmentsModel"
+import { validateName, validateItemDescription, validateArriveBy, validateLocations, validateQuantity } from "../utils/shipmentsHelper"; 
 
 // Endpoints
 // 1 -> Create new shipment order
