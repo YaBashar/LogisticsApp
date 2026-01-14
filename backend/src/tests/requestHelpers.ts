@@ -69,3 +69,11 @@ export const requestNewShipment = async (token: string, name: string, itemDescri
     .send({name, itemDescription, quantity, arriveBy, origin, destination})
     .set('Authorization', `Bearer ${token}`);
 }
+
+export const requestCompletedShipments = async (token: string) => {
+  return await request(app).get('/shipments-customer/completed').set('Authorization', `Bearer ${token}`);
+}
+
+export const requestActiveShipments = async (token: string) => {
+  return await request(app).get('/shipments-customer/active').set('Authorization', `Bearer ${token}`);
+}
