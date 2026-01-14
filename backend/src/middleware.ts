@@ -13,7 +13,7 @@ const verifyJWT = (req: Request, res: Response, next: NextFunction) => {
 
   try {
     const decoded = jwt.verify(token, SECRET) as JwtPayload;
-    (req as any).userId = decoded.userId;
+    req.userId = decoded.userId;
     next();
   } catch (error) {
     return res.status(401).json({ error: error.message });

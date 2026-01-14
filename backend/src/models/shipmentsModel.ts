@@ -2,15 +2,14 @@ import mongoose from 'mongoose';
 import { Shipments } from './interfaces';
 
 const shipmentSchema = new mongoose.Schema({
-    name: {type: String},
-    itemDescription: {type: String},
-    quantity: {type: Number},
-    country: {type: String},
+    name: {type: String, required: true},
+    itemDescription: {type: String, required: true},
+    quantity: {type: Number, required: true},
+    arriveBy: {type: Date, required: true},
+    destination: {type: String, required: true},
+    origin: {type: String, required: true},
+    completed: {type: Boolean},
     trackingNumber: {type: String},
-    arriveBy: {type: Date},
-    destination: {type: String},
-    origin: {type: String},
-    completed: {type: Boolean}
 })
 
 
