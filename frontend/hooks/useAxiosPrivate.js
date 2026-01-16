@@ -1,23 +1,29 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import useRefreshToken from './useRefreshToken'
 import useAuth from './useAuth'
 import { axiosPrivate } from '../services/axios'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const useAxiosPrivate = () => {
 
     const refresh = useRefreshToken()
-    const { accessToken, setAccessToken } = useAuth()
+    const isIntereceptorSet = useRef(false);
   
     useEffect(() => {
+
+        if (isIntereceptorSet.current) return;
+        isIntereceptorSet.current = true;
+
         const requestInterceptor = axiosPrivate.interceptors.request.use(
-            config => {
+            async config => {
+                const token = await AsyncStorage.getItem('accessToken')
                 if (!config.headers['Authorization']) {
-                    config.headers['Authorization'] = `Bearer ${accessToken}`
+                    config.headers['Authorization'] = `Bearer ${token}`
                 }
                 return config
             },
             (error) => {
-                Promise.reject(error)
+                return Promise.reject(error)
             }
         )
 
@@ -30,8 +36,8 @@ const useAxiosPrivate = () => {
                     prevRequest.sent = true 
                     const newAccessToken = await refresh()
 
-                    setAccessToken(newAccessToken)
-                    prevRequest.headers['Authorization'] = `Bearer ${accessToken}`
+                    await AsyncStorage.setItem('accessToken', newAccessToken);
+                    prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`
                     return axiosPrivate(prevRequest)
                 }
                 return Promise.reject(error);
@@ -41,8 +47,9 @@ const useAxiosPrivate = () => {
         return (() => {
             axiosPrivate.interceptors.response.eject(responseIntercetpor);
             axiosPrivate.interceptors.request.eject(requestInterceptor);
+            isIntereceptorSet.current = false;
         })
-    }, [accessToken, refresh])
+    }, [])
 
     return axiosPrivate;
 }
