@@ -3,17 +3,16 @@ module.exports = {
   testEnvironment: 'node',
   maxWorkers: 1,
 
-  transform: {
-    '^.+\\.(ts|tsx|js)$': 'ts-jest'
-  },
-  moduleFileExtensions: ['ts', 'js', 'json'], 
+  roots: ['<rootDir>/src'],  // Only look in src/
+  testMatch: ['**/__tests__/**/*.ts', '**/*.test.ts'],
 
-  globals: {
-    'ts-jest': {
+  transform: {
+    '^.+\\.ts$': ['ts-jest', {      // ✅ Modern syntax
       tsconfig: {
         resolveJsonModule: true,
         esModuleInterop: true,
       },
-    },
+    }]
   },
+  moduleFileExtensions: ['ts', 'js', 'json'], 
 };

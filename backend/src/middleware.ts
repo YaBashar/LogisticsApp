@@ -13,7 +13,7 @@ const verifyJWT = (req: Request, res: Response, next: NextFunction) => {
 
   try {
     const decoded = jwt.verify(token, SECRET) as JwtPayload;
-    (req as any).userId = decoded.userId;
+    req.userId = decoded.userId;
     next();
   } catch (error) {
     return res.status(401).json({ error: error.message });
@@ -31,7 +31,7 @@ const registrationLimiter = rateLimit({
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: process.env.NODE_ENV === 'test' ? 1000 : 5,
   message: 'Too many login attempts, please try again later',
   standardHeaders: true,
   legacyHeaders: true

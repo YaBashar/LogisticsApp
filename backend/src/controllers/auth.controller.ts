@@ -147,7 +147,7 @@ export const changePassword = async (req: Request, res: Response ) => {
 }
 
 export const userInfo = async (req: Request, res: Response) => {
-  const userId = (req as any).userId;
+  const userId = req.userId;
 
   try {
     const result = await userDetails(userId);

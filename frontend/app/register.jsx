@@ -12,13 +12,13 @@ export default function Register() {
     const[email, setEmail] = useState("");
     const[password, setPassword] = useState("");
 
-    const { setUserId } = useAuth();
+    const { persistSetUserId } = useAuth();
 
     const handleSubmit = async() => {
        
         try {
             const response = await axios.post('/auth/register', { firstName, lastName, password, email})
-            setUserId(response.data.userId);
+            await persistSetUserId(response.data.userId);
             alert(`Signed Up Successfully, Please Verify Email to Continue`)
             router.push('/verifyEmail');
 

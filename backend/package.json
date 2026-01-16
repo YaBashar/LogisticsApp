@@ -2,7 +2,7 @@
 
   "scripts": {
 
-    "start": "ts-node -T src/server.ts",
+    "start": "node dist/server.ts",
 
     "dev": "ts-node -T src/server.ts",
 
@@ -10,7 +10,7 @@
 
     "test": "NODE_ENV=test jest --detectOpenHandles",
 
-    "test:ci": "NODE_ENV=test ts-node src/server.ts & sleep 10 && npm test -- --forceExit",
+    "test:ci": "NODE_ENV=test jest --coverage --detectOpenHandles",
 
     "lint": "eslint 'src/**/*.{ts,js}'",
 
