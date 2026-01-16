@@ -6,7 +6,8 @@ const shipmentSchema = new mongoose.Schema({
     name: {type: String, required: true},
     itemDescription: {type: String, required: true},
     quantity: {type: Number, required: true},
-    arriveBy: {type: Date, required: true},
+    // Change back to date after fix on frontend
+    arriveBy: {type: String, required: true},
     destination: {type: String, required: true},
     origin: {type: String, required: true},
     completed: {type: Boolean},

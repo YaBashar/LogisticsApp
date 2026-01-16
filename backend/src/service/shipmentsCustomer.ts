@@ -4,8 +4,10 @@ import { validateName, validateItemDescription, validateArriveBy, validateLocati
 
 // Endpoints
 // 1 -> Create new shipment order
+
+// Change arriveBy back to date after fix on frontend
 async function userCreateShipment(userId: string, name: string, itemDescription: string, quantity: number, 
-                                    arriveBy: Date, destination: string, origin: string) {
+                                    arriveBy: string, destination: string, origin: string) {
     const user = await UserModel.findById(userId);
     if (!user) {
         throw new Error('User Not Found');
@@ -19,7 +21,7 @@ async function userCreateShipment(userId: string, name: string, itemDescription:
     validateName(sanitisedName);
     validateItemDescription(sanitisedDescription);
     validateQuantity(quantity);
-    validateArriveBy(arriveBy);
+    // validateArriveBy(arriveBy);
     validateLocations(sanitisedOrigin, sanitisedDestination);
     
     const shipment = new ShipmentModel({
@@ -28,8 +30,8 @@ async function userCreateShipment(userId: string, name: string, itemDescription:
         itemDescription: sanitisedDescription,
         quantity: quantity,
         arriveBy: arriveBy,
-        destination: destination,
-        origin: origin,
+        destination: sanitisedDestination,
+        origin: sanitisedOrigin,
         completed: false
     });
 
