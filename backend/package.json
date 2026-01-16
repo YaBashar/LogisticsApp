@@ -2,7 +2,7 @@
 
   "scripts": {
 
-    "start": "node dist/server.ts",
+    "start": "node dist/server.js",
 
     "dev": "ts-node -T src/server.ts",
 
