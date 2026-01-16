@@ -11,14 +11,14 @@ export default function Login() {
 
     const[email, setEmail] = useState("");
     const[password, setPassword] = useState("");
-    const {setAccessToken, setRole} = useAuth()
+    const {persistSetAccessToken, persistSetUserRole} = useAuth()
 
     const handleSubmit = async () => {
         try {
             const response = await axios.post('/auth/login', {email, password});
-            setAccessToken(response.data.token);
+            await persistSetAccessToken(response.data.token);
             const decoded = jwtDecode(response.data.token);
-            setRole(decoded.role);
+            await persistSetUserRole(decoded.role);
             router.push('/profile')
         } catch (error) {
             console.log(error);
