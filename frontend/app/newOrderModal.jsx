@@ -51,8 +51,8 @@ export default function NewOrderModal({ showModal, setShowModal, setRefreshTrigg
                     <View style ={{ flexDirection: 'column', gap: 10, marginTop: 15 }}>
                         <TextInput value={name} onChangeText={setName} style={styles.input} placeholder="Enter Order Name" placeholderTextColor="#A6A09B" ></TextInput>
                         <TextInput value={itemDescription} onChangeText={setItemDescription} style={styles.input} placeholder="Enter Item Description" placeholderTextColor="#A6A09B"></TextInput>
-                        <TextInput value={quantity} onChangeText={setQuantity} style={styles.input} placeholder="Enter Quantity" placeholderTextColor="#A6A09B"></TextInput>
-                        <TextInput keyboardType="numeric" value={origin} onChangeText={setOrigin} style={styles.input} placeholder="Enter Origin Country" placeholderTextColor="#A6A09B"></TextInput>
+                        <TextInput keyboardType="numeric" value={quantity} onChangeText={setQuantity} style={styles.input} placeholder="Enter Quantity" placeholderTextColor="#A6A09B"></TextInput>
+                        <TextInput value={origin} onChangeText={setOrigin} style={styles.input} placeholder="Enter Origin Country" placeholderTextColor="#A6A09B"></TextInput>
                         <TextInput value={destination} onChangeText={setDestination} style={styles.input} placeholder="Enter Destination Country" placeholderTextColor="#A6A09B"></TextInput>
                         <TextInput value={arriveBy} onChangeText={setArriveBy} style={styles.input} placeholder="Enter Arrive By Date" placeholderTextColor="#A6A09B"></TextInput>
                     </View>
