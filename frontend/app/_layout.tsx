@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { AuthProvider } from '../components/AuthProvider'
 import * as SplashScreen from "expo-splash-screen";
 
+
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
