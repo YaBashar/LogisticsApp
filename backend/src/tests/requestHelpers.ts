@@ -77,3 +77,8 @@ export const requestCompletedShipments = async (token: string) => {
 export const requestActiveShipments = async (token: string) => {
   return await request(app).get('/shipments-customer/active').set('Authorization', `Bearer ${token}`);
 }
+
+// Admin Customer
+export const requestAllActiveShipments = async (token: string) => {
+  return await request(app).get('/shipments-admin/active').set('Authorization', `Bearer ${token}`);
+}
