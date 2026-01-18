@@ -20,7 +20,7 @@ export default function ResetPassword() {
         try {
             await axios.post('/auth/reset-password', { resetCode, newPassword: password });
             alert('Password Reset Successfully! You can now log in.');
-            router.push('/login');
+            router.push('/auth/login');
         } catch (error) {
             console.log('Verification Error:', error);
             alert('Verification Failed. Please check the code and try again.', resetCode);
@@ -30,7 +30,7 @@ export default function ResetPassword() {
     return (
         <View style={{ flex: 1, flexDirection: "column", alignItems: "center", backgroundColor: "white" }}>
                 
-            <Image source={require("../assets/images/Key.png")} style={{ width: 100, height: 100, marginTop: 100, marginBottom: 10 }} />
+            <Image source={require("../../assets/images/Key.png")} style={{ width: 100, height: 100, marginTop: 100, marginBottom: 10 }} />
             
             <Text style={[font, { fontSize: 25, color: "#004F3B", marginTop: 10, marginHorizontal: 10, textAlign: "center" }]}>Reset Password</Text>
             <TextInput value={password} onChangeText={setPassword} style={styles.input} secureTextEntry={true} placeholder="Enter your new password"></TextInput>

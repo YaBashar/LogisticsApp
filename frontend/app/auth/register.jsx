@@ -21,7 +21,7 @@ export default function Register() {
             const response = await axios.post('/auth/register', { firstName, lastName, password, email})
             await persistSetUserId(response.data.userId);
             alert(`Signed Up Successfully, Please Verify Email to Continue`)
-            router.push('/verifyEmail');
+            router.push('/auth/verifyEmail');
 
         } catch (error) {
             alert('Sign Up Failed')
@@ -47,7 +47,7 @@ export default function Register() {
                 <Text style={[font, {color: '004F3B', textAlign: 'center', fontSize: 20}]}>Create account</Text>
             </Pressable>
 
-            <Pressable onPress={() => router.push('/login')}>
+            <Pressable onPress={() => router.push('/auth/login')}>
                 <Text style={[font, {textAlign: 'center', fontSize: 20}]}>Already Have an account?</Text>
                 <Text style={[font, {color: '#004F3B', textAlign: 'center', fontSize: 20, textDecorationLine: 'underline'}]}>Login</Text>
             </Pressable>

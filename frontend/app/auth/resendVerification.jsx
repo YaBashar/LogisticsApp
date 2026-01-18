@@ -14,7 +14,7 @@ export default function ResendVerification() {
         try {
             await axios.post('/auth/resend-verification', { email });
             console.log('Email Sent')
-            router.push('/verifyEmail')
+            router.push('/auth/verifyEmail')
         } catch (error) {
             console.log(error);
         }

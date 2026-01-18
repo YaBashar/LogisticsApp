@@ -6,7 +6,7 @@ import useAuth from '@/hooks/useAuth';
 import { router } from 'expo-router';
 import { font } from '../../styles/font';
 import { jwtDecode } from 'jwt-decode';
-import PasswordInput from '../passwordInput';
+import PasswordInput from './passwordInput';
 
 export default function Login() {
 
@@ -36,14 +36,14 @@ export default function Login() {
             </View>
             
             <Pressable>
-                <Text onPress={() => router.push('/requestResetPassword')} style={[font, {marginTop: 10, color: '004F3B', textAlign: 'left', width: 300, fontSize: 16}]}>Forgot your password?</Text>
+                <Text onPress={() => router.push('/auth/requestResetPassword')} style={[font, {marginTop: 10, color: '004F3B', textAlign: 'left', width: 300, fontSize: 16}]}>Forgot your password?</Text>
             </Pressable>
             
             <Pressable onPress={handleSubmit} style={{marginTop: 25, marginBottom:50, backgroundColor: '#A4F4CF',  paddingVertical: 10, paddingHorizontal: 10, borderRadius: 15, width: 250}}>
                 <Text style={[font, {color: '004F3B', textAlign: 'center', fontSize: 20}]}>Login</Text>
             </Pressable>
 
-            <Pressable onPress={() => router.push('/register')}>
+            <Pressable onPress={() => router.push('/auth/register')}>
                 <Text style={[font, {textAlign: 'center', fontSize: 20}]}>Don't Have an account?</Text>
                 <Text style={[font, {color: '#004F3B', textAlign: 'center', fontSize: 20, textDecorationLine: 'underline'}]}>Sign Up</Text>
             </Pressable>

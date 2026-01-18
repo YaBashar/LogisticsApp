@@ -21,7 +21,7 @@ export default function VerifyResetCode() {
         try {
             await axios.post('/auth/verify-reset-code', { resetCode });
             alert('Email Verified Successfully! You can now reset your password.');
-            router.push({pathname: '/resetPassword', params: { resetCode: resetCode }});
+            router.push({pathname: '/auth/resetPassword', params: { resetCode: resetCode }});
         } catch (error) {
             console.log('Verification Error:', error);
             alert('Verification Failed. Please check the code and try again.', resetCode);
@@ -42,7 +42,7 @@ export default function VerifyResetCode() {
     return (
         <View style={{ flex: 1, flexDirection: "column", alignItems: "center", backgroundColor: "white" }}>
                 
-            <Image source={require("../assets/images/Key.png")} style={{ width: 100, height: 100, marginTop: 100, marginBottom: 10 }} />
+            <Image source={require("../../assets/images/Key.png")} style={{ width: 100, height: 100, marginTop: 100, marginBottom: 10 }} />
             
             <Text style={[font, { fontSize: 25, color: "#004F3B", marginTop: 10, marginHorizontal: 10, textAlign: "center" }]}>Forgot Password</Text>
             <Text style={[font, { fontSize: 20, color: "#004F3B", width: 250, marginHorizontal: 10, textAlign: "center" }]}>Enter the code sent to your email to reset password</Text>

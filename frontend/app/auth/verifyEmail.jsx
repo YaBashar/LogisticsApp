@@ -18,7 +18,7 @@ export default function VerifyEmail() {
         try {
             const response = await axios.post('/auth/verify-email', { verificationCode });
             alert('Email Verified Successfully! You can now log in.');
-            router.push('/login');
+            router.push('/auth/login');
         } catch (error) {
             console.log('Verification Error:', error);
             alert('Verification Failed. Please check the code and try again.', verificationCode);
@@ -26,13 +26,13 @@ export default function VerifyEmail() {
     }
 
     const handleResend = async () => {
-        router.push('/resendVerification');
+        router.push('/auth/resendVerification');
     }
 
     return (
         <View style={{ flex: 1, flexDirection: "column", alignItems: "center", backgroundColor: "white" }}>
                 
-            <Image source={require("../assets/images/Key.png")} style={{ width: 100, height: 100, marginTop: 100, marginBottom: 10 }} />
+            <Image source={require("../../assets/images/Key.png")} style={{ width: 100, height: 100, marginTop: 100, marginBottom: 10 }} />
             
             <Text style={[font, { fontSize: 25, color: "#004F3B", marginTop: 10, marginHorizontal: 10, textAlign: "center" }]}>Verify Account</Text>
             <Text style={[font, { fontSize: 20, color: "#004F3B", width: 250, marginHorizontal: 10, textAlign: "center" }]}>Enter the code sent to your email to verify</Text>
