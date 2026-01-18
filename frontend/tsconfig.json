@@ -11,7 +11,7 @@
   "include": [
     "**/*.ts",
     "**/*.tsx"
-, "app/register.jsx", "app/login.jsx"  ],
+, "app/auth/register.jsapp/auth/login.jsxn.jsx"  ],
   "exclude": [
     "node_modules"
   ]

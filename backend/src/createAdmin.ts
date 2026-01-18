@@ -6,7 +6,7 @@ import { UserModel } from './models/userModel';
 
 async function createAdmin() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI_PROD);
     console.log('Connected to MongoDB');
     
     const adminExists = await UserModel.findOne({ email: process.env.ADMIN_EMAIL });
@@ -20,7 +20,7 @@ async function createAdmin() {
     
     const newUser = new UserModel({
         name: process.env.ADMIN_NAME || 'Admin',
-        email: process.env.ADMIN_EMAIL,
+        email: process.env.ADMIN_EMAIL.toLowerCase().trim(),
         password: hashedPassword,
         refreshTokens: [],
         role: 'admin',

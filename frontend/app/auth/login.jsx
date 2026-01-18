@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable } from 'react-native'
 import useAuth from '@/hooks/useAuth';
 import { router } from 'expo-router';
-import { font } from '../styles/font';
+import { font } from '../../styles/font';
 import { jwtDecode } from 'jwt-decode';
+import PasswordInput from '../passwordInput';
 
 export default function Login() {
 
@@ -31,7 +32,7 @@ export default function Login() {
 
             <View style={{ flexDirection:"column", gap: 20, marginTop: 10}}>
                 <TextInput value={email} onChangeText={setEmail} style={styles.input} placeholder="Enter your Email" placeholderTextColor="#A6A09B"></TextInput>
-                <TextInput value={password} onChangeText={setPassword} style={styles.input} secureTextEntry={true} placeholder="Enter your Password" placeholderTextColor="#A6A09B"></TextInput>
+                <PasswordInput setPassword={setPassword} password={password}></PasswordInput>
             </View>
             
             <Pressable>

@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
     accountLocked: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
-    verificationCode: { type: String, unique: true },
+    verificationCode: { type: String, sparse: true },
     verificationCodeExpiry: { type: Date }, 
     resetCode: { type: String },
     resetCodeExpiry: { type: Date },

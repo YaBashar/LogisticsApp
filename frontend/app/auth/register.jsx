@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
-import axios from '../services/axios'
-import useAuth from '../hooks/useAuth'
+import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity } from 'react-native'
+import axios from '../../services/axios'
+import useAuth from '../../hooks/useAuth'
 import { router } from 'expo-router';
-import { font } from '../styles/font';
+import { font } from '../../styles/font';
+import PasswordInput from './passwordInput'
 
 export default function Register() {
 
@@ -35,7 +36,9 @@ export default function Register() {
                 <TextInput value={firstName} onChangeText={setFirstName} style={styles.input} placeholder="Enter your First name" placeholderTextColor="#A6A09B"></TextInput>
                 <TextInput value={lastName} onChangeText={setLastName} style={styles.input} placeholder="Enter your Last name" placeholderTextColor="#A6A09B"></TextInput>
                 <TextInput value={email} onChangeText={setEmail} style={styles.input} placeholder="Enter your Email" placeholderTextColor="#A6A09B"></TextInput>
-                <TextInput value={password} onChangeText={setPassword} style={styles.input} secureTextEntry={true} placeholder="Enter your Password" placeholderTextColor="#A6A09B"></TextInput>
+                
+                <PasswordInput setPassword={setPassword} password={password}></PasswordInput>
+        
             </View>
            
             <Text style={{ fontSize: 12, color: "black", marginTop: 15, marginHorizontal: 10, fontFamily: "System", textAlign: "center" }}>By Continuing You agree to Terms and Policy</Text>
@@ -54,5 +57,5 @@ export default function Register() {
 }
 
 const styles = StyleSheet.create({
-    input: { width: 300, height: 60, borderColor:'#004F3B', borderWidth: 2, borderRadius: 10, paddingHorizontal: 10 }
+    input: { width: 300, height: 60, borderColor:'#004F3B', borderWidth: 2, borderRadius: 10, paddingHorizontal: 10 },
 })
