@@ -3,9 +3,9 @@ import React from 'react'
 import { View, Text, TextInput, Image, Pressable, StyleSheet } from 'react-native'
 import { useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { font } from '../styles/font';
+import { font } from '../../styles/font';
 
-import axios from '../services/axios'
+import axios from '../../services/axios'
 
 
 export default function ResetPassword() {

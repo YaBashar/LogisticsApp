@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity } from 'react-native'
-import axios from '../services/axios'
-import useAuth from '../hooks/useAuth'
+import axios from '../../services/axios'
+import useAuth from '../../hooks/useAuth'
 import { router } from 'expo-router';
-import { font } from '../styles/font';
+import { font } from '../../styles/font';
 import PasswordInput from './passwordInput'
 
 export default function Register() {
