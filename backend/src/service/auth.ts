@@ -49,7 +49,6 @@ async function registerUser(firstName: string, lastName: string, password: strin
     verificationCode: code, // change to hash for prod
     verificationCodeExpiry: expiry,
     emailVerified: false,
-    shipments: []
   });
 
   await newUser.save();
@@ -81,8 +80,9 @@ async function userLogin(email: string, password: string) {
     throw new Error('Invalid Credentials');
   }
  
-  const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
-
+  const normalisedEmail = email.toLowerCase().trim()
+  const user = await UserModel.findOne({ email: normalisedEmail });
+  
   if (!user) {
     throw new Error('Invalid Email or Password');
   }
