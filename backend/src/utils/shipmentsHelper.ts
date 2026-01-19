@@ -1,22 +1,5 @@
 
 
-// Validation export functions
-export function validateName(sanitisedName: string) {
-
-    if (typeof sanitisedName !== 'string') {
-        throw new Error('Invalid format');
-    }
-
-    
-    if (!sanitisedName || sanitisedName.length === 0) {
-        throw new Error('Shipment name cannot be empty');
-    }
-    
-    if (sanitisedName.length > 200) {
-        throw new Error('Shipment name cannot exceed 200 characters');
-    }
-    
-}
 
 export function validateItemDescription(sanitisedDescription: string) {
 
@@ -32,6 +15,12 @@ export function validateItemDescription(sanitisedDescription: string) {
         throw new Error('Item description cannot exceed 1000 characters');
     }
     
+}
+
+export function generateOrderNumber(): number {
+    const timestamp = Date.now(); 
+    const lastDigits = timestamp % 100000000; // Last 8 digits as number
+    return lastDigits; 
 }
 
 export function validateQuantity(quantity: number) {

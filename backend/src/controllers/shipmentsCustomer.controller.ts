@@ -3,10 +3,10 @@ import { userCreateShipment, userGetActiveOrders, userGetCompletedOrders } from 
 
 export const createShipment = async (req: Request, res: Response) => {
     const userId = req.userId;
-    const { name, itemDescription, quantity, destination, origin } = req.body;
+    const { itemDescription, quantity, destination, origin } = req.body;
 
     try {
-        const result = await userCreateShipment(userId, name, itemDescription, quantity, destination, origin);
+        const result = await userCreateShipment(userId, itemDescription, quantity, destination, origin);
         res.status(200).json({result});
     } catch (error) {
         console.log(error.message);

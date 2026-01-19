@@ -30,7 +30,7 @@ describe('Error', () => {
     // Test all paramaters
     // Name
     test('Name Empty', async() => {
-        const res = await requestNewShipment(token, '', 'clothing', 4, new Date(2026, 5, 15), 'madinah', 'sydney')
+        const res = await requestNewShipment(token, 'clothing', 4, 'madinah', 'sydney')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(400);
@@ -40,7 +40,7 @@ describe('Error', () => {
     
     // Item Description
     test('Item Description Empty Empty', async() => {
-        const res = await requestNewShipment(token, 'newOrder', '', 4, new Date(2026, 5, 15), 'madinah', 'sydney')
+        const res = await requestNewShipment(token, '', 4,  'madinah', 'sydney')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(400);
@@ -48,7 +48,7 @@ describe('Error', () => {
     });
     // Quantity
     test('Quantity has to be > 0', async() => {
-        const res = await requestNewShipment(token, 'newOrder', 'clothings', 0, new Date(2026, 5, 15), 'madinah', 'sydney')
+        const res = await requestNewShipment(token,  'clothings', 0,  'madinah', 'sydney')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(400);
@@ -56,7 +56,7 @@ describe('Error', () => {
     });
 
     test('Quantity must be a whole number', async() => {
-        const res = await requestNewShipment(token, 'newOrder', 'clothings', 4.3, new Date(2026, 5, 15), 'madinah', 'sydney')
+        const res = await requestNewShipment(token, 'clothings', 4.3,  'madinah', 'sydney')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(400);
@@ -64,7 +64,7 @@ describe('Error', () => {
     });
 
     test('Quantity cannot exceed 1 000 000', async() => {
-        const res = await requestNewShipment(token, 'newOrder', 'clothings', 10000000, new Date(2026, 5, 15), 'madinah', 'sydney')
+        const res = await requestNewShipment(token, 'clothings', 10000000,  'madinah', 'sydney')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(400);
@@ -74,7 +74,7 @@ describe('Error', () => {
 
     // Origin + Destination
     test('Origin and Destination cannot be the same', async() => {
-        const res = await requestNewShipment(token, 'newOrder', 'clothings', 4, new Date(2026, 5, 15), 'sydney', 'sydney')
+        const res = await requestNewShipment(token, 'clothings', 4,  'sydney', 'sydney')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(400);
@@ -82,7 +82,7 @@ describe('Error', () => {
     });
 
     test('Invalid Token', async () => {
-        const res = await requestNewShipment('invalidTOken', 'neworder', 'clothing', 4, new Date(2026, 5, 15), 'madinah', 'sydney')
+        const res = await requestNewShipment('invalidTOken', 'clothing', 4,  'madinah', 'sydney')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(401);
@@ -94,7 +94,7 @@ describe('Error', () => {
 describe('Success', () => {
 
     test('Success', async () => {
-        const res = await requestNewShipment(token, 'neworder', 'clothing', 4, new Date(2026, 5, 15), 'madinah', 'sydney')
+        const res = await requestNewShipment(token,  'clothing', 4,  'madinah', 'sydney')
         const data = res.body;
         console.log(data)
 

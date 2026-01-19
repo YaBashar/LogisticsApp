@@ -29,8 +29,8 @@ beforeAll(async () => {
 
 describe('Error', () => {
   test('Invalid Token', async () => {
-      await requestNewShipment(token, 'neworder', 'clothing', 4, new Date(2026, 5, 15), 'madinah', 'sydney')
-      await requestNewShipment(token, 'Anoterneworder', 'moreclothing', 4, new Date(2026, 6, 15), 'madinah', 'sydney')
+      await requestNewShipment(token, 'clothing', 4, 'madinah', 'sydney')
+      await requestNewShipment(token, 'moreclothing', 4, 'madinah', 'sydney')
        
       const res = await requestActiveShipments('invalidToken');
       const data = res.body;
@@ -44,8 +44,8 @@ describe('Error', () => {
 describe('Success', () => {
 
     test('Success', async () => {
-        await requestNewShipment(token, 'neworder', 'clothing', 4, new Date(2026, 5, 15), 'madinah', 'sydney')
-        await requestNewShipment(token, 'Anoterneworder', 'moreclothing', 4, new Date(2026, 6, 15), 'madinah', 'sydney')
+        await requestNewShipment(token,'clothing', 4, 'madinah', 'sydney')
+        await requestNewShipment(token, 'moreclothing', 4, 'madinah', 'sydney')
        
         const res = await requestActiveShipments(token);
         const data = res.body;
@@ -54,7 +54,6 @@ describe('Success', () => {
         expect(data).toStrictEqual({ 
           result: expect.arrayContaining([
             expect.objectContaining({
-              name: 'neworder',
               itemDescription: 'clothing',
               quantity: 4,
               destination: 'madinah',
