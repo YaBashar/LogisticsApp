@@ -46,8 +46,7 @@ export default function CustomerProfile() {
                         <View style={{height: '30%', width: '90%', backgroundColor:"#FFFFFF", marginTop: 10, justifyContent: 'flex-start', alignItems: 'flex-start', paddingLeft: 20, paddingTop: 10, borderRadius: 20}} key = {shipment._id}>
                             <Text>Item: {shipment.itemDescription}</Text>
                             <Text>Quantity: {shipment.quantity}</Text>
-                            <Text>Destination: {shipment.destination}</Text>
-                            <Text>Arrive By: {shipment.arriveBy}</Text>
+                            <Text>Send To: {shipment.destination}</Text>
                             <Text>Status: Pending </Text>
                         </View>
                     )

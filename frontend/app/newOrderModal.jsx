@@ -1,8 +1,8 @@
 import {useState} from 'react'
 import { View, Text, Modal, StyleSheet, TextInput, Pressable, KeyboardAvoidingView, ScrollView, Platform } from 'react-native'
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { font } from '../styles/font';
+import AddressInput from '../components/AddressInput';
 
 export default function NewOrderModal({ showModal, setShowModal, setRefreshTrigger }) {
 
@@ -59,8 +59,23 @@ export default function NewOrderModal({ showModal, setShowModal, setRefreshTrigg
 							<TextInput value={name} onChangeText={setName} style={styles.input} placeholder="Enter Order Name" placeholderTextColor="#A6A09B" />
 							<TextInput value={itemDescription} onChangeText={setItemDescription} style={styles.input} placeholder="Enter Item Description" placeholderTextColor="#A6A09B" />
 							<TextInput keyboardType="numeric" value={quantity} onChangeText={setQuantity} style={styles.input} placeholder="Enter Quantity" placeholderTextColor="#A6A09B" />
-							<TextInput value={origin} onChangeText={setOrigin} style={styles.input} placeholder="Enter Origin Country" placeholderTextColor="#A6A09B" />
-							<TextInput value={destination} onChangeText={setDestination} style={styles.input} placeholder="Enter Destination Country" placeholderTextColor="#A6A09B" />
+							
+							<AddressInput 
+								value={origin}
+								onChangeText={setOrigin}
+								style={styles.input}
+								placeholder="Enter Origin Address"
+								placeholderTextColor="#A6A09B"
+							/>
+							
+							<AddressInput 
+								value={destination}
+								onChangeText={setDestination}
+								style={styles.input}
+								placeholder="Enter Destination Address"
+								placeholderTextColor="#A6A09B"
+							/>		
+							
 						</View>
 
 
