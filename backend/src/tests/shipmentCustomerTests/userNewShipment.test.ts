@@ -28,15 +28,6 @@ beforeAll(async () => {
 
 describe('Error', () => {
     // Test all paramaters
-    // Name
-    test('Name Empty', async() => {
-        const res = await requestNewShipment(token, 'clothing', 4, 'madinah', 'sydney')
-        const data = res.body;
-
-        expect(res.statusCode).toStrictEqual(400);
-        expect(data).toStrictEqual({ error: expect.any(String)});
-    });
-
     
     // Item Description
     test('Item Description Empty Empty', async() => {

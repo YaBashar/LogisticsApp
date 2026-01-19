@@ -61,12 +61,19 @@ describe('Success', () => {
               completed: false,
               _id: expect.any(String),
               userId: expect.any(String),
+              __v: expect.any(Number),
+              orderNumber: expect.any(Number),
             }),
             expect.objectContaining({
-              name: 'Anoterneworder',
               itemDescription: 'moreclothing',
               quantity: 4,
+              destination: 'madinah',
+              origin: 'sydney',
               completed: false,
+              _id: expect.any(String),
+              userId: expect.any(String),
+              __v: expect.any(Number),
+              orderNumber: expect.any(Number),
             })
           ])
         });

@@ -29,7 +29,7 @@ beforeAll(async () => {
 
 describe('Error', () => {
     test('Invalid Token', async () => {
-        await requestNewShipment(token, 'order1', 'clothing', 4, new Date(2026, 5, 15), 'madinah', 'sydney');
+        await requestNewShipment('invalidToken', 'clothing', 4, 'madinah', 'sydney');
         const res = await requestCompletedShipments('invalidToken');
         const data = res.body;
 
@@ -41,8 +41,8 @@ describe('Error', () => {
 
 describe('Success', () => {
     test('Success', async () => {
-        const res1 = await requestNewShipment(token, 'order1', 'clothing', 4, new Date(2026, 5, 15), 'madinah', 'sydney');
-        await requestNewShipment(token, 'order2', 'shoes', 2, new Date(2026, 6, 15), 'madinah', 'sydney');
+        const res1 = await requestNewShipment(token,  'clothing', 4, 'madinah', 'sydney');
+        await requestNewShipment(token, 'shoes', 2, 'madinah', 'sydney');
   
         // Get the shipment IDs from the responses
         const shipmentId1 = res1.body.result;
@@ -58,7 +58,6 @@ describe('Success', () => {
         expect(data).toStrictEqual({ 
           result: expect.arrayContaining([
             expect.objectContaining({
-              name: 'order1',
               itemDescription: 'clothing',
               quantity: 4,
               destination: 'madinah',
