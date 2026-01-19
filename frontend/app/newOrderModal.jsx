@@ -11,15 +11,13 @@ export default function NewOrderModal({ showModal, setShowModal, setRefreshTrigg
     const [quantity, setQuantity] = useState('');
     const [origin, setOrigin] = useState('');
     const [destination, setDestination] = useState('');
-    const [arriveBy, setArriveBy] = useState(new Date());
-    const [openDatePicker, setOpenDatePicker] = useState(false);
 
     const axiosPrivate = useAxiosPrivate();
 
     const handleSubmitNewOrder = async () => { 
         try {
             const quantityInt = parseInt(quantity, 10);
-            const res = await axiosPrivate.post('/shipments-customer/', { name, itemDescription, quantity: quantityInt, arriveBy, destination, origin })
+            const res = await axiosPrivate.post('/shipments-customer/', { name, itemDescription, quantity: quantityInt, destination, origin })
             alert('Successfully Created New Order', res.data.result);
             setShowModal(false);
             setRefreshTrigger(prev => prev + 1);
@@ -30,7 +28,6 @@ export default function NewOrderModal({ showModal, setShowModal, setRefreshTrigg
             setQuantity('');
             setOrigin('');
             setDestination('');
-            setArriveBy(new Date());
 
         } catch (error) {
             console.error(error);
@@ -40,60 +37,42 @@ export default function NewOrderModal({ showModal, setShowModal, setRefreshTrigg
     
     // Add address field
     return (
-			<Modal visible={showModal} onRequestClose={() => setShowModal(false)} transparent>
-				<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)'}}>
-					
-					<KeyboardAvoidingView 
-						behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-						style={{ width: 300, maxHeight: '80%' }}
+	<Modal visible={showModal} onRequestClose={() => setShowModal(false)} transparent>
+		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)'}}>
+			
+			<KeyboardAvoidingView 
+				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+				style={{ width: 300, maxHeight: '80%' }}
+			>
+				<View style={{ borderRadius: 10, backgroundColor: '#FFFFFF', padding: 20 }}>
+
+					<Pressable onPress={() => setShowModal(false)} style={{position: 'absolute',top: -5,right: 10, zIndex: 1,padding: 5}}>
+						<Text style={{fontSize: 24, fontWeight: 'bold', color: '#004F3B'}}>✕</Text>
+					</Pressable>
+
+					<ScrollView 
+						contentContainerStyle={{ paddingVertical: 30, alignItems: 'center' }}
+						keyboardShouldPersistTaps="handled"
+						showsVerticalScrollIndicator={false}
 					>
-						<View style={{ borderRadius: 10, backgroundColor: '#FFFFFF', padding: 20 }}>
-
-							<Pressable onPress={() => setShowModal(false)} style={{position: 'absolute',top: -5,right: 10, zIndex: 1,padding: 5}}>
-								<Text style={{fontSize: 24, fontWeight: 'bold', color: '#004F3B'}}>✕</Text>
-							</Pressable>
-
-							<ScrollView 
-								contentContainerStyle={{ paddingVertical: 30, alignItems: 'center' }}
-								keyboardShouldPersistTaps="handled"
-								showsVerticalScrollIndicator={false}
-							>
-								<View style={{ flexDirection: 'column', gap: 10 }}>
-									<TextInput value={name} onChangeText={setName} style={styles.input} placeholder="Enter Order Name" placeholderTextColor="#A6A09B" />
-									<TextInput value={itemDescription} onChangeText={setItemDescription} style={styles.input} placeholder="Enter Item Description" placeholderTextColor="#A6A09B" />
-									<TextInput keyboardType="numeric" value={quantity} onChangeText={setQuantity} style={styles.input} placeholder="Enter Quantity" placeholderTextColor="#A6A09B" />
-									<TextInput value={origin} onChangeText={setOrigin} style={styles.input} placeholder="Enter Origin Country" placeholderTextColor="#A6A09B" />
-									<TextInput value={destination} onChangeText={setDestination} style={styles.input} placeholder="Enter Destination Country" placeholderTextColor="#A6A09B" />
-									<Pressable onPress={() => setOpenDatePicker(true)} style={styles.input}>
-										<Text style={{color: '#A6A09B', paddingTop: 15}}>Arrive By Date {arriveBy.toDateString}</Text>
-									</Pressable>
-								</View>
-
-								{openDatePicker && (
-										<DateTimePicker
-											value={arriveBy}
-											mode="date"
-											display="default"
-											onChange={(selectedDate) => {
-													setOpenDatePicker(false);
-													if (selectedDate) {
-															setArriveBy(selectedDate);
-													}
-											}}
-											accentColor="#004F3B"
-											textColor="#004F3B"
-										/>
-								)}
-
-								<Pressable onPress={handleSubmitNewOrder} style={{marginTop: 20, backgroundColor: '#A4F4CF', paddingVertical: 10, paddingHorizontal: 10, borderRadius: 15, width: 250}}>
-									<Text style={[font, {color: '#004F3B', textAlign: 'center', fontSize: 20}]}>Submit</Text>
-								</Pressable>
-							</ScrollView>
+						<View style={{ flexDirection: 'column', gap: 10 }}>
+							<TextInput value={name} onChangeText={setName} style={styles.input} placeholder="Enter Order Name" placeholderTextColor="#A6A09B" />
+							<TextInput value={itemDescription} onChangeText={setItemDescription} style={styles.input} placeholder="Enter Item Description" placeholderTextColor="#A6A09B" />
+							<TextInput keyboardType="numeric" value={quantity} onChangeText={setQuantity} style={styles.input} placeholder="Enter Quantity" placeholderTextColor="#A6A09B" />
+							<TextInput value={origin} onChangeText={setOrigin} style={styles.input} placeholder="Enter Origin Country" placeholderTextColor="#A6A09B" />
+							<TextInput value={destination} onChangeText={setDestination} style={styles.input} placeholder="Enter Destination Country" placeholderTextColor="#A6A09B" />
 						</View>
-					</KeyboardAvoidingView>
 
+
+						<Pressable onPress={handleSubmitNewOrder} style={{marginTop: 20, backgroundColor: '#A4F4CF', paddingVertical: 10, paddingHorizontal: 10, borderRadius: 15, width: 250}}>
+							<Text style={[font, {color: '#004F3B', textAlign: 'center', fontSize: 20}]}>Submit</Text>
+						</Pressable>
+					</ScrollView>
 				</View>
-			</Modal>
+			</KeyboardAvoidingView>
+
+		</View>
+	</Modal>
     );
 }
 

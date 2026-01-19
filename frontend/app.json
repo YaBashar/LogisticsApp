@@ -24,7 +24,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.mubashir.logisticsapp",
-      "versionCode": 11
+      "versionCode": 13
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

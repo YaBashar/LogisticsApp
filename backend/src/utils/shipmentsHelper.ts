@@ -54,25 +54,6 @@ export function validateQuantity(quantity: number) {
     
 }
 
-export function validateArriveBy(arriveBy: Date) {
-
-    if (!(arriveBy instanceof Date) || isNaN(arriveBy.getTime())) {
-        throw new Error('Invalid arrival date');
-    }
-    
-    const now = new Date();
-    const twoYearsFromNow = new Date();
-    twoYearsFromNow.setFullYear(now.getFullYear() + 2);
-    
-    if (arriveBy <= now) {
-        throw new Error('Arrival date must be in the future');
-    }
-    
-    if (arriveBy > twoYearsFromNow) {
-        throw new Error('Arrival date cannot be more than 2 years in the future');
-    }
-}
-
 
 export function validateLocations(origin: string, destination: string): void {
 

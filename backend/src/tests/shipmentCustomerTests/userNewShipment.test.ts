@@ -71,25 +71,8 @@ describe('Error', () => {
         expect(data).toStrictEqual({ error: expect.any(String)});
     });
     
-    // Arrive By change after frontend fix
-    test('Arrival Date must be in the future', async() => {
-        const res = await requestNewShipment(token, 'newOrder', 'clothings', 4, new Date(), 'madinah', 'sydney')
-        const data = res.body;
-
-        expect(res.statusCode).toStrictEqual(400);
-        expect(data).toStrictEqual({ error: expect.any(String)});
-    });
-
-    test('Arrival Date cannot be more than 2 years in the future', async() => {
-        const res = await requestNewShipment(token, 'newOrder', 'clothings', 3, new Date(2029, 5, 15), 'madinah', 'sydney')
-        const data = res.body;
-
-        expect(res.statusCode).toStrictEqual(400);
-        expect(data).toStrictEqual({ error: expect.any(String)});
-    });
 
     // Origin + Destination
-
     test('Origin and Destination cannot be the same', async() => {
         const res = await requestNewShipment(token, 'newOrder', 'clothings', 4, new Date(2026, 5, 15), 'sydney', 'sydney')
         const data = res.body;

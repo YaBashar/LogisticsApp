@@ -1,13 +1,13 @@
 import { UserModel } from "../models/userModel"
 import { ShipmentModel } from "../models/shipmentsModel"
-import { validateName, validateItemDescription, validateArriveBy, validateLocations, validateQuantity } from "../utils/shipmentsHelper"; 
+import { validateName, validateItemDescription, validateLocations, validateQuantity } from "../utils/shipmentsHelper"; 
 
 // Endpoints
 // 1 -> Create new shipment order
 
 // Change arriveBy back to date after fix on frontend
 async function userCreateShipment(userId: string, name: string, itemDescription: string, quantity: number, 
-                                    arriveBy: Date, destination: string, origin: string) {
+                                    destination: string, origin: string) {
     const user = await UserModel.findById(userId);
     if (!user) {
         throw new Error('User Not Found');
@@ -21,7 +21,6 @@ async function userCreateShipment(userId: string, name: string, itemDescription:
     validateName(sanitisedName);
     validateItemDescription(sanitisedDescription);
     validateQuantity(quantity);
-    validateArriveBy(arriveBy);
     validateLocations(sanitisedOrigin, sanitisedDestination);
     
     const shipment = new ShipmentModel({
@@ -29,7 +28,6 @@ async function userCreateShipment(userId: string, name: string, itemDescription:
         name: sanitisedName,
         itemDescription: sanitisedDescription,
         quantity: quantity,
-        arriveBy: arriveBy,
         destination: sanitisedDestination,
         origin: sanitisedOrigin,
         completed: false
