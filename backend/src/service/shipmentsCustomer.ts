@@ -5,7 +5,6 @@ import { validateItemDescription, validateLocations, validateQuantity, generateO
 // Endpoints
 // 1 -> Create new shipment order
 
-// Change arriveBy back to date after fix on frontend
 async function userCreateShipment(userId: string, itemDescription: string, quantity: number, 
                                     destination: string, origin: string) {
     const user = await UserModel.findById(userId);
@@ -49,7 +48,7 @@ async function userGetActiveOrders(userId: string) {
     const shipments = await ShipmentModel.find({
         userId: userId,
         completed: false
-    }).sort({ arriveBy: 1})
+    })
 
     return shipments;
 }

@@ -6,7 +6,6 @@ import AddressInput from '../components/AddressInput';
 
 export default function NewOrderModal({ showModal, setShowModal, setRefreshTrigger }) {
 
-    const [name, setName] = useState('');
     const [itemDescription, setItemDescription] = useState('');
     const [quantity, setQuantity] = useState('');
     const [origin, setOrigin] = useState('');
@@ -17,13 +16,12 @@ export default function NewOrderModal({ showModal, setShowModal, setRefreshTrigg
     const handleSubmitNewOrder = async () => { 
         try {
             const quantityInt = parseInt(quantity, 10);
-            const res = await axiosPrivate.post('/shipments-customer/', { name, itemDescription, quantity: quantityInt, destination, origin })
+            const res = await axiosPrivate.post('/shipments-customer/', { itemDescription, quantity: quantityInt, destination, origin })
             alert('Successfully Created New Order', res.data.result);
             setShowModal(false);
             setRefreshTrigger(prev => prev + 1);
 
             // Clear Form fields
-            setName('');
             setItemDescription('');
             setQuantity('');
             setOrigin('');
@@ -56,7 +54,6 @@ export default function NewOrderModal({ showModal, setShowModal, setRefreshTrigg
 						showsVerticalScrollIndicator={false}
 					>
 						<View style={{ flexDirection: 'column', gap: 10 }}>
-							<TextInput value={name} onChangeText={setName} style={styles.input} placeholder="Enter Order Name" placeholderTextColor="#A6A09B" />
 							<TextInput value={itemDescription} onChangeText={setItemDescription} style={styles.input} placeholder="Enter Item Description" placeholderTextColor="#A6A09B" />
 							<TextInput keyboardType="numeric" value={quantity} onChangeText={setQuantity} style={styles.input} placeholder="Enter Quantity" placeholderTextColor="#A6A09B" />
 							

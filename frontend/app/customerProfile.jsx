@@ -44,10 +44,11 @@ export default function CustomerProfile() {
                 {shipments.map((shipment) => {
                     return (
                         <View style={{height: '30%', width: '90%', backgroundColor:"#FFFFFF", marginTop: 10, justifyContent: 'flex-start', alignItems: 'flex-start', paddingLeft: 20, paddingTop: 10, borderRadius: 20}} key = {shipment._id}>
-                            <Text>Item: {shipment.itemDescription}</Text>
-                            <Text>Quantity: {shipment.quantity}</Text>
-                            <Text>Send To: {shipment.destination}</Text>
-                            <Text>Status: Pending </Text>
+                            <Text style={[font,{fontSize: 18, fontWeight: 'bold'}]}>Order Number: {shipment.orderNumber}</Text>
+
+                            <Text style={[font]}>📦Item: {shipment.itemDescription}</Text>
+                            <Text style={[font]}>📍Deliver To: {shipment.destination}</Text>
+                            <Text style={[font]}>⌚Status: Pending</Text>
                         </View>
                     )
                 })}
