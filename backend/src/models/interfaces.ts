@@ -20,12 +20,11 @@ export interface User {
 
 export interface Shipments {
     userId: string,
-    name: string,
+    orderNumber: number,
     itemDescription: string,
     quantity: number,
     country: string,
     trackingNumber: string,
-    arriveBy: Date,
     destination: string,
     origin: string
 }
