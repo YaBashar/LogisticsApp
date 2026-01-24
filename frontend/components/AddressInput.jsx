@@ -4,7 +4,7 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 
 
-export default function AddressInput({ value, onChangeText, style, placeholder, placeholderTextColor }) {
+export default function AddressInput({ value, onChangeText, style, placeholder, placeholderTextColor, countries = ['au', 'sa'] }) {
   const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
@@ -28,10 +28,12 @@ export default function AddressInput({ value, onChangeText, style, placeholder, 
 
     const API_KEY = Constants.expoConfig?.extra?.geoApiKey;
     try {
+      const countryFilters = countries.map(country => `countrycode:${country}`).join(',');
       const response = await axios.get('https://api.geoapify.com/v1/geocode/autocomplete', {
         params: {
           text: text,
-          apiKey: API_KEY
+          apiKey: API_KEY,
+          filter: countryFilters,
         }
       });
       console.log('API Response:', response.data); // Debug
