@@ -3,7 +3,7 @@ import { requestAllActiveShipments, requestAuthLogin, requestAuthRegister, reque
 import mongoose from 'mongoose';
 import { UserModel } from '../../models/userModel';
 import bcrypt from 'bcrypt';
-import { error } from 'node:console';
+
 
 let customerToken: string;
 let adminToken: string;
@@ -14,9 +14,9 @@ beforeEach(async () => {
   const res = await requestAuthLogin('example@gmail.com', 'Abcdefgh1234$');
   customerToken = res.body.token;
 
-  await requestNewShipment(customerToken, 'clothing', 4,  'madinah', 'sydney')
-  await requestNewShipment(customerToken, 'moreclothing', 4, 'madinah', 'sydney')
-
+  await requestNewShipment(customerToken, 'box', 'clothings', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+  await requestNewShipment(customerToken, 'crate', 'appliances', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+        
 
   // Create admin user directly in database
   const hashedPassword = await bcrypt.hash('YourSecurePassword123!', 10);
@@ -70,32 +70,44 @@ describe('Success', () => {
         expect(data).toStrictEqual({ 
           result: expect.arrayContaining([
             expect.objectContaining({
-              itemDescription: 'clothing',
+              itemDescription: 'clothings',
               quantity: 4,
+              weight: 5,
               destination: 'madinah',
               origin: 'sydney',
+              packageType: 'box',
+              senderEmail: 'mubashirmh04457@gmail.com',
+              senderPhone: '+61412345678',
+              recipientEmail: 'mubashirmh04@gmail.com',
+              recipientPhone: '+61412345679',
               completed: false,
               _id: expect.any(String),
-              __v: expect.any(Number),
-              orderNumber: expect.any(Number),
               userId: expect.objectContaining({ 
                 _id: expect.any(String),
                 name: 'Mubashir Hussain'
               }),
+              __v: expect.any(Number),
+              orderNumber: expect.any(Number),
             }),
             expect.objectContaining({
-              itemDescription: 'moreclothing',
+              itemDescription: 'appliances',
               quantity: 4,
+              weight: 5,
               destination: 'madinah',
               origin: 'sydney',
+              packageType: 'crate',
+              senderEmail: 'mubashirmh04457@gmail.com',
+              senderPhone: '+61412345678',
+              recipientEmail: 'mubashirmh04@gmail.com',
+              recipientPhone: '+61412345679',
               completed: false,
               _id: expect.any(String),
-              __v: expect.any(Number),
-              orderNumber: expect.any(Number),
               userId: expect.objectContaining({ 
                 _id: expect.any(String),
                 name: 'Mubashir Hussain'
               }),
+              __v: expect.any(Number),
+              orderNumber: expect.any(Number),
             })
           ])
         });

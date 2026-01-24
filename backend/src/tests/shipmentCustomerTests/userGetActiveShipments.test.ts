@@ -29,9 +29,9 @@ beforeAll(async () => {
 
 describe('Error', () => {
   test('Invalid Token', async () => {
-      await requestNewShipment(token, 'clothing', 4, 'madinah', 'sydney')
-      await requestNewShipment(token, 'moreclothing', 4, 'madinah', 'sydney')
-       
+      await requestNewShipment(token, 'box', 'clothings', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+      await requestNewShipment(token, 'crate', 'appliances', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+         
       const res = await requestActiveShipments('invalidToken');
       const data = res.body;
 
@@ -44,8 +44,9 @@ describe('Error', () => {
 describe('Success', () => {
 
     test('Success', async () => {
-        await requestNewShipment(token,'clothing', 4, 'madinah', 'sydney')
-        await requestNewShipment(token, 'moreclothing', 4, 'madinah', 'sydney')
+      await requestNewShipment(token, 'box', 'clothings', 4, 5, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+      await requestNewShipment(token, 'crate', 'appliances', 4, 5, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+      
        
         const res = await requestActiveShipments(token);
         const data = res.body;
@@ -54,10 +55,16 @@ describe('Success', () => {
         expect(data).toStrictEqual({ 
           result: expect.arrayContaining([
             expect.objectContaining({
-              itemDescription: 'clothing',
+              itemDescription: 'clothings',
               quantity: 4,
+              weight: 5,
               destination: 'madinah',
               origin: 'sydney',
+              packageType: 'box',
+              senderEmail: 'mubashirmh04457@gmail.com',
+              senderPhone: '+61412345678',
+              recipientEmail: 'mubashirmh04@gmail.com',
+              recipientPhone: '+61412345679',
               completed: false,
               _id: expect.any(String),
               userId: expect.any(String),
@@ -65,10 +72,16 @@ describe('Success', () => {
               orderNumber: expect.any(Number),
             }),
             expect.objectContaining({
-              itemDescription: 'moreclothing',
+              itemDescription: 'appliances',
               quantity: 4,
+              weight: 5,
               destination: 'madinah',
               origin: 'sydney',
+              packageType: 'crate',
+              senderEmail: 'mubashirmh04457@gmail.com',
+              senderPhone: '+61412345678',
+              recipientEmail: 'mubashirmh04@gmail.com',
+              recipientPhone: '+61412345679',
               completed: false,
               _id: expect.any(String),
               userId: expect.any(String),
@@ -78,4 +91,4 @@ describe('Success', () => {
           ])
         });
     })
-});
+})
