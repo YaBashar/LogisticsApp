@@ -1,4 +1,4 @@
-
+import validator from "validator";
 
 
 export function validateItemDescription(sanitisedDescription: string) {
@@ -41,6 +41,47 @@ export function validateQuantity(quantity: number) {
         throw new Error('Quantity cannot exceed 1,000,000');
     }
     
+}
+
+export function validateWeight(weight: number) {
+
+    if (typeof weight !== 'number') {
+        throw new Error('Invalid format');
+    }
+
+    if (!Number.isInteger(weight)) {
+        throw new Error('weight must be a whole number');
+    }
+    
+    if (weight < 1) {
+        throw new Error('weight must be at least 1');
+    }
+    
+    if (weight > 1000000) {
+        throw new Error('weight cannot exceed 1,000,000');
+    }
+    
+}
+
+export function validatePhoneNumber(phoneNumber: string) {
+    if (typeof phoneNumber !== 'string' ) {
+        throw new Error('Invalid Phone');
+    }
+
+    if (!validator.isMobilePhone(phoneNumber)) {
+        throw new Error('Invalid Phone ')
+    }
+}
+
+
+export function validateEmail(email: string) {
+    if (typeof email !== 'string') {
+        throw new Error('Invalid Email');
+    }
+
+    if (!validator.isEmail(email)) {
+        throw new Error('Invalid Email');
+    }
 }
 
 
