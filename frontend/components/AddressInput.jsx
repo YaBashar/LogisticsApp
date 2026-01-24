@@ -28,18 +28,18 @@ export default function AddressInput({ value, onChangeText, style, placeholder, 
 
     const API_KEY = Constants.expoConfig?.extra?.geoApiKey;
     try {
-      const countryFilters = countries.map(country => `countrycode:${country}`).join(',');
+      const countryFilter = `countrycode:${countries.join(',')}`; 
       const response = await axios.get('https://api.geoapify.com/v1/geocode/autocomplete', {
         params: {
           text: text,
           apiKey: API_KEY,
-          filter: countryFilters,
+          filter: countryFilter,
         }
       });
       console.log('API Response:', response.data); // Debug
       setSuggestions(response.data.features || []);
     } catch (error) {
-      console.error('Error fetching address suggestions:', error);
+      console.error('Error fetching address suggestions:', error.message);
       setSuggestions([]);
     }
   };

@@ -3,13 +3,12 @@ import { View, Text, Pressable, Image } from 'react-native'
 import { font } from '../styles/font';
 
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
-import NewOrderModal from './newOrderModal';
+import { router } from 'expo-router';
 
 export default function CustomerProfile() {
     const axiosPrivate = useAxiosPrivate();
 
     const [shipments, setShipments] = useState([]);
-    const [showModal, setShowModal] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
 
@@ -54,13 +53,7 @@ export default function CustomerProfile() {
                 })}
             </View>
 
-            <NewOrderModal 
-                showModal={showModal}
-                setShowModal={setShowModal}
-                setRefreshTrigger={setRefreshTrigger}
-            ></NewOrderModal>
-        
-            <Pressable onPress={() => setShowModal(true)} style={{marginTop: 20, marginBottom:50, backgroundColor: '#A4F4CF',  paddingVertical: 10, paddingHorizontal: 10, borderRadius: 15, width: 250}}>
+            <Pressable onPress={() => router.push('/newOrder')} style={{marginTop: 20, marginBottom:50, backgroundColor: '#A4F4CF',  paddingVertical: 10, paddingHorizontal: 10, borderRadius: 15, width: 250}}>
                 <Text style={[font, {color: '004F3B', textAlign: 'center', fontSize: 20}]}>Request New Order</Text>
             </Pressable>
         </View>
