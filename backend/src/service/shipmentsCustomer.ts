@@ -1,12 +1,23 @@
 import { UserModel } from "../models/userModel"
 import { ShipmentModel } from "../models/shipmentsModel"
-import { validateItemDescription, validateLocations, validateQuantity, generateOrderNumber } from "../utils/shipmentsHelper"; 
+import { validateItemDescription, validateLocations, validateQuantity, generateOrderNumber, validateWeight, validatePhoneNumber, validateEmail } from "../utils/shipmentsHelper"; 
 
 // Endpoints
 // 1 -> Create new shipment order
 
-async function userCreateShipment(userId: string, itemDescription: string, quantity: number, 
-                                    destination: string, origin: string) {
+async function userCreateShipment(
+    userId: string, 
+    packageType: string,
+    itemDescription: string, 
+    quantity: number, 
+    weight: number,
+    destination: string, 
+    origin: string,
+    senderEmail: string,
+    senderPhone: string,
+    recipientEmail: string,
+    recipientPhone: string
+) {
     const user = await UserModel.findById(userId);
     if (!user) {
         throw new Error('User Not Found');
@@ -15,9 +26,20 @@ async function userCreateShipment(userId: string, itemDescription: string, quant
     const sanitisedDescription = itemDescription.trim().replace(/[<>]/g, '')
     const sanitisedOrigin = origin.trim().replace(/[<>]/g, '');
     const sanitisedDestination = destination.trim().replace(/[<>]/g, '');
+    const sanitisedRecipientEmail = recipientEmail.trim().replace(/[<>]/g, '');
+    const sanitisedSenderEmail = senderEmail.trim().replace(/[<>]/g, '');
+    const sanitisedSenderPhone = senderPhone.trim().replace(/[^\d+]/g, '');
+    const sanitisedRecipientPhone = recipientPhone.trim().replace(/[^\d+]/g, '');
 
     validateItemDescription(sanitisedDescription);
     validateQuantity(quantity);
+    validateWeight(weight);
+    validateEmail(sanitisedRecipientEmail)
+    validateEmail(sanitisedSenderEmail)
+    
+    validatePhoneNumber(sanitisedSenderPhone);
+    validatePhoneNumber(sanitisedRecipientPhone);
+
     validateLocations(sanitisedOrigin, sanitisedDestination);
     
     const shipment = new ShipmentModel({
@@ -25,6 +47,12 @@ async function userCreateShipment(userId: string, itemDescription: string, quant
         orderNumber: generateOrderNumber(),
         itemDescription: sanitisedDescription,
         quantity: quantity,
+        weight: weight,
+        packageType: packageType,
+        senderEmail: sanitisedSenderEmail,
+        senderPhone: sanitisedSenderPhone,
+        recipientEmail: sanitisedRecipientEmail,
+        recipientPhone: sanitisedRecipientPhone,
         destination: sanitisedDestination,
         origin: sanitisedOrigin,
         completed: false

@@ -23,8 +23,13 @@ export interface Shipments {
     orderNumber: number,
     itemDescription: string,
     quantity: number,
-    country: string,
-    trackingNumber: string,
+    weight: number,
+    packageType: string,
+    senderEmail: string,
+    senderPhone: string,
+    recipientPhone: string,
     destination: string,
-    origin: string
+    origin: string,
+    completed: boolean,
+    trackingNumber: string,
 }

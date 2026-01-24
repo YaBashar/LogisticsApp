@@ -64,9 +64,21 @@ export const requestResetPassword = async (email: string) => {
 
 
 // ShipmentCustomers
-export const requestNewShipment = async (token: string, itemDescription: string, quantity: number, destination: string, origin: string) => {
+export const requestNewShipment = async (
+    token: string, 
+    packageType: string,
+    itemDescription: string, 
+    quantity: number, 
+    weight: number,
+    destination: string, 
+    origin: string,
+    senderEmail: string,
+    senderPhone: string,
+    recipientEmail: string,
+    recipientPhone: string
+) => {
   return await request(app).post('/shipments-customer/')
-    .send({ itemDescription, quantity, origin, destination})
+    .send({ packageType, itemDescription, quantity, weight, origin, destination, senderEmail, senderPhone, recipientEmail, recipientPhone })
     .set('Authorization', `Bearer ${token}`);
 }
 

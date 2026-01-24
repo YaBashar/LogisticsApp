@@ -6,6 +6,15 @@ const shipmentSchema = new mongoose.Schema({
     orderNumber: {type: Number, required: true},
     itemDescription: {type: String, required: true},
     quantity: {type: Number, required: true},
+    weight: {type: Number, required: true},
+    packageType: {
+        type: String,
+        enum: ['pallet', 'crate', 'box']
+    },
+    senderEmail: {type: String, required: true},
+    senderPhone: {type: String, required: true},
+    recipientEmail: {type: String, required: true},
+    recipientPhone: {type: String, required: true},
     destination: {type: String, required: true},
     origin: {type: String, required: true},
     completed: {type: Boolean},

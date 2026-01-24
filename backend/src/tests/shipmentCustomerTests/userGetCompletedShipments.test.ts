@@ -29,7 +29,7 @@ beforeAll(async () => {
 
 describe('Error', () => {
     test('Invalid Token', async () => {
-        await requestNewShipment('invalidToken', 'clothing', 4, 'madinah', 'sydney');
+        await requestNewShipment(token, 'box', 'clothings', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
         const res = await requestCompletedShipments('invalidToken');
         const data = res.body;
 
@@ -41,8 +41,8 @@ describe('Error', () => {
 
 describe('Success', () => {
     test('Success', async () => {
-        const res1 = await requestNewShipment(token,  'clothing', 4, 'madinah', 'sydney');
-        await requestNewShipment(token, 'shoes', 2, 'madinah', 'sydney');
+        const res1 = await requestNewShipment(token, 'box', 'clothings', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+        await requestNewShipment(token, 'crate', 'appliances', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
   
         // Get the shipment IDs from the responses
         const shipmentId1 = res1.body.result;
@@ -58,15 +58,23 @@ describe('Success', () => {
         expect(data).toStrictEqual({ 
           result: expect.arrayContaining([
             expect.objectContaining({
-              itemDescription: 'clothing',
+              itemDescription: 'clothings',
               quantity: 4,
+              weight: 5,
               destination: 'madinah',
               origin: 'sydney',
+              packageType: 'box',
+              senderEmail: 'mubashirmh04457@gmail.com',
+              senderPhone: '+61412345678',
+              recipientEmail: 'mubashirmh04@gmail.com',
+              recipientPhone: '+61412345679',
               completed: true,
               _id: expect.any(String),
               userId: expect.any(String),
+              __v: expect.any(Number),
+              orderNumber: expect.any(Number),
             })
-          ])
+          ]),
         });
     })
 })
