@@ -47,6 +47,7 @@ export default function NewOrder() {
           }
         );
         alert('Successfully Created New Order', res.data.result);
+        setRefreshTrigger(prev => prev + 1);
         router.push('/customerProfile')
 
         // Clear Form fields
