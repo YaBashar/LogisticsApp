@@ -1,7 +1,16 @@
 import { View, Text, TextInput, StyleSheet } from 'react-native'
 import { font } from '../styles/font';
 
-export default function ContactInput() {
+export default function ContactInput({ 
+  senderEmail, 
+  setSenderEmail, 
+  senderPhone, 
+  setSenderPhone, 
+  recipientEmail, 
+  setRecipientEmail,
+  recipientPhone,
+  setRecipientPhone
+}) {
     return (
         <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
                 <View style={{flexDirection: 'column', gap: 5}}>

@@ -70,72 +70,81 @@ export default function NewOrder() {
     
     return (
       <KeyboardAvoidingView
-        style={{ backgroundColor: "white",}}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'position'}
+        style={{ backgroundColor: 'white' }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-
         <ScrollView
-          contentContainerStyle={{ alignItems: "center"}}
+          contentContainerStyle={{ alignItems: 'center' }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={[font, { marginTop: 50, fontSize: 32, color: "#004F3B", marginHorizontal: 10 }]}>New Booking</Text>
-          <View style={{ flexDirection: 'column', gap: 10, marginTop: 5}}>
-            
-            <PackageTypeInput 
-              packageType={packageType} 
-              setPackageType={setPackageType}
+          <Text style={[font, { marginTop: 50, fontSize: 32, color: "#004F3B", marginHorizontal: 10 }]}>
+            New Booking
+          </Text>
+
+          <PackageTypeInput 
+            packageType={packageType} 
+            setPackageType={setPackageType}
+          />
+
+          {/* Delivery Details */}
+          <View style={{height: 130, backgroundColor: '#E7E5E4', borderRadius: 10}}>
+            <Text style={[font, {paddingLeft: 10, paddingTop: 10}]}>Details</Text>
+              
+            <AddressInput 
+              value={origin}
+              onChangeText={setOrigin}
+              style={styles.mediumInput}
+              placeholder="Pickup From"
+              placeholderTextColor="#A6A09B"
             />
-
-              {/* Delivery Details */}
-              <View style={{height: 130, backgroundColor: '#E7E5E4', borderRadius: 10}}>
-                <Text style={[font, {paddingLeft: 10, paddingTop: 10}]}>Details</Text>
-                  
-                <AddressInput 
-                  value={origin}
-                  onChangeText={setOrigin}
-                  style={styles.mediumInput}
-                  placeholder="Pickup From"
-                  placeholderTextColor="#A6A09B"
-                />
-                
-                <AddressInput 
-                  value={destination}
-                  onChangeText={setDestination}
-                  style={styles.mediumInput}
-                  placeholder="Deliver To"
-                  placeholderTextColor="#A6A09B"
-                />		
-              </View>
-
-
-              <ItemInfoInput
-                itemDescription={itemDescription}
-                setItemDescription={setItemDescription}
-                quantity={quantity}
-                setQuantity={setQuantity}
-                weight={weight}
-                setWeight={setWeight}
-              />
-
-              <ContactInput
-                senderEmail={senderEmail}
-                setSenderEmail={setSenderEmail}
-                senderPhone={senderPhone}
-                setSenderPhone={setSenderPhone}
-                recipientEmail={recipientEmail}
-                setRecipientEmail={setRecipientEmail}
-                recipientPhone={recipientPhone}
-                setRecipientPhone={setRecipientPhone}
-              />
+            
+            <AddressInput 
+              value={destination}
+              onChangeText={setDestination}
+              style={styles.mediumInput}
+              placeholder="Deliver To"
+              placeholderTextColor="#A6A09B"
+            />		
           </View>
+
+          <ItemInfoInput
+            itemDescription={itemDescription}
+            setItemDescription={setItemDescription}
+            quantity={quantity}
+            setQuantity={setQuantity}
+            weight={weight}
+            setWeight={setWeight}
+          />
+
+          <ContactInput
+            senderEmail={senderEmail}
+            setSenderEmail={setSenderEmail}
+            senderPhone={senderPhone}
+            setSenderPhone={setSenderPhone}
+            recipientEmail={recipientEmail}
+            setRecipientEmail={setRecipientEmail}
+            recipientPhone={recipientPhone}
+            setRecipientPhone={setRecipientPhone}
+          />
         
-          <Pressable onPress={handleSubmitNewOrder} style={{marginTop: 15, backgroundColor: '#A4F4CF', paddingVertical: 10, paddingHorizontal: 10, borderRadius: 15, width: 250}}>
-            <Text style={[font, {color: '#004F3B', textAlign: 'center', fontSize: 20}]}>Book Now</Text>
+          <Pressable 
+            onPress={handleSubmitNewOrder} 
+            style={{
+              marginTop: 15, 
+              backgroundColor: '#A4F4CF', 
+              paddingVertical: 10, 
+              paddingHorizontal: 10, 
+              borderRadius: 15, 
+              width: 250
+            }}
+          >
+            <Text style={[font, {color: '#004F3B', textAlign: 'center', fontSize: 20}]}>
+              Book Now
+            </Text>
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
-        
     );
 }
 
