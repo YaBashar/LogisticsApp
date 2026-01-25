@@ -21,7 +21,7 @@ export default function PackageTypeInput({ packageType, setPackageType }) {
   return (
     <View>
       <Text style={[font]}>Package Type</Text>
-      <View style={{flexDirection: 'row', gap: 10, justifyContent: 'flex-start', marginTop: 5 }}>
+      <View style={{flexDirection: 'row', gap: 10, justifyContent: 'flex-start', marginTop: 5, marginBottom: 10 }}>
 
         {packageTypes.map((type) => {
           return(
