@@ -12,7 +12,7 @@ export default function CustomerProfile() {
     return (
     <> 
       <View style={{ flex: 1, flexDirection: "column", justifyContent: "flex-start", alignItems: "center", backgroundColor: "white" }}>
-        <Text style={[font, { marginTop: 50, fontSize: 32, color: "#004F3B", marginHorizontal: 10 }]}>My Orders</Text>
+        <Text style={[font, { marginTop: 35, fontSize: 32, color: "#004F3B", marginHorizontal: 10 }]}>My Orders</Text>
 
         <View style={{flexDirection: 'row', gap: 10}}>
             {tabs.map((tab) => {
@@ -22,7 +22,7 @@ export default function CustomerProfile() {
                   onPress={() => setActiveTab(tab)} 
                   style={({ pressed }) => [
                     {
-                      marginTop: 20,
+                      marginTop: 5,
                       marginBottom: 10, 
                       padding: 10,
                       borderRadius: 5, 
@@ -39,8 +39,8 @@ export default function CustomerProfile() {
             })} 
           </View>
 
-        { activeTab === 'Completed' && <ActiveOrders/> }
-        { activeTab === 'Active' && <CompletedOrders/>}
+        { activeTab === 'Completed' && <CompletedOrders/> }
+        { activeTab === 'Active' && <ActiveOrders/>}
 
       </View>
     </>    
