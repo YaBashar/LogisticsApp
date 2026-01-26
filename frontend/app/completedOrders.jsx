@@ -39,11 +39,13 @@ export default function CompletedOrders() {
                     </View>
                 )}
 
-                <ShipmentCard
-                    shipments={shipments}
-                    expandedOrder={expandedOrder}
-                    setExpandedOrder={setExpandedOrder}
-                ></ShipmentCard>
+                { shipments.map((shipment) => {
+                    <ShipmentCard
+                        shipment={shipment}
+                        expandedOrder={expandedOrder}
+                        setExpandedOrder={setExpandedOrder}
+                    ></ShipmentCard>
+                })}
             </View>
         </View>
     )
