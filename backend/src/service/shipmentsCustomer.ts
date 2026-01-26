@@ -67,28 +67,27 @@ async function userCreateShipment(
 
 
 // 4 -> View all active orders 
-async function userGetActiveOrders(userId: string) {
-    const user = UserModel.findById(userId);
+async function userGetActiveOrders(userId: string, page: number, limit: number) {
+    const user = await UserModel.findById(userId);
     if (!user) {
         throw new Error('User not found');
     }
 
-    const shipments = await ShipmentModel.find({
-        userId: userId,
-        completed: false
-    })
+    const shipments = await ShipmentModel.find({userId: userId, completed: false})
+    .skip((page - 1) * limit)
+    .limit(limit)
 
     return shipments;
 }
 
 // 5 -> View all completed orders
 async function userGetCompletedOrders(userId: string) {
-    const user = UserModel.findById(userId);
+    const user = await UserModel.findById(userId);
     if (!user) {
         throw new Error('User not found');
     }
 
-    const shipments = ShipmentModel.find({
+    const shipments = await ShipmentModel.find({
         userId: userId,
         completed: true
     })
