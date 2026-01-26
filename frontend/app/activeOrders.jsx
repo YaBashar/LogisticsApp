@@ -1,5 +1,5 @@
 
-import { View, Text, Image, Pressable, TouchableOpacity } from 'react-native';
+import { View, Text, Image, Pressable, TouchableOpacity, FlatList } from 'react-native';
 import { ActivityIndicator } from 'react-native';
 import { useState, useEffect } from 'react';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
@@ -11,28 +11,52 @@ export default function ActiveOrders() {
     const [shipments, setShipments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [expandedOrder, setExpandedOrder] = useState(null);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+
     const axiosPrivate = useAxiosPrivate();
 
     useEffect(() => {
+      let isCancelled = false;
+
       const fetchActiveShipments = async () => {
+        if (!hasMore) return;
+        if (isCancelled) return;
+        setLoading(true)
         try {
-          setLoading(true)
-          const res = await axiosPrivate.get('/shipments-customer/active');
-          console.log(res.data.result);
-          setShipments(res.data.result);
+          const res = await axiosPrivate.get(`/shipments-customer/active?page=${page}&limit=3`);
+          const result = res.data.result
+
+          if (isCancelled) return;
+
+          if (!result || result.length === 0) {
+            setHasMore(false);
+          } else {
+            setShipments(prev => [...prev, ...result])
+          }
         } catch (error) {
-            console.error(error);
+            if (!isCancelled) console.error(error);
         } finally {
-          setLoading(false)
+          if (!isCancelled) setLoading(false)
         }
       }
-      fetchActiveShipments();
-    }, [axiosPrivate])
-    
-    
 
+      fetchActiveShipments();
+      return () => {
+        isCancelled = true;
+      };
+    }, [page])
+    
+    const loadMore = () => {
+      if (loading || !hasMore)  return;
+
+      setLoading(true);
+      setPage(prev => prev + 1);
+    }
+
+  
     return (
-      
+
       <View style={{ flex: 1, flexDirection: "column", justifyContent: "flex-start", alignItems: "center", backgroundColor: "white" }}>
 
         {loading ? (
@@ -45,26 +69,35 @@ export default function ActiveOrders() {
         ) : (
 
           <>
-            <View style={{ height: 475, width: 300, backgroundColor: '#ECFDF5', borderRadius: 10,  justifyContent: 'flex-start', alignItems: 'center', borderWidth: 2, borderColor: '#004F3B' }}>
+            <View style={{ height: 485, width: 300, backgroundColor: '#ECFDF5', borderRadius: 10,  justifyContent: 'flex-start', alignItems: 'center', borderWidth: 2, borderColor: '#004F3B' }}>
               {shipments.length === 0 && ( 
-                <View style={{height: 300, width: '90%', backgroundColor:"#F3F3F4", justifyContent: 'center', alignItems: 'center', borderRadius: 20}}>
+                <View style={{marginVertical: 10, height: 465, width: '90%', backgroundColor:"#F3F3F4", justifyContent: 'center', alignItems: 'center', borderRadius: 20}}>
                   <Image source={require('../assets/images/idleBox.png')} style={{width: 200, height: 200, borderRadius: 20}} />
                   <Text style ={[font, {fontSize: 24, textAlign: 'center', marginTop: 20, padding: 30}]}>No Orders Yet, Your orders will show up here</Text>
                 </View>
               )}
 
-              <ShipmentCard 
-                shipments={shipments}
-                expandedOrder={expandedOrder}
-                setExpandedOrder={setExpandedOrder}
-              /> 
-              
+              <FlatList
+                data={shipments}
+                renderItem={({ item }) => (
+                  <ShipmentCard 
+                    shipment={item} 
+                    expandedOrder={expandedOrder} 
+                    setExpandedOrder={setExpandedOrder}
+                  />
+                )}
+                keyExtractor={(item) => item._id}
+                onEndReached={loadMore}
+                onEndReachedThreshold={0.1} 
+                ListFooterComponent={loading ? <ActivityIndicator size="large" /> : null} 
+              />
             </View>
 
             <Pressable 
-            onPress={() => router.push('/newOrder')} 
-            style={{marginTop: 20, marginBottom:50, backgroundColor: '#A4F4CF',  paddingVertical: 10, paddingHorizontal: 10, borderRadius: 15, width: 250}}>
-                <Text style={[font, {color: '004F3B', textAlign: 'center', fontSize: 20}]}>Request New Order</Text>
+              onPress={() => router.push('/newOrder')} 
+              style={{marginTop: 20, marginBottom:50, backgroundColor: '#A4F4CF',  paddingVertical: 10, paddingHorizontal: 10, borderRadius: 15, width: 250}}
+            >
+              <Text style={[font, {color: '004F3B', textAlign: 'center', fontSize: 20}]}>Request New Order</Text>
             </Pressable>
           </>
         )}
