@@ -2,7 +2,7 @@ import React from 'react'
 import { View, TextInput } from 'react-native'
 import { useRef } from 'react';
 
-const NumericalCodeEntry = ({ code, setCode }) => {
+const NumericalCodeInput = ({ code, setCode }) => {
     
     const inputRefs = useRef([]);
 
@@ -46,4 +46,4 @@ const NumericalCodeEntry = ({ code, setCode }) => {
   )
 }
 
-export default NumericalCodeEntry
+export default NumericalCodeInput

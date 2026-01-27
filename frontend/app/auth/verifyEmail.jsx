@@ -1,8 +1,8 @@
-import { View, Text, TextInput, Image, Pressable } from 'react-native'
-import { useState, useRef } from 'react';
+import { View, Text, Image, Pressable } from 'react-native'
+import { useState } from 'react';
 import { router } from 'expo-router';
 import { font } from '../../styles/font';
-import  NumericalCodeEntry from '../../components/NumericalCodeEntry';
+import  NumericalCodeInput from '../../components/inputs/NumericalCodeInput';
 import axios from '../../services/axios'
 
 
@@ -38,7 +38,7 @@ export default function VerifyEmail() {
             <Text style={[font, { fontSize: 20, color: "#004F3B", width: 250, marginHorizontal: 10, textAlign: "center" }]}>Enter the code sent to your email to verify</Text>
 
 
-            <NumericalCodeEntry code={code} setCode={setCode} />
+            <NumericalCodeInput code={code} setCode={setCode} />
 
             <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 15, marginTop: 30}}>
                 <Pressable onPress={handleVerify} style={{backgroundColor: '#A4F4CF', paddingVertical: 10, paddingHorizontal: 10, borderRadius: 15, width: 250}}>

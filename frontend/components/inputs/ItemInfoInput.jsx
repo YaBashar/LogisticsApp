@@ -1,5 +1,5 @@
 import { View, Text, TextInput, StyleSheet } from 'react-native'
-import { font } from '../styles/font';
+import { font } from '../../styles/font';
 
 export default function ItemInfoInput({itemDescription, setItemDescription, quantity, setQuantity, weight, setWeight}) {
     return(

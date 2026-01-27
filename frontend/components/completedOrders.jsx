@@ -1,5 +1,5 @@
 
-import { View, Text, Image, Pressable } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';

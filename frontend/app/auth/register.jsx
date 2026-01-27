@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity } from 'react-native'
+import  {  useState } from 'react'
+import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
 import axios from '../../services/axios'
 import useAuth from '../../hooks/useAuth'
 import { router } from 'expo-router';

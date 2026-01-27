@@ -1,6 +1,6 @@
 import useAuth from '@/hooks/useAuth';
-import CustomerProfile from './customerProfile';
-import AdminProfile from './adminProfile';
+import CustomerProfile from '../components/customerProfile';
+import AdminProfile from '../components/adminProfile';
 
 export default function Profile() {
     const { role } = useAuth();

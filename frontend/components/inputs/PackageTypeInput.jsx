@@ -1,5 +1,5 @@
 import { View, Text, Pressable } from 'react-native';
-import { font } from '../styles/font';
+import { font } from '../../styles/font';
 
 export default function PackageTypeInput({ packageType, setPackageType }) {
 

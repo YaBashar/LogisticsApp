@@ -1,4 +1,4 @@
-import { View, Text, Image, Pressable, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { font } from '../styles/font';
 
 export default function ShipmentCard({ shipment, expandedOrder, setExpandedOrder }) {

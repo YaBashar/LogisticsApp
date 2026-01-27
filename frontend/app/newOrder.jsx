@@ -2,11 +2,11 @@ import {useState} from 'react'
 import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, ScrollView, Platform } from 'react-native'
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { font } from '../styles/font';
-import AddressInput from '../components/AddressInput';
-import PackageTypeInput from '../components/PackageTypeInput';
+import AddressInput from '../components/inputs/AddressInput';
+import PackageTypeInput from '../components/inputs/PackageTypeInput';
 import { router } from 'expo-router';
-import ItemInfoInput from '../components/ItemInfoInput';
-import ContactInput from '../components/ContactInput';
+import ItemInfoInput from '../components/inputs/ItemInfoInput';
+import ContactInput from '../components/inputs/ContactInput';
 
 export default function NewOrder() {
 

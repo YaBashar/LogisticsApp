@@ -1,5 +1,5 @@
 
-import { View, Text, Image, Pressable, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, Image, Pressable, FlatList } from 'react-native';
 import { ActivityIndicator } from 'react-native';
 import { useState, useEffect } from 'react';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
