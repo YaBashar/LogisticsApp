@@ -6,7 +6,7 @@ export default function PackageTypeInput({ packageType, setPackageType }) {
   const packageTypes = ['pallet', 'crate', 'box'];
 
   const getButtonStyle = (type, pressed) => ({
-    width: 75,
+    width: 90,
     height: 75,
     backgroundColor: packageType === type ? '#A4F4CF' : '#E7E5E4',
     borderRadius: 10,
@@ -21,7 +21,7 @@ export default function PackageTypeInput({ packageType, setPackageType }) {
   return (
     <View>
       <Text style={[font]}>Package Type</Text>
-      <View style={{flexDirection: 'row', gap: 10, justifyContent: 'flex-start', marginTop: 5, marginBottom: 10 }}>
+      <View style={{flexDirection: 'row', gap: 10, justifyContent: 'flex-start', marginBottom: 10 }}>
 
         {packageTypes.map((type) => {
           return(

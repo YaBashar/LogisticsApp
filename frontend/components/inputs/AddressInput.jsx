@@ -85,7 +85,7 @@ export default function AddressInput({ value, onChangeText, style, placeholder, 
 
 const styles = StyleSheet.create({
   wrapper: {
-    width: 250, // Match your input width
+    width: 300, // Match your input width
   },
   suggestionsContainer: {
     position: 'absolute',

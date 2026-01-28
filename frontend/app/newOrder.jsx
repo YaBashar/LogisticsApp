@@ -15,13 +15,17 @@ export default function NewOrder() {
     const [origin, setOrigin] = useState('');
     const [destination, setDestination] = useState('');
     const [packageType, setPackageType] = useState('');
+    
     const [weight, setWeight] = useState('');
+    const [height, setHeight] = useState('');
+    const [width, setWidth] = useState('');
+    const [length, setLength] = useState('');
+
     const [senderEmail, setSenderEmail] = useState('');
     const [recipientEmail, setRecipientEmail] = useState('');
     const [senderPhone, setSenderPhone] = useState('');
     const [recipientPhone, setRecipientPhone] = useState('');
 
-	// State for new parameters
 
     const axiosPrivate = useAxiosPrivate();
 
@@ -29,6 +33,10 @@ export default function NewOrder() {
       try {
         const quantityInt = parseInt(quantity, 10);
         const weightInt = parseInt(weight, 10);
+        const heightInt = parseInt(height, 10);
+        const widthInt = parseInt(width, 10);
+        const lengthInt = parseInt(length, 10);
+
         console.log(packageType);
 
         const res = await axiosPrivate.post(
@@ -38,6 +46,9 @@ export default function NewOrder() {
             itemDescription, 
             quantity: quantityInt,
             weight: weightInt,
+            height: heightInt,
+            width: widthInt,
+            length: lengthInt,
             destination, 
             origin,
             senderEmail,
@@ -53,6 +64,10 @@ export default function NewOrder() {
         setItemDescription('');
         setQuantity('');
         setWeight('');
+        setHeight('');
+        setWidth('');
+        setLength('');
+
         setOrigin('');
         setDestination('');
         setPackageType('');
@@ -78,7 +93,7 @@ export default function NewOrder() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={[font, { marginTop: 50, fontSize: 32, color: "#004F3B", marginHorizontal: 10 }]}>
+          <Text style={[font, { marginTop: 45, fontSize: 32, color: "#004F3B", marginHorizontal: 10 }]}>
             New Booking
           </Text>
 
@@ -88,7 +103,7 @@ export default function NewOrder() {
           />
 
           {/* Delivery Details */}
-          <View style={{height: 130, backgroundColor: '#E7E5E4', borderRadius: 10}}>
+          <View style={{height: 122, backgroundColor: '#E7E5E4', borderRadius: 10}}>
             <Text style={[font, {paddingLeft: 10, paddingTop: 10}]}>Details</Text>
               
             <AddressInput 
@@ -115,6 +130,12 @@ export default function NewOrder() {
             setQuantity={setQuantity}
             weight={weight}
             setWeight={setWeight}
+            height={height}
+            setHeight={setHeight}
+            width={width}
+            setWidth={setWidth}
+            length={length}
+            setLength={setLength}
           />
 
           <ContactInput
@@ -131,7 +152,7 @@ export default function NewOrder() {
           <Pressable 
             onPress={handleSubmitNewOrder} 
             style={{
-              marginTop: 15, 
+              marginTop: 15,
               backgroundColor: '#A4F4CF', 
               paddingVertical: 10, 
               paddingHorizontal: 10, 
@@ -150,6 +171,6 @@ export default function NewOrder() {
 
 const styles = StyleSheet.create({
   input: { width: 250, height: 45, borderColor:'#004F3B', borderWidth: 1.5, borderRadius: 10, paddingHorizontal: 10 },
-  mediumInput: {marginHorizontal: 10, width: 230, height: 40, borderColor:'#004F3B', borderWidth: 1, borderRadius: 5, paddingHorizontal: 10 },
+  mediumInput: {marginHorizontal: 10, width: 280, height: 40, borderColor:'#004F3B', borderWidth: 1, borderRadius: 5, paddingHorizontal: 10 },
   halfInput: { width: 120, height: 50, borderColor:'#004F3B', borderWidth: 1.5, borderRadius: 10, paddingHorizontal: 10 }
 })

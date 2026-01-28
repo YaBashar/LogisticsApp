@@ -12,7 +12,7 @@ export default function ContactInput({
   setRecipientPhone
 }) {
     return (
-        <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+        <View style={{flexDirection: 'row', justifyContent: 'space-around', gap: 5, marginTop: 15}}>
                 <View style={{flexDirection: 'column', gap: 5}}>
                   <Text style={[font]}>Sender Details</Text>
                   <TextInput 
@@ -53,7 +53,5 @@ export default function ContactInput({
 }
 
 const styles = StyleSheet.create({
-  input: { width: 250, height: 45, borderColor:'#004F3B', borderWidth: 1.5, borderRadius: 10, paddingHorizontal: 10 },
-  mediumInput: {marginHorizontal: 10, width: 230, height: 40, borderColor:'#004F3B', borderWidth: 1, borderRadius: 5, paddingHorizontal: 10 },
-  halfInput: { width: 120, height: 50, borderColor:'#004F3B', borderWidth: 1.5, borderRadius: 10, paddingHorizontal: 10 }
+  halfInput: { width: 150, height: 40, borderColor:'#004F3B', borderWidth: 1.5, borderRadius: 10, paddingHorizontal: 5 }
 })
