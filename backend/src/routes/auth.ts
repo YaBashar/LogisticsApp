@@ -5,7 +5,7 @@ import { registrationLimiter, loginLimiter, refreshLimiter, resendVerifLimiter, 
 export const authRouter = express.Router();
 
 authRouter.post('/register', registrationLimiter, AuthController.register);
-authRouter.post('/login', loginLimiter, AuthController.login);
+authRouter.post('/login', AuthController.login);
 authRouter.post('/refresh', refreshLimiter, AuthController.refresh);
 authRouter.post('/verify-email', verifyEmailLimiter, AuthController.userVerifyEmail)
 authRouter.post('/resend-verification', resendVerifLimiter, AuthController.resendVerifyEmail);

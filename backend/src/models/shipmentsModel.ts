@@ -7,6 +7,9 @@ const shipmentSchema = new mongoose.Schema({
     itemDescription: {type: String, required: true},
     quantity: {type: Number, required: true},
     weight: {type: Number, required: true},
+    height: { type: Number, required: true},
+    width: { type: Number, required: true},
+    length: { type: Number, required: true},
     packageType: {
         type: String,
         enum: ['pallet', 'crate', 'box']
