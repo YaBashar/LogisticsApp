@@ -6,7 +6,7 @@ import useAuth from '@/hooks/useAuth';
 import { router } from 'expo-router';
 import { font } from '../../styles/font';
 import { jwtDecode } from 'jwt-decode';
-import PasswordInput from './passwordInput';
+import PasswordInput from '../../components/inputs/PasswordInput';
 
 export default function Login() {
 

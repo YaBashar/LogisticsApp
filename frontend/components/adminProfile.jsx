@@ -1,25 +1,57 @@
-import { View, Text, Image } from 'react-native'
+import { View, Text, Image, FlatList, ActivityIndicator } from 'react-native'
 import { font } from '../styles/font';
 import { useEffect, useState } from 'react';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
+import ShipmentCard from './shipmentCard';
 
 export default function CustomerProfile() {
 
     const [shipments, setShipments] = useState([]);
+    const [expandedOrder, setExpandedOrder] = useState(null);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [loading, setLoading] = useState(true);
+
     const axiosPrivate = useAxiosPrivate();
 
     useEffect(() => {
+        let isCancelled = false;
+
         const fetchActiveShipments = async () => {
+            if (!hasMore) return;
+            if (isCancelled) return;
+
+            setLoading(true);
             try {
                 const res = await axiosPrivate.get('/shipments-admin/active');
-                console.log(res.data.result);
-                setShipments(res.data.result);
+                const result = res.data.result;
+
+                if (isCancelled) return;
+
+                if (!result || result.length === 0) {
+                    setHasMore(false);
+                } else {
+                    setShipments(prev=> [...prev, ...result]);
+                }
+
             } catch (error) {
-                console.error(error);
+                if(!isCancelled) console.error(error);
+            } finally {
+                if (!isCancelled) setLoading(false);
             }
         }
         fetchActiveShipments();
-    }, [])
+
+        return (() =>  {
+            isCancelled = true;
+        });
+    }, [page])
+
+    const loadMore = () => {
+        if (!hasMore) return;
+        setLoading(true);
+        setPage(prev => prev + 1);
+    }
 
     return (
         <View style={{ flex: 1, flexDirection: "column", justifyContent: "flex-start", alignItems: "center", backgroundColor: "white" }}>
@@ -34,19 +66,23 @@ export default function CustomerProfile() {
                     </View>
                 )}
 
-                
-                {shipments.map((shipment) => {
-                    return (
-                        <View style={{height: '30%', width: '90%', backgroundColor:"#FFFFFF", marginTop: 10, justifyContent: 'flex-start', alignItems: 'flex-start', paddingLeft: 20, paddingTop: 10, borderRadius: 20}} key = {shipment._id}>
-                            <Text>Item: {shipment.itemDescription}</Text>
-                            <Text>Quantity: {shipment.quantity}</Text>
-                            <Text>Destination: {shipment.destination}</Text>
-                            <Text>Arrive By: {shipment.arriveBy}</Text>
-                            <Text>Status: Pending </Text>
-                            <Text>Orderd By: {shipment.userId.name}</Text>
-                        </View>
-                    )
-                })}
+            
+                <FlatList
+                    data={shipments}
+                    renderItem={({item}) => (
+                        <ShipmentCard
+                            shipment={item}
+                            expandedOrder={expandedOrder}
+                            setExpandedOrder={setExpandedOrder}
+                        />          
+                    )}
+
+                    keyExtractor={(item) => item._id}
+                    onEndReached={loadMore}
+                    onEndReachedThreshold={0.1}
+                    ListFooterComponent={loading ? <ActivityIndicator size="large"/> : null}
+                />
+            
             </View>
         </View>
     )
