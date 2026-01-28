@@ -29,8 +29,8 @@ beforeAll(async () => {
 
 describe('Error', () => {
   test('Invalid Token', async () => {
-      await requestNewShipment(token, 'box', 'clothings', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
-      await requestNewShipment(token, 'crate', 'appliances', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+      await requestNewShipment(token, 'box', 'clothings', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+      await requestNewShipment(token, 'crate', 'appliances', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
          
       const res = await requestActiveShipments('invalidToken');
       const data = res.body;
@@ -44,10 +44,9 @@ describe('Error', () => {
 describe('Success', () => {
 
     test('Success', async () => {
-      await requestNewShipment(token, 'box', 'clothings', 4, 5, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
-      await requestNewShipment(token, 'crate', 'appliances', 4, 5, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
-      
-       
+      await requestNewShipment(token, 'box', 'clothings', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+      await requestNewShipment(token, 'crate', 'appliances', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+
         const res = await requestActiveShipments(token);
         const data = res.body;
 

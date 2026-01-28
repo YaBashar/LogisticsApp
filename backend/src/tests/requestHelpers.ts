@@ -70,6 +70,9 @@ export const requestNewShipment = async (
     itemDescription: string, 
     quantity: number, 
     weight: number,
+    height: number,
+    width: number,
+    length: number,
     destination: string, 
     origin: string,
     senderEmail: string,
@@ -78,7 +81,7 @@ export const requestNewShipment = async (
     recipientPhone: string
 ) => {
   return await request(app).post('/shipments-customer/')
-    .send({ packageType, itemDescription, quantity, weight, origin, destination, senderEmail, senderPhone, recipientEmail, recipientPhone })
+    .send({ packageType, itemDescription, quantity, weight, height, width, length, origin, destination, senderEmail, senderPhone, recipientEmail, recipientPhone })
     .set('Authorization', `Bearer ${token}`);
 }
 

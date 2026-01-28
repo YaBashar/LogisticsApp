@@ -14,9 +14,8 @@ beforeEach(async () => {
   const res = await requestAuthLogin('example@gmail.com', 'Abcdefgh1234$');
   customerToken = res.body.token;
 
-  await requestNewShipment(customerToken, 'box', 'clothings', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
-  await requestNewShipment(customerToken, 'crate', 'appliances', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
-        
+  await requestNewShipment(customerToken, 'box', 'clothings', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+  await requestNewShipment(customerToken, 'crate', 'appliances', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
 
   // Create admin user directly in database
   const hashedPassword = await bcrypt.hash('YourSecurePassword123!', 10);

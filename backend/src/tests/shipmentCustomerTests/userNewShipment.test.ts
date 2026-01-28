@@ -30,7 +30,7 @@ describe('Error', () => {
     
     // Item Description
     test('Item Description Empty Empty', async() => {
-        const res = await requestNewShipment(token, 'box', '', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+        const res = await requestNewShipment(token, 'box', '', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(400);
@@ -39,7 +39,7 @@ describe('Error', () => {
 
     // Quantity
     test('Quantity has to be > 0', async() => {
-        const res = await requestNewShipment(token, 'box', 'clothings', 0, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+        const res = await requestNewShipment(token, 'box', 'clothings', 0, 5, 10, 10, 10,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(400);
@@ -47,7 +47,7 @@ describe('Error', () => {
     });
 
     test('Quantity must be a whole number', async() => {
-        const res = await requestNewShipment(token, 'box', 'clothings', 4.3, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+        const res = await requestNewShipment(token, 'box', 'clothings', 4.3, 5, 10, 10, 10,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(400);
@@ -55,7 +55,7 @@ describe('Error', () => {
     });
 
     test('Quantity cannot exceed 1 000 000', async() => {
-        const res = await requestNewShipment(token, 'box', 'clothings', 10000000, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+        const res = await requestNewShipment(token, 'box', 'clothings', 10000000, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(400);
@@ -65,7 +65,7 @@ describe('Error', () => {
 
     // Origin + Destination
     test('Origin and Destination cannot be the same', async() => {
-        const res = await requestNewShipment(token, 'box', 'clothings', 4, 5,  'madinah', 'madinah', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+        const res = await requestNewShipment(token, 'box', 'clothings', 4, 5, 10, 10, 10, 'madinah', 'madinah', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(400);
@@ -73,7 +73,7 @@ describe('Error', () => {
     });
 
     test('Invalid Token', async () => {
-        const res = await requestNewShipment('invalidToken', 'box', 'clothings', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+        const res = await requestNewShipment('invalidToken', 'box', 'clothings', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(401);
@@ -85,7 +85,7 @@ describe('Error', () => {
 describe('Success', () => {
 
     test('Success', async () => {
-        const res = await requestNewShipment(token, 'box', 'clothings', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+        const res = await requestNewShipment(token, 'box', 'clothings', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
         const data = res.body;
         console.log(data)
 

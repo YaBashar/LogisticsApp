@@ -29,7 +29,7 @@ beforeAll(async () => {
 
 describe('Error', () => {
     test('Invalid Token', async () => {
-        await requestNewShipment(token, 'box', 'clothings', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+        await requestNewShipment(token, 'box', 'clothings', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
         const res = await requestCompletedShipments('invalidToken');
         const data = res.body;
 
@@ -41,9 +41,9 @@ describe('Error', () => {
 
 describe('Success', () => {
     test('Success', async () => {
-        const res1 = await requestNewShipment(token, 'box', 'clothings', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
-        await requestNewShipment(token, 'crate', 'appliances', 4, 5,  'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
-  
+        const res1 = await requestNewShipment(token, 'box', 'clothings', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+        await requestNewShipment(token, 'crate', 'appliances', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
+
         // Get the shipment IDs from the responses
         const shipmentId1 = res1.body.result;
         console.log(shipmentId1)
