@@ -23,7 +23,7 @@ export default function CustomerProfile() {
 
             setLoading(true);
             try {
-                const res = await axiosPrivate.get('/shipments-admin/active');
+                const res = await axiosPrivate.get(`/shipments-admin/active?page=${page}&limit=3`);
                 const result = res.data.result;
 
                 if (isCancelled) return;
@@ -48,17 +48,25 @@ export default function CustomerProfile() {
     }, [page])
 
     const loadMore = () => {
-        if (!hasMore) return;
+        if (loading || !hasMore) return;
         setLoading(true);
         setPage(prev => prev + 1);
     }
 
     return (
         <View style={{ flex: 1, flexDirection: "column", justifyContent: "flex-start", alignItems: "center", backgroundColor: "white" }}>
-            <Text style={[font, { marginTop: 50, fontSize: 32, color: "#004F3B", marginHorizontal: 10 }]}>My Orders</Text>
-            <Text style={[font, { marginVertical: 10, fontSize: 24, color: "#004F3B" }]}>Active Orders</Text>
+            <Text style={[font, { marginTop: 40, fontSize: 32, color: "#004F3B", marginHorizontal: 10 }]}>My Orders</Text>
+            <Text style={[font, { fontSize: 24, color: "#004F3B" }]}>Active Orders</Text>
             
-            <View style={{ height: 450, width: '90%', backgroundColor: '#ECFDF5', borderRadius: 10,  justifyContent: 'flex-start', alignItems: 'center', borderWidth: 2, borderColor: '#004F3B' }}>
+            { loading ? (
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="large" color="#004F3B" />
+                    <Text style={[font, { marginTop: 10, color: '#666', fontSize: 14 }]}>
+                    Loading orders...
+                    </Text>
+                </View>
+                ) : (
+                     <View style={{ height: 570, width: '90%', backgroundColor: '#ECFDF5', borderRadius: 10,  justifyContent: 'flex-start', alignItems: 'center', borderWidth: 2, borderColor: '#004F3B' }}>
                 {shipments.length === 0 && ( 
                     <View style={{height: '90%', width: '90%', backgroundColor:"#F3F3F4", justifyContent: 'center', alignItems: 'center', borderRadius: 20}}>
                         <Image source={require('../assets/images/idleBox.png')} style={{width: 200, height: 200, borderRadius: 20}} />
@@ -72,8 +80,6 @@ export default function CustomerProfile() {
                     renderItem={({item}) => (
                         <ShipmentCard
                             shipment={item}
-                            expandedOrder={expandedOrder}
-                            setExpandedOrder={setExpandedOrder}
                         />          
                     )}
 
@@ -84,6 +90,10 @@ export default function CustomerProfile() {
                 />
             
             </View>
+                )
+    
+            }
+
         </View>
     )
 }
