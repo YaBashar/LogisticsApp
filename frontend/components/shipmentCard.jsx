@@ -1,15 +1,22 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable } from 'react-native';
+import { useState } from 'react';
 import { font } from '../styles/font';
+import useAuth from '../hooks/useAuth';
+import PackageTimeline from './PackageTimeline';
 
-export default function ShipmentCard({ shipment, expandedOrder, setExpandedOrder }) {
+export default function ShipmentCard({ shipment }) {
 
-  const isExpanded = expandedOrder === shipment._id;
+  const { role } = useAuth();
+  const states = ["Pending", "Picked", "Packed", "Shipped", "Delivered"]
+  const [timeLine, setTimeline] = useState('Pending')
 
+  // Update to show linear travel from origin to destination
+  // Show update functionality for admin
+  
   return (
     <>
       <TouchableOpacity 
         key={shipment._id}
-        onPress={() => setExpandedOrder(isExpanded ? null : shipment._id)}
         activeOpacity={0.7}
       >
         <View style={{ width: 275, backgroundColor: "white", marginTop: 10, marginHorizontal: 10, borderRadius: 16, borderWidth: 1, borderColor: '#E5E5E5', overflow: 'hidden'}}>
@@ -34,58 +41,30 @@ export default function ShipmentCard({ shipment, expandedOrder, setExpandedOrder
                   </Text>
                 </View>
               </View>
-                  
-              {/* Status Badge */}
-              <View style={{ backgroundColor: '#FEF3C7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 }}>
-                  <Text style={[font, { fontSize: 11, color: '#92400E', fontWeight: '600' }]}>
-                      Pending
-                  </Text>
-              </View>
             </View>
               
               {/* Route Display */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 8 }}>
-                <Text style={[font, { fontSize: 12, color: '#666', flex: 1 }]} numberOfLines={1}>
+              <View style={{ flexDirection: 'column', marginTop: 8}}>
+                <Text style={[font, { fontSize: 10}]}>📌 Origin</Text>
+                <Text style={[font, { fontSize: 10, color: '#666', marginLeft: 4 }]}>
                   {shipment.origin}
                 </Text>
-                <Text style={{ fontSize: 14, color: '#14B8A6' }}>-{'>'}</Text>
-                <Text style={[font, { fontSize: 12, color: '#666', flex: 1, textAlign: 'right' }]} numberOfLines={1}>
+                <Text style={[font, { fontSize: 10}]}>📌 Destination</Text>
+                <Text style={[font, { fontSize: 10, color: '#666' }]}>
                   {shipment.destination}
                 </Text>
               </View>
+
+               {/*Package TimeLine*/}
+              <PackageTimeline/>
+
+              { role === 'admin' && (
+                <Pressable>
+                  <Text style={{textAlign: 'center', padding: 10, backgroundColor: '#004F3B', color: "white"}}>Update Status</Text>
+                </Pressable>
+              )}
               
-              {/* Expand/Collapse Indicator */}
-              <View style={{ alignItems: 'center', marginTop: 8 }}>
-                  <Text style={{ fontSize: 14, color: '#004F3B', fontWeight: 'bold' }}>
-                      View Details {isExpanded ? '⬆️' : '⬇️'}
-                  </Text>
-              </View>
           </View>
-          
-          {/* Expanded Content */}
-          {isExpanded && (
-            <View style={{ backgroundColor: '#F9FAFB', padding: 10, borderTopWidth: 1, borderTopColor: '#E5E7EB' }}>
-
-              <View style={{ marginBottom: 6 }}>
-                <Text style={[font, { fontSize: 10, color: '#6B7280' }]}>
-                  Full Origin Address
-                </Text>
-                <Text style={[font, { fontSize: 12, color: '#374151' }]}>
-                  {shipment.origin}
-                </Text>
-              </View>
-
-              <View>
-                <Text style={[font, { fontSize: 10, color: '#6B7280' }]}>
-                  Full Destination
-                </Text>
-                <Text style={[font, { fontSize: 12, color: '#374151' }]}>
-                  {shipment.destination}
-                </Text>
-              </View>
-                  
-            </View>
-          )}
         </View>
       </TouchableOpacity>  
     </>

@@ -24,7 +24,7 @@ export default function ActiveOrders() {
         if (isCancelled) return;
         setLoading(true)
         try {
-          const res = await axiosPrivate.get(`/shipments-customer/active?page=${page}&limit=3`);
+          const res = await axiosPrivate.get(`/shipments-customer/active?page=${page}&limit=2`);
           const result = res.data.result
 
           if (isCancelled) return;
@@ -82,8 +82,6 @@ export default function ActiveOrders() {
                 renderItem={({ item }) => (
                   <ShipmentCard 
                     shipment={item} 
-                    expandedOrder={expandedOrder} 
-                    setExpandedOrder={setExpandedOrder}
                   />
                 )}
                 keyExtractor={(item) => item._id}
