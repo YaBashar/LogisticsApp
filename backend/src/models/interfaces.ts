@@ -25,6 +25,7 @@ export interface Shipments {
     quantity: number,
     weight: number,
     packageType: string,
+    status: string,
     senderEmail: string,
     senderPhone: string,
     recipientPhone: string,

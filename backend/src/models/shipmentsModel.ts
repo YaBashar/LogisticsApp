@@ -14,6 +14,10 @@ const shipmentSchema = new mongoose.Schema({
         type: String,
         enum: ['pallet', 'crate', 'box']
     },
+    status: {
+        type: String,
+        enum: ['Pending', 'Picked', 'Shipped', 'Delivered', 'Received']
+    },
     senderEmail: {type: String, required: true},
     senderPhone: {type: String, required: true},
     recipientEmail: {type: String, required: true},
