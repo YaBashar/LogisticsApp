@@ -5,4 +5,5 @@ import { verifyJWT } from '../middleware';
 
 export const shipmentsAdminRouter = express.Router(); 
 
+shipmentsAdminRouter.put('/:shipmentId/status', verifyJWT, adminShipmentsController.updateStatus);
 shipmentsAdminRouter.get('/active', verifyJWT, adminShipmentsController.getAllActiveOrders)
