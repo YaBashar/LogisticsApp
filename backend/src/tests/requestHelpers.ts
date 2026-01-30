@@ -94,6 +94,16 @@ export const requestActiveShipments = async (token: string) => {
 }
 
 // Admin Customer
-export const requestAllActiveShipments = async (token: string) => {
-  return await request(app).get('/shipments-admin/active').set('Authorization', `Bearer ${token}`);
+export const requestAllActiveShipments = async (token: string, page: number, limit: number) => {
+  return await request(app)
+    .get('/shipments-admin/active')
+    .query({ page, limit})
+    .set('Authorization', `Bearer ${token}`);
+}
+
+export const requestUpdateShipmentStatus = async (token: string, shipmentId: string, status: string) => {
+  return (await request(app).put(`/shipments-admin/${shipmentId}/status`)
+        .send({ status })
+        .set('Authorization', `Bearer ${token}`)
+      )
 }
