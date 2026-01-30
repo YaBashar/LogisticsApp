@@ -87,6 +87,7 @@ async function userGetActiveOrders(userId: string, page: number, limit: number) 
 }
 
 // 5 -> View all completed orders
+// Add pagination later
 async function userGetCompletedOrders(userId: string) {
     const user = await UserModel.findById(userId);
     if (!user) {

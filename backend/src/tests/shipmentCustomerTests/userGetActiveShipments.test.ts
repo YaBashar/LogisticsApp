@@ -32,7 +32,7 @@ describe('Error', () => {
       await requestNewShipment(token, 'box', 'clothings', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
       await requestNewShipment(token, 'crate', 'appliances', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
          
-      const res = await requestActiveShipments('invalidToken');
+      const res = await requestActiveShipments('invalidToken', 1, 1);
       const data = res.body;
 
       expect(res.statusCode).toStrictEqual(401);
@@ -47,7 +47,7 @@ describe('Success', () => {
       await requestNewShipment(token, 'box', 'clothings', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
       await requestNewShipment(token, 'crate', 'appliances', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
 
-        const res = await requestActiveShipments(token);
+        const res = await requestActiveShipments(token, 1, 2);
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(200);

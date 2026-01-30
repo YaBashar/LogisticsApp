@@ -52,7 +52,7 @@ beforeAll(async () => {
 
 describe('Error', () => {
     test('Invalid Token', async () => {
-        const res = await requestAllActiveShipments('invalidToken');
+        const res = await requestAllActiveShipments('invalidToken', 1, 1);
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(401);
@@ -62,7 +62,7 @@ describe('Error', () => {
 
 describe('Success', () => {
     test('Success', async () => {
-        const res = await requestAllActiveShipments(adminToken);
+        const res = await requestAllActiveShipments(adminToken, 1, 1);
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(200);
