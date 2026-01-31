@@ -1,9 +1,16 @@
-import express from 'express';
-import { Router } from "express";
-import * as adminShipmentsController from '../controllers/shipmentsAdmin.controller';
-import { verifyJWT } from '../middleware';
+import express from "express";
+import * as adminShipmentsController from "../controllers/shipmentsAdmin.controller";
+import { verifyJWT } from "../middleware";
 
-export const shipmentsAdminRouter = express.Router(); 
+export const shipmentsAdminRouter = express.Router();
 
-shipmentsAdminRouter.put('/:shipmentId/status', verifyJWT, adminShipmentsController.updateStatus);
-shipmentsAdminRouter.get('/active', verifyJWT, adminShipmentsController.getAllActiveOrders)
+shipmentsAdminRouter.put(
+  "/:shipmentId/status",
+  verifyJWT,
+  adminShipmentsController.updateStatus
+);
+shipmentsAdminRouter.get(
+  "/active",
+  verifyJWT,
+  adminShipmentsController.getAllActiveOrders
+);

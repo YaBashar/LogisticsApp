@@ -1,23 +1,23 @@
-// eslint.config.js (or eslint.config.mjs if you’re using ESM in config)
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
+import prettierPlugin from "eslint-plugin-prettier";
+import prettierConfig from "eslint-config-prettier";
 
 export default [
   {
-    ignores: ["node_modules/**", "dist/**"], // ignore build artifacts
+    ignores: ["node_modules/**", "dist/**"],
   },
 
   js.configs.recommended,
-
-  // TypeScript recommended configs
   ...tseslint.configs.recommended,
+  prettierConfig, // Add this to disable conflicting rules
 
   {
-    files: ["src/**/*.{ts,tsx,js}"],   // 👈 covers both TS and JS
+    files: ["src/**/*.{ts,tsx,js}"],
     languageOptions: {
-      parser: tseslint.parser,        // 👈 enable TS parser
+      parser: tseslint.parser,
       parserOptions: {
-        project: "./tsconfig.json",   // optional, enables type-aware rules
+        project: "./tsconfig.json",
       },
       ecmaVersion: "latest",
       sourceType: "module",
@@ -30,12 +30,18 @@ export default [
         module: "readonly",
         beforeEach: "readonly",
         afterEach: "readonly",
+        beforeAll: "readonly",
+        afterAll: "readonly",
         test: "readonly",
         expect: "readonly",
         describe: "readonly"
       },
     },
+    plugins: {
+      prettier: prettierPlugin,
+    },
     rules: {
+      "prettier/prettier": "error",
       "no-unused-vars": "warn",
       "no-console": "off",
       "no-restricted-imports": ["error", {
@@ -220,7 +226,7 @@ export default [
     "prefer-promise-reject-errors": "error",
     "prefer-regex-literals": ["error", { "disallowRedundantWrapping": true }],
     "quote-props": ["error", "as-needed"],
-    "quotes": ["error", "single", { "avoidEscape": true, "allowTemplateLiterals": false }],
+    "quotes": ["error", "double", { "avoidEscape": true, "allowTemplateLiterals": false }],
     "rest-spread-spacing": ["error", "never"],
     "semi": [2, "always"],
     "semi-spacing": ["error", { "before": false, "after": true }],
