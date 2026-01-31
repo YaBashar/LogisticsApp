@@ -138,7 +138,7 @@ describe("Success", () => {
           weight: 5,
           height: expect.any(Number),
           length: expect.any(Number),
-          width: expect.any(Number), 
+          width: expect.any(Number),
           destination: "madinah",
           origin: "sydney",
           packageType: "crate",
