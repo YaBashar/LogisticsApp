@@ -88,16 +88,19 @@ async function userGetActiveOrders(userId: string, page: number, limit: number) 
 
 // 5 -> View all completed orders
 // Add pagination later
-async function userGetCompletedOrders(userId: string) {
+async function userGetCompletedOrders(userId: string, page: number, limit: number) {
     const user = await UserModel.findById(userId);
     if (!user) {
         throw new Error('User not found');
     }
 
-    const shipments = await ShipmentModel.find({
+    const shipments = await ShipmentModel
+    .find({
         userId: userId,
         completed: true
     })
+    .skip((page - 1) * limit)
+    .limit(limit);
 
     return shipments;
 }

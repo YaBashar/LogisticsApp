@@ -30,7 +30,7 @@ beforeAll(async () => {
 describe('Error', () => {
     test('Invalid Token', async () => {
         await requestNewShipment(token, 'box', 'clothings', 4, 5, 10, 10, 10, 'madinah', 'sydney', 'mubashirmh04457@gmail.com', '+61412345678', 'mubashirmh04@gmail.com', '+61412345679')
-        const res = await requestCompletedShipments('invalidToken');
+        const res = await requestCompletedShipments('invalidToken', 1, 1);
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(401);
@@ -51,7 +51,7 @@ describe('Success', () => {
         // Mark first shipment as completed
         await ShipmentModel.findByIdAndUpdate(shipmentId1, { completed: true });
 
-        const res = await requestCompletedShipments(token);
+        const res = await requestCompletedShipments(token, 1, 1);
         const data = res.body;
 
         expect(res.statusCode).toStrictEqual(200);
