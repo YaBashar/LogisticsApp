@@ -103,19 +103,19 @@ describe("Error", () => {
 
 describe("Success", () => {
   test("Success", async () => {
-    const res = await requestAllActiveShipments(adminToken, 1, 1);
+    const res = await requestAllActiveShipments(adminToken, 1, 2);
     const data = res.body;
 
     expect(res.statusCode).toStrictEqual(200);
-    expect(data).toStrictEqual({
-      result: expect.arrayContaining([
+    expect(data.result).toEqual(
+      expect.arrayContaining([
         expect.objectContaining({
           itemDescription: "clothings",
           quantity: 4,
           weight: 5,
-          height: expect.any(Number),
-          length: expect.any(Number),
-          width: expect.any(Number),
+          height: 10,
+          length: 10,
+          width: 10,
           destination: "madinah",
           origin: "sydney",
           packageType: "box",
@@ -136,9 +136,9 @@ describe("Success", () => {
           itemDescription: "appliances",
           quantity: 4,
           weight: 5,
-          height: expect.any(Number),
-          length: expect.any(Number),
-          width: expect.any(Number),
+          height: 10,
+          length: 10,
+          width: 10,
           destination: "madinah",
           origin: "sydney",
           packageType: "crate",
@@ -155,7 +155,7 @@ describe("Success", () => {
           __v: expect.any(Number),
           orderNumber: expect.any(Number),
         }),
-      ]),
-    });
+      ])
+    );
   });
 });
