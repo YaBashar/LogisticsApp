@@ -1,18 +1,14 @@
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  maxWorkers: 1,
-
-  roots: ['<rootDir>/src'],  // Only look in src/
-  testMatch: ['**/__tests__/**/*.ts', '**/*.test.ts'],
-
-  transform: {
-    '^.+\\.ts$': ['ts-jest', {      // ✅ Modern syntax
-      tsconfig: {
-        resolveJsonModule: true,
-        esModuleInterop: true,
-      },
-    }]
-  },
-  moduleFileExtensions: ['ts', 'js', 'json'], 
+export const preset = 'ts-jest';
+export const testEnvironment = 'node';
+export const maxWorkers = 1;
+export const roots = ['<rootDir>/src'];
+export const testMatch = ['**/__tests__/**/*.ts', '**/*.test.ts'];
+export const transform = {
+  '^.+\\.ts$': ['ts-jest', {
+    tsconfig: {
+      resolveJsonModule: true,
+      esModuleInterop: true,
+    },
+  }]
 };
+export const moduleFileExtensions = ['ts', 'js', 'json'];

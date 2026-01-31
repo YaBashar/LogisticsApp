@@ -1,11 +1,16 @@
-import { requestDelete, requestAuthRegister, requestAuthLogin, requestAuthUserDetails } from '../requestHelpers';
-import mongoose from 'mongoose';
+import {
+  requestDelete,
+  requestAuthRegister,
+  requestAuthLogin,
+  requestAuthUserDetails,
+} from "../requestHelpers";
+import mongoose from "mongoose";
 
-beforeEach( async () => {
+beforeEach(async () => {
   await requestDelete();
 });
 
-afterEach(async() => {
+afterEach(async () => {
   await requestDelete();
 });
 
@@ -18,14 +23,23 @@ beforeAll(async () => {
   if (mongoose.connection.readyState === 0) {
     await mongoose.connect(process.env.MONGODB_URI);
   }
-})
+});
 
-
-describe('Error Cases', () => {
-  describe('Test Email', () => {
-    test('email address is already used by another user', async () => {
-      await requestAuthRegister('firstname', 'lastname', 'abcdefghIJ123456*', 'email@unsw.edu.au');
-      const res = await requestAuthRegister('firstname1', 'lastname1', 'abcdefghIJK123456*', 'email@unsw.edu.au');
+describe("Error Cases", () => {
+  describe("Test Email", () => {
+    test("email address is already used by another user", async () => {
+      await requestAuthRegister(
+        "firstname",
+        "lastname",
+        "abcdefghIJ123456*",
+        "email@unsw.edu.au"
+      );
+      const res = await requestAuthRegister(
+        "firstname1",
+        "lastname1",
+        "abcdefghIJK123456*",
+        "email@unsw.edu.au"
+      );
       const data = res.body;
 
       expect(data).toStrictEqual({ error: expect.any(String) });
@@ -34,12 +48,19 @@ describe('Error Cases', () => {
 
     // email address does not satisfy isEmail
     test.each([
-      'invalidunsw.edu.au', 'invalidemailslkcom',
-      'invalid@emailcom', 'yrigushfsgpishfd',
-      '34678893487', '#$%^&*()&*()',
-
-    ])('invalid email address', async (email) => {
-      const res = await requestAuthRegister('firstName', 'lastname', 'abcdefghIJ123456*', email);
+      "invalidunsw.edu.au",
+      "invalidemailslkcom",
+      "invalid@emailcom",
+      "yrigushfsgpishfd",
+      "34678893487",
+      "#$%^&*()&*()",
+    ])("invalid email address", async (email) => {
+      const res = await requestAuthRegister(
+        "firstName",
+        "lastname",
+        "abcdefghIJ123456*",
+        email
+      );
       const data = res.body;
 
       expect(data).toStrictEqual({ error: expect.any(String) });
@@ -47,13 +68,46 @@ describe('Error Cases', () => {
     });
   });
 
-  describe('Test Name', () => {
+  describe("Test Name", () => {
     test.each([
-      '~', '`', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
-      '_', '+', '=', '{', '[', '}', ']', '|', '\\', ':', ';', '"', '<', ',',
-      '>', '.', '?', '/', '1',
-    ])('first name containing invalid charcters', async (char) => {
-      const res = await requestAuthRegister('firstname ' + char , 'lastname', 'abcdefghIJ123456*', 'email@unsw.edu.au');
+      "~",
+      "`",
+      "!",
+      "@",
+      "#",
+      "$",
+      "%",
+      "^",
+      "&",
+      "*",
+      "(",
+      ")",
+      "_",
+      "+",
+      "=",
+      "{",
+      "[",
+      "}",
+      "]",
+      "|",
+      "\\",
+      ":",
+      ";",
+      '"',
+      "<",
+      ",",
+      ">",
+      ".",
+      "?",
+      "/",
+      "1",
+    ])("first name containing invalid charcters", async (char) => {
+      const res = await requestAuthRegister(
+        "firstname " + char,
+        "lastname",
+        "abcdefghIJ123456*",
+        "email@unsw.edu.au"
+      );
       const data = res.body;
 
       expect(data).toStrictEqual({ error: expect.any(String) });
@@ -63,21 +117,59 @@ describe('Error Cases', () => {
     // lastname contains characters other than lowercase
     // letters, uppercase letters, spaces, hyphens, or apostrophes.
     test.each([
-      '~', '`', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
-      '_', '+', '=', '{', '[', '}', ']', '|', '\\', ':', ';', '"', '<', ',',
-      '>', '.', '?', '/', '1',
-    ])('last name containing invalid charcters', async (char) => {
-      const res = await requestAuthRegister('firstname ', 'lastname ' + char, 'abcdefghIJ123456*', 'email@unsw.edu.au');
+      "~",
+      "`",
+      "!",
+      "@",
+      "#",
+      "$",
+      "%",
+      "^",
+      "&",
+      "*",
+      "(",
+      ")",
+      "_",
+      "+",
+      "=",
+      "{",
+      "[",
+      "}",
+      "]",
+      "|",
+      "\\",
+      ":",
+      ";",
+      '"',
+      "<",
+      ",",
+      ">",
+      ".",
+      "?",
+      "/",
+      "1",
+    ])("last name containing invalid charcters", async (char) => {
+      const res = await requestAuthRegister(
+        "firstname ",
+        "lastname " + char,
+        "abcdefghIJ123456*",
+        "email@unsw.edu.au"
+      );
       const data = res.body;
 
       expect(data).toStrictEqual({ error: expect.any(String) });
       expect(res.statusCode).toStrictEqual(400);
     });
 
-    describe('Testing password', () => {
+    describe("Testing password", () => {
       // Password is less than 12 characters.
-      test('Invalid password length', async () => {
-        const res = await requestAuthRegister('firstname ', 'lastname', '3456*', 'email@unsw.edu.au');
+      test("Invalid password length", async () => {
+        const res = await requestAuthRegister(
+          "firstname ",
+          "lastname",
+          "3456*",
+          "email@unsw.edu.au"
+        );
         const data = res.body;
 
         expect(data).toStrictEqual({ error: expect.any(String) });
@@ -85,34 +177,53 @@ describe('Error Cases', () => {
       });
 
       // Password does not contain at least one number and at least one letter.
-      test.each([
-        'abcdefgh', '12345678', 'shfvfhj^&&*%', '253768%&^*',
-      ])('Password does not contain at least one number and one letter', async (password) => {
-        const res = await requestAuthRegister('firstname ', 'lastname', password, 'email@unsw.edu.au');
-        const data = res.body;
+      test.each(["abcdefgh", "12345678", "shfvfhj^&&*%", "253768%&^*"])(
+        "Password does not contain at least one number and one letter",
+        async (password) => {
+          const res = await requestAuthRegister(
+            "firstname ",
+            "lastname",
+            password,
+            "email@unsw.edu.au"
+          );
+          const data = res.body;
 
-        expect(data).toStrictEqual({ error: expect.any(String) });
-        expect(res.statusCode).toStrictEqual(400);
-      });
+          expect(data).toStrictEqual({ error: expect.any(String) });
+          expect(res.statusCode).toStrictEqual(400);
+        }
+      );
     });
   });
 });
 
-describe('Success Cases', () => {
-  test('Register User', async () => {
-    const result = await requestAuthRegister('Mubashir', 'Hussain', 'SecurePassword123*', 'Mubashirmh04@gmail.com');
+describe("Success Cases", () => {
+  test("Register User", async () => {
+    const result = await requestAuthRegister(
+      "Mubashir",
+      "Hussain",
+      "SecurePassword123*",
+      "Mubashirmh04@gmail.com"
+    );
     const data = result.body;
 
     expect(data.userId).toStrictEqual(expect.any(String));
     expect(result.statusCode).toStrictEqual(201);
   });
 
-  test('Correct User Registered', async () => {
-    const res1 = await requestAuthRegister('Mubashir', 'Hussain', 'SecurePassword123*', 'Mubashirmh04@gmail.com');
+  test("Correct User Registered", async () => {
+    const res1 = await requestAuthRegister(
+      "Mubashir",
+      "Hussain",
+      "SecurePassword123*",
+      "Mubashirmh04@gmail.com"
+    );
     const data1 = res1.body;
     const userId = data1.userId;
 
-    const res2 = await requestAuthLogin('Mubashirmh04@gmail.com', 'SecurePassword123*');
+    const res2 = await requestAuthLogin(
+      "Mubashirmh04@gmail.com",
+      "SecurePassword123*"
+    );
     const data2 = res2.body;
     const token = data2.token;
 
@@ -121,10 +232,10 @@ describe('Success Cases', () => {
     expect(data3).toStrictEqual({
       user: {
         userId: userId,
-        name: 'Mubashir Hussain',
-        email: 'mubashirmh04@gmail.com',
-        role: 'customer'
-      }
+        name: "Mubashir Hussain",
+        email: "mubashirmh04@gmail.com",
+        role: "customer",
+      },
     });
   });
 });

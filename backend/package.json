@@ -82,11 +82,15 @@
 
     "@typescript-eslint/parser": "^8.51.0",
 
-    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+
+    "eslint-plugin-prettier": "^5.5.5",
 
     "jest": "^30.2.0",
 
     "mongoose": "^9.1.1",
+
+    "prettier": "^3.8.1",
 
     "supertest": "^7.1.4",
 

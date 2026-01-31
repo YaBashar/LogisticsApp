@@ -1,10 +1,23 @@
-import   { useEffect, useState } from 'react';
-import { View, TextInput, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import axios from 'axios';
-import Constants from 'expo-constants';
+import { useEffect, useState } from "react";
+import {
+  View,
+  TextInput,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import axios from "axios";
+import Constants from "expo-constants";
 
-
-export default function AddressInput({ value, onChangeText, style, placeholder, placeholderTextColor, countries = ['au', 'sa'] }) {
+export default function AddressInput({
+  value,
+  onChangeText,
+  style,
+  placeholder,
+  placeholderTextColor,
+  countries = ["au", "sa"],
+}) {
   const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
@@ -28,18 +41,21 @@ export default function AddressInput({ value, onChangeText, style, placeholder, 
 
     const API_KEY = Constants.expoConfig?.extra?.geoApiKey;
     try {
-      const countryFilter = `countrycode:${countries.join(',')}`; 
-      const response = await axios.get('https://api.geoapify.com/v1/geocode/autocomplete', {
-        params: {
-          text: text,
-          apiKey: API_KEY,
-          filter: countryFilter,
+      const countryFilter = `countrycode:${countries.join(",")}`;
+      const response = await axios.get(
+        "https://api.geoapify.com/v1/geocode/autocomplete",
+        {
+          params: {
+            text: text,
+            apiKey: API_KEY,
+            filter: countryFilter,
+          },
         }
-      });
-      console.log('API Response:', response.data); // Debug
+      );
+      console.log("API Response:", response.data); // Debug
       setSuggestions(response.data.features || []);
     } catch (error) {
-      console.error('Error fetching address suggestions:', error.message);
+      console.error("Error fetching address suggestions:", error.message);
       setSuggestions([]);
     }
   };
@@ -47,7 +63,7 @@ export default function AddressInput({ value, onChangeText, style, placeholder, 
   const selectAddress = (item) => {
     onChangeText(item.properties.formatted);
     setSuggestions([]);
-    console.log('Selected:', item.properties);
+    console.log("Selected:", item.properties);
   };
 
   return (
@@ -59,21 +75,23 @@ export default function AddressInput({ value, onChangeText, style, placeholder, 
         placeholder={placeholder}
         placeholderTextColor={placeholderTextColor}
       />
-      
+
       {suggestions.length > 0 && (
         <View style={styles.suggestionsContainer}>
-          <ScrollView 
+          <ScrollView
             nestedScrollEnabled={true}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
             {suggestions.map((item, index) => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 key={index}
                 style={styles.suggestion}
                 onPress={() => selectAddress(item)}
               >
-                <Text style={styles.suggestionText}>{item.properties.formatted}</Text>
+                <Text style={styles.suggestionText}>
+                  {item.properties.formatted}
+                </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -85,21 +103,21 @@ export default function AddressInput({ value, onChangeText, style, placeholder, 
 
 const styles = StyleSheet.create({
   wrapper: {
-    width: 250, // Match your input width
+    width: 300, // Match your input width
   },
   suggestionsContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 62,
     left: 0,
     right: 0,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderWidth: 2,
-    borderColor: '#004F3B',
+    borderColor: "#004F3B",
     borderRadius: 10,
     maxHeight: 150,
     zIndex: 9999,
     elevation: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -107,11 +125,11 @@ const styles = StyleSheet.create({
   suggestion: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    backgroundColor: 'white',
+    borderBottomColor: "#eee",
+    backgroundColor: "white",
   },
   suggestionText: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
   },
 });
