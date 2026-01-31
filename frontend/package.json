@@ -8,7 +8,8 @@
     "android": "EXPO_ROUTER_APP_ROOT=app expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "lint-fix": "expo lint --fix"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -49,7 +50,10 @@
     "@types/react-native": "^0.72.8",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
-    "expo-module-scripts": "^5.0.8"
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "expo-module-scripts": "^5.0.8",
+    "prettier": "^3.8.1"
   },
   "private": true
 }
