@@ -5,6 +5,7 @@ import {
   Pressable,
   FlatList,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { useState, useEffect } from "react";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
@@ -17,6 +18,7 @@ export default function ActiveOrders() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const axiosPrivate = useAxiosPrivate();
 
@@ -60,6 +62,15 @@ export default function ActiveOrders() {
     setPage((prev) => prev + 1);
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    setShipments([]);
+    setPage(1);
+    setHasMore(true);
+    // The useEffect will re-fetch
+    setRefreshing(false);
+  };
+
   return (
     <View
       style={{
@@ -84,7 +95,7 @@ export default function ActiveOrders() {
           <View
             style={{
               height: 485,
-              width: 300,
+              width: 320,
               backgroundColor: "#ECFDF5",
               borderRadius: 10,
               justifyContent: "flex-start",
@@ -133,6 +144,9 @@ export default function ActiveOrders() {
               onEndReachedThreshold={0.1}
               ListFooterComponent={
                 loading ? <ActivityIndicator size="large" /> : null
+              }
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
               }
             />
           </View>
