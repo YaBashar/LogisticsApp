@@ -1,4 +1,5 @@
 import express, { json, Request, Response, NextFunction } from "express";
+import Expo from "expo-server-sdk";
 import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
@@ -7,6 +8,7 @@ import { clear } from "./clear";
 import { authRouter } from "./routes/auth";
 import { shipmentsCustomerRouter } from "./routes/shipmentsCustomer";
 import { shipmentsAdminRouter } from "./routes/shipmentsAdmin";
+import NotificationRouter from "./routes/notifications";
 
 // Load dotenv FIRST, but only if vars aren't already set (e.g., in CI)
 if (!process.env.MONGODB_URI) {
@@ -14,6 +16,7 @@ if (!process.env.MONGODB_URI) {
 }
 
 export const app = express();
+export const expo = new Expo({ accessToken: process.env.EXPO_ACCESS_TOKEN });
 
 app.set("trust proxy", 1); // Trust first proxy (Render's proxy)
 
@@ -42,6 +45,7 @@ app.delete("/clear", async (req: Request, res: Response) => {
 app.use("/auth", authRouter);
 app.use("/shipments-customer", shipmentsCustomerRouter);
 app.use("/shipments-admin", shipmentsAdminRouter);
+app.use("/notifications", NotificationRouter);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error("ERROR CAUGHT:", err);

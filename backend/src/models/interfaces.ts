@@ -4,6 +4,7 @@ export interface User {
   email: string;
   password: string;
   refreshTokens: string[];
+  pushTokens: string[];
   role: "admin" | "customer";
   loginAttempts: number;
   lockUntil: Date;
@@ -32,4 +33,11 @@ export interface Shipments {
   origin: string;
   completed: boolean;
   trackingNumber: string;
+}
+
+export interface NotificationMessage {
+  title: string;
+  body: string;
+  data?: any;
+  sound?: "default" | null;
 }

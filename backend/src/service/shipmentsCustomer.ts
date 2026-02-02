@@ -9,6 +9,7 @@ import {
   validatePhoneNumber,
   validateEmail,
 } from "../utils/shipmentsHelper";
+import { sendNotification } from "./notifications.service";
 
 // Endpoints
 // 1 -> Create new shipment order
@@ -73,6 +74,18 @@ async function userCreateShipment(
   });
 
   await shipment.save();
+
+  const admin = await UserModel.findOne({ role: "admin" });
+  if (admin) {
+    await sendNotification(admin.userId, {
+      title: "New Shipment Created",
+      body: `A new shipment order ${shipment.orderNumber} has been created.`,
+      data: { shipmentId: shipment._id.toString() },
+    });
+  } else {
+    console.warn("No admin user found to notify about new shipment.");
+  }
+
   return shipment._id.toString();
 }
 
