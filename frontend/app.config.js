@@ -24,7 +24,7 @@ export default {
         backgroundColor: "#ffffff",
       },
       package: "com.mubashir.logisticsapp",
-      googleServicesFile: "./android/app/google-services.json", // ← Fixed path
+      googleServicesFile: "./google-services.json",
       versionCode: 13,
     },
     web: {
