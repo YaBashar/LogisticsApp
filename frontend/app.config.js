@@ -24,6 +24,7 @@ export default {
         backgroundColor: "#ffffff",
       },
       package: "com.mubashir.logisticsapp",
+      googleServicesFile: "./android/app/google-services.json", // ← Fixed path
       versionCode: 13,
     },
     web: {
@@ -44,11 +45,14 @@ export default {
     ],
     extra: {
       apiUrl: process.env.API_URL || "https://logisticsapp-uldj.onrender.com",
-      geoApiKey: process.env.GEO_API_KEY, // Now reads from .env
+      geoApiKey: process.env.GEO_API_KEY,
       router: {},
       eas: {
         projectId: "69c1ed18-ad49-444d-a4f0-ca05f5fafd7a",
       },
+    },
+    hooks: {
+      postPublish: [],
     },
   },
 };
