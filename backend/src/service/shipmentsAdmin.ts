@@ -1,4 +1,6 @@
 import { ShipmentModel } from "../models/shipmentsModel";
+import { UserModel } from "../models/userModel";
+import { sendNotification } from "./notifications.service";
 
 async function allActiveOrders(page: number, limit: number) {
   const shipments = await ShipmentModel.find({ completed: false })
@@ -28,8 +30,14 @@ async function updateShipmentStatus(shipmentId: string, status: string) {
   if (status === "Recieved") {
     shipment.completed = true;
   }
-
   await shipment.save();
+
+  const user = await UserModel.findById(shipment.userId);
+  await sendNotification(user.userId, {
+    title: "Shipment Status Updated",
+    body: `Your shipment with order number ${shipment.orderNumber} is now ${status}`,
+    data: { shipmentId: shipment._id.toString() },
+  });
 
   return { success: true };
 }
