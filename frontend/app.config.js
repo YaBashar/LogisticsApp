@@ -25,7 +25,7 @@ export default {
       },
       package: "com.mubashir.logisticsapp",
       googleServicesFile: "./google-services.json",
-      versionCode: 13,
+      versionCode: 14,
     },
     web: {
       favicon: "./assets/images/favicon.png",
