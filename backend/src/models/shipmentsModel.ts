@@ -17,6 +17,7 @@ const shipmentSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ["Pending", "Picked", "Shipped", "Delivered", "Received"],
+    default: "Pending",
   },
   senderEmail: { type: String, required: true },
   senderPhone: { type: String, required: true },

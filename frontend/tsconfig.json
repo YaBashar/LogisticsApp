@@ -11,7 +11,7 @@
   "include": [
     "**/*.ts",
     "**/*.tsx"
-, "app/auth/register.jsapp/auth/login.jsxn.jsx"  ],
+, "app/auth/register.jsapp/auth/login.jsxn.jsx", "hooks/usePushNotifications.ts", "hooks/usePushNotifs.js"  ],
   "exclude": [
     "node_modules"
   ]

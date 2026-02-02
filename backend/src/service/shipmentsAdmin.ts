@@ -10,7 +10,11 @@ async function allActiveOrders(page: number, limit: number) {
 }
 
 async function updateShipmentStatus(shipmentId: string, status: string) {
-  const shipment = await ShipmentModel.findById(shipmentId);
+  const shipment = await ShipmentModel.findOne({
+    _id: shipmentId,
+    completed: false,
+  });
+
   if (!shipment) {
     throw new Error("Shipment doesnt exist");
   }
@@ -21,6 +25,10 @@ async function updateShipmentStatus(shipmentId: string, status: string) {
   }
 
   shipment.status = status;
+  if (status === "Recieved") {
+    shipment.completed = true;
+  }
+
   await shipment.save();
 
   return { success: true };

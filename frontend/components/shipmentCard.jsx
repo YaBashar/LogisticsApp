@@ -1,23 +1,65 @@
-import { View, Text, TouchableOpacity, Pressable } from "react-native";
+import { View, Text, TouchableOpacity, Pressable, Alert } from "react-native";
 import { useState } from "react";
 import { font } from "../styles/font";
 import useAuth from "../hooks/useAuth";
 import PackageTimeline from "./PackageTimeline";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 export default function ShipmentCard({ shipment }) {
   const { role } = useAuth();
-  const states = ["Pending", "Picked", "Packed", "Shipped", "Delivered"];
-  const [timeLine, setTimeline] = useState("Pending");
+  const axiosPrivate = useAxiosPrivate();
+
+  const states = ["Pending", "Picked", "Shipped", "Delivered", "Received"];
+  const [currentStatus, setCurrentStatus] = useState(shipment.status);
+  const [updating, setUpdating] = useState(false);
 
   // Update to show linear travel from origin to destination
   // Show update functionality for admin
+
+  const handleUpdateStatus = () => {
+    const currentIndex = states.indexOf(currentStatus);
+    if (currentIndex === states.length - 1) {
+      Alert.alert("Info", "Package is already Delivered");
+    }
+
+    const nextStatus = states[currentIndex + 1];
+    Alert.alert(
+      "Update Status",
+      `Update status from "${currentStatus}" to "${nextStatus}"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Update",
+          onPress: async () => {
+            setUpdating(true);
+            try {
+              await axiosPrivate.put(
+                `/shipments-admin/${shipment._id}/status`,
+                { status: nextStatus }
+              );
+              setCurrentStatus(nextStatus);
+              Alert.alert(
+                "Success",
+                "Status updated successfully \n Customer has been notified of update"
+              );
+            } catch (error) {
+              console.error(error);
+              Alert.alert("Error", "Failed to update status");
+            } finally {
+              setUpdating(false);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <>
       <TouchableOpacity key={shipment._id} activeOpacity={0.7}>
         <View
           style={{
-            width: 275,
+            width: 295,
             backgroundColor: "white",
             marginTop: 10,
             marginHorizontal: 10,
@@ -28,7 +70,7 @@ export default function ShipmentCard({ shipment }) {
           }}
         >
           {/* Main Card Content */}
-          <View style={{ padding: 10 }}>
+          <View style={{ padding: 7 }}>
             {/* Header Row */}
             <View
               style={{
@@ -94,14 +136,15 @@ export default function ShipmentCard({ shipment }) {
             </View>
 
             {/*Package TimeLine*/}
-            <PackageTimeline />
+            <PackageTimeline status={currentStatus} />
 
             {role === "admin" && (
-              <Pressable>
+              <Pressable onPress={handleUpdateStatus}>
                 <Text
                   style={{
                     textAlign: "center",
                     padding: 10,
+                    borderRadius: 10,
                     backgroundColor: "#004F3B",
                     color: "white",
                   }}

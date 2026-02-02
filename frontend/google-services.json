@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "339787616126",
+    "project_id": "logistics-9dce8",
+    "storage_bucket": "logistics-9dce8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:339787616126:android:3a40fde8fd6794a4dead2f",
+        "android_client_info": {
+          "package_name": "com.mubashir.logisticsapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMSRSjFqBpSIDpeLfH0t0ccJMQaAUDGcM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

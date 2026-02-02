@@ -4,6 +4,7 @@
 !config.json
 !eas.json
 !app.json
+!google-services.json
 node_modules
 build
 .DS_store
