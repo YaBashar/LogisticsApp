@@ -2,13 +2,7 @@
 import { Expo, ExpoPushMessage } from "expo-server-sdk";
 import { UserModel } from "../models/userModel";
 import { expo } from "../app";
-
-interface NotificationMessage {
-  title: string;
-  body: string;
-  data?: any;
-  sound?: "default" | null;
-}
+import { NotificationMessage } from "../models/interfaces";
 
 export const sendNotification = async (
   userId: string,
