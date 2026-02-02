@@ -4,6 +4,7 @@ export interface User {
   email: string;
   password: string;
   refreshTokens: string[];
+  pushTokens: string[];
   role: "admin" | "customer";
   loginAttempts: number;
   lockUntil: Date;
