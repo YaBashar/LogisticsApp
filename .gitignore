@@ -6,6 +6,7 @@
 !app.json
 node_modules
 build
+!frontend/.eas/build
 .DS_store
 coverage/
 .nyc_output
