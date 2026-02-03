@@ -15,7 +15,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export const usePushNotifs = () => {
+export default function usePushNotifs() {
   const [expoPushToken, setExpoPushToken] = useState("");
   const axiosPrivate = useAxiosPrivate();
 
@@ -95,4 +95,4 @@ export const usePushNotifs = () => {
   }, []);
 
   return { expoPushToken, removeToken };
-};
+}
