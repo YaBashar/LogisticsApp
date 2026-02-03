@@ -77,7 +77,7 @@ async function userCreateShipment(
 
   const admin = await UserModel.findOne({ role: "admin" });
   if (admin) {
-    await sendNotification(admin.userId, {
+    await sendNotification(admin._id.toString(), {
       title: "New Shipment Created",
       body: `A new shipment order ${shipment.orderNumber} has been created.`,
       data: { shipmentId: shipment._id.toString() },
