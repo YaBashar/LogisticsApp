@@ -33,7 +33,7 @@ async function updateShipmentStatus(shipmentId: string, status: string) {
   await shipment.save();
 
   const user = await UserModel.findById(shipment.userId);
-  await sendNotification(user.userId, {
+  await sendNotification(user._id.toString(), {
     title: "Shipment Status Updated",
     body: `Your shipment with order number ${shipment.orderNumber} is now ${status}`,
     data: { shipmentId: shipment._id.toString() },

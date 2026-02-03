@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
 import Constants from "expo-constants";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -15,15 +17,9 @@ Notifications.setNotificationHandler({
 
 export const usePushNotifs = () => {
   const [expoPushToken, setExpoPushToken] = useState("");
+  const axiosPrivate = useAxiosPrivate();
 
   async function registerForPushNotificationsAsync() {
-    const { status } = await Notifications.requestPermissionsAsync();
-
-    if (status !== "granted") {
-      console.log("Permission Not Granted");
-      return;
-    }
-
     if (Platform.OS === "android") {
       await Notifications.setNotificationChannelAsync("default", {
         name: "default",
@@ -33,16 +29,64 @@ export const usePushNotifs = () => {
       });
     }
 
-    try {
-      const token = await Notifications.getExpoPushTokenAsync({
-        projectId: Constants.expoConfig?.extra?.eas?.projectId,
-      });
+    if (Device.isDevice) {
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
 
-      setExpoPushToken(token.data);
-      console.log("📱 Push Token:", token.data);
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      if (finalStatus !== "granted") {
+        throw new Error(
+          "Permission not granted to get push token for push notification"
+        );
+      }
+
+      const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+      if (!projectId) {
+        throw new Error("Project ID Not found");
+      }
+
+      try {
+        const pushTokenString = (
+          await Notifications.getExpoPushTokenAsync({
+            projectId,
+          })
+        ).data;
+
+        setExpoPushToken(pushTokenString);
+        await sendToken(pushTokenString);
+
+        console.log("📱 Push Token:", pushTokenString);
+      } catch (error) {
+        console.error("Error getting push token:", error);
+        return;
+      }
+    }
+  }
+
+  async function sendToken(pushToken) {
+    try {
+      const response = await axiosPrivate.post("notifications/register-token", {
+        token: pushToken,
+      });
+      console.log("Token registered with Backend", response.data);
     } catch (error) {
-      console.error("Error getting push token:", error);
-      return;
+      console.error("Failed to register token", error);
+    }
+  }
+
+  async function removeToken(pushToken) {
+    try {
+      const response = await axiosPrivate.post("notifications/remove-token", {
+        token: pushToken,
+      });
+      console.log("Token registered with Backend", response.data);
+    } catch (error) {
+      console.error("Failed to register token", error);
     }
   }
 
@@ -50,5 +94,5 @@ export const usePushNotifs = () => {
     registerForPushNotificationsAsync();
   }, []);
 
-  return { expoPushToken };
+  return { expoPushToken, removeToken };
 };
