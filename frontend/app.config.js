@@ -24,6 +24,7 @@ export default {
         backgroundColor: "#ffffff",
       },
       package: "com.mubashir.logisticsapp",
+      googleServicesFile: "./google-services.json",
     },
     web: {
       favicon: "./assets/images/favicon.png",
@@ -40,6 +41,8 @@ export default {
         },
       ],
       "@react-native-community/datetimepicker",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
     ],
     extra: {
       apiUrl: process.env.API_URL || "https://logisticsapp-uldj.onrender.com",
