@@ -24,7 +24,6 @@ export default {
         backgroundColor: "#ffffff",
       },
       package: "com.mubashir.logisticsapp",
-      versionCode: 14,
     },
     web: {
       favicon: "./assets/images/favicon.png",
