@@ -61,7 +61,7 @@ export default function NewOrder() {
         recipientPhone,
       });
       alert("Successfully Created New Order", res.data.result);
-      router.push("/customerProfile");
+      router.push("/profile");
 
       // Clear Form fields
       setItemDescription("");
