@@ -24,7 +24,8 @@ export default {
         backgroundColor: "#ffffff",
       },
       package: "com.mubashir.logisticsapp",
-      googleServicesFile: "./google-services.json",
+      googleServicesFile:
+        process.env.GOOGLE_SERVICES_JSON || "./google-services.json", // ← CHANGED THIS LINE
     },
     web: {
       favicon: "./assets/images/favicon.png",
