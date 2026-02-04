@@ -176,5 +176,4 @@ Thumbs.db
 
 # Ignore built ts files
 dist/**/*
-
-google-services.json
+!google-services.json
