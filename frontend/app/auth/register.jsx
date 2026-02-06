@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "../../services/axios";
 import useAuth from "../../hooks/useAuth";
 import { router } from "expo-router";
@@ -26,20 +27,12 @@ export default function Register() {
       alert(`Signed Up Successfully, Please Verify Email to Continue`);
       router.push("/auth/verifyEmail");
     } catch (error) {
-      alert("Sign Up Failed");
+      alert("Sign Up Failed", error);
     }
   };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        flexDirection: "column",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        backgroundColor: "white",
-      }}
-    >
+    <SafeAreaView style={styles.container}>
       <Text
         style={[
           font,
@@ -54,7 +47,7 @@ export default function Register() {
         Welcome to App
       </Text>
 
-      <View style={{ flexDirection: "column", gap: 20, marginTop: 10 }}>
+      <View style={{ flexDirection: "column", gap: 20, marginTop: 10, width: "85%" }}>
         <TextInput
           value={firstName}
           onChangeText={setFirstName}
@@ -77,10 +70,7 @@ export default function Register() {
           placeholderTextColor="#A6A09B"
         ></TextInput>
 
-        <PasswordInput
-          setPassword={setPassword}
-          password={password}
-        ></PasswordInput>
+        <PasswordInput setPassword={setPassword} password={password}></PasswordInput>
       </View>
 
       <Text
@@ -96,29 +86,14 @@ export default function Register() {
         By Continuing You agree to Terms and Policy
       </Text>
 
-      <Pressable
-        onPress={handleSubmit}
-        style={{
-          marginTop: 15,
-          marginBottom: 50,
-          backgroundColor: "#A4F4CF",
-          paddingVertical: 10,
-          paddingHorizontal: 10,
-          borderRadius: 15,
-          width: 250,
-        }}
-      >
-        <Text
-          style={[font, { color: "004F3B", textAlign: "center", fontSize: 20 }]}
-        >
+      <Pressable onPress={handleSubmit} style={styles.button}>
+        <Text style={[font, { color: "#004F3B", textAlign: "center", fontSize: 20 }]}>
           Create account
         </Text>
       </Pressable>
 
       <Pressable onPress={() => router.push("/auth/login")}>
-        <Text style={[font, { textAlign: "center", fontSize: 20 }]}>
-          Already Have an account?
-        </Text>
+        <Text style={[font, { textAlign: "center", fontSize: 20 }]}>Already Have an account?</Text>
         <Text
           style={[
             font,
@@ -133,17 +108,34 @@ export default function Register() {
           Login
         </Text>
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   input: {
-    width: 300,
+    width: "100%",
     height: 60,
     borderColor: "#004F3B",
     borderWidth: 2,
     borderRadius: 10,
     paddingHorizontal: 10,
+  },
+
+  button: {
+    marginTop: 15,
+    marginBottom: 50,
+    backgroundColor: "#A4F4CF",
+    padding: 10,
+    borderRadius: 15,
+    width: "65%",
+  },
+
+  container: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    backgroundColor: "white",
   },
 });
