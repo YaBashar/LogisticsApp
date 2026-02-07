@@ -8,12 +8,7 @@ import mongoose from "mongoose";
 
 beforeEach(async () => {
   await requestDelete();
-  await requestAuthRegister(
-    "Mubashir",
-    "Hussain",
-    "Abcdefgh1234$",
-    "example@gmail.com"
-  );
+  await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
 });
 
 afterEach(async () => {

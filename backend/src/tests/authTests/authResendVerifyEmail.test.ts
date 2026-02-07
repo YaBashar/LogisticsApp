@@ -28,12 +28,7 @@ beforeAll(async () => {
 
 describe("Success", () => {
   test("Sent Successfully", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh123456$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
 
     await requestResendVerification("example@gmail.com");
     // Get the verification code directly from DB
@@ -52,12 +47,7 @@ describe("Success", () => {
 
 describe("Error", () => {
   test("Invalid Email", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh123456$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
     const res = await requestResendVerification("invalid@gmail.com");
     const data = res.body;
 

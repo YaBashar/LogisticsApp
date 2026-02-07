@@ -28,12 +28,7 @@ afterAll(async () => {
 
 describe("Success", () => {
   test("verifyEmail marks user as verified", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh123456$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
 
     await requestResetPassword("example@gmail.com");
     // Get the reset code directly from DB
@@ -45,12 +40,7 @@ describe("Success", () => {
 
 describe("Error", () => {
   test("Invalid Reset Code", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh123456$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
     const res = await requestVerifyResetCode("123456");
     expect(res.statusCode).toStrictEqual(400);
   });

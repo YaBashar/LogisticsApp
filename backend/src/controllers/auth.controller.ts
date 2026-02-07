@@ -52,8 +52,7 @@ export const refresh = async (req: Request, res: Response) => {
   }
 
   try {
-    const { accessToken, refreshToken: newRefreshToken } =
-      await authRefresh(refreshToken);
+    const { accessToken, refreshToken: newRefreshToken } = await authRefresh(refreshToken);
 
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
@@ -121,9 +120,7 @@ export const resetPassword = async (req: Request, res: Response) => {
   const { resetCode, newPassword } = req.body;
 
   if (!resetCode || !newPassword) {
-    return res
-      .status(400)
-      .json({ error: "Reset code and password are required" });
+    return res.status(400).json({ error: "Reset code and password are required" });
   }
 
   try {
@@ -151,17 +148,11 @@ export const changePassword = async (req: Request, res: Response) => {
   const { currentPassword, newPassword } = req.body;
 
   if (!newPassword || !currentPassword) {
-    return res
-      .status(400)
-      .json({ error: "Reset code and password are required" });
+    return res.status(400).json({ error: "Reset code and password are required" });
   }
 
   try {
-    const result = await userChangePassword(
-      userId,
-      currentPassword,
-      newPassword
-    );
+    const result = await userChangePassword(userId, currentPassword, newPassword);
     res.status(200).json({ result });
   } catch (error) {
     res.status(400).json({ error: error.message });

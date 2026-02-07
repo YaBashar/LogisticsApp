@@ -27,12 +27,7 @@ beforeAll(async () => {
 
 describe("Success", () => {
   test("Sent Successfully", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh123456$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
 
     const res = await requestResetPassword("example@gmail.com");
     const data = res.body;
@@ -44,12 +39,7 @@ describe("Success", () => {
 
 describe("Error", () => {
   test("Invalid Email", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh123456$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
     const res = await requestResendResetCode("invalid@gmail.com");
     const data = res.body;
 
