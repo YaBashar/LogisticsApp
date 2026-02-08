@@ -7,6 +7,10 @@ import { router } from "expo-router";
 import { font } from "../../styles/font";
 import PasswordInput from "../../components/inputs/PasswordInput";
 
+// Minor UI
+// Show error when password doesnt match ruleset
+// Show error when email is not valid
+
 export default function Register() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");

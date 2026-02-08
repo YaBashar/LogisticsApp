@@ -24,8 +24,7 @@ export default {
         backgroundColor: "#ffffff",
       },
       package: "com.mubashir.logisticsapp",
-      googleServicesFile:
-        process.env.GOOGLE_SERVICES_JSON || "./google-services.json", // ← CHANGED THIS LINE
+      googleServicesFile: process.env.GOOGLE_SERVICES_JSON || "./google-services.json",
     },
     web: {
       favicon: "./assets/images/favicon.png",
@@ -41,6 +40,7 @@ export default {
           },
         },
       ],
+      "expo-secure-store",
       "@react-native-community/datetimepicker",
       "@react-native-firebase/app",
       "@react-native-firebase/messaging",

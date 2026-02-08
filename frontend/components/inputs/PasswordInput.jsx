@@ -4,6 +4,7 @@ import { View, TextInput, TouchableOpacity, Text, StyleSheet } from "react-nativ
 export default function PasswordInput({ setPassword, password }) {
   const [showPassword, setShowPassword] = useState(false);
 
+  // Change toggle button to more recognisable icon
   return (
     <View>
       <TextInput

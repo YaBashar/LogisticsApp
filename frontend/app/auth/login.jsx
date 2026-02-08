@@ -8,16 +8,25 @@ import { font } from "../../styles/font";
 import { jwtDecode } from "jwt-decode";
 import PasswordInput from "../../components/inputs/PasswordInput";
 
+// Minor UI
+// Show error when password or email is wrong
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { persistSetAccessToken, persistSetUserRole } = useAuth();
+  const { persistSetAccessToken, persistSetUserRole, persistSetRefreshToken } = useAuth();
 
   const handleSubmit = async () => {
     try {
       const response = await axios.post("/auth/login", { email, password });
-      await persistSetAccessToken(response.data.token);
-      const decoded = jwtDecode(response.data.token);
+      const { accessToken, refreshToken } = response.data;
+      console.log("AccessToken", accessToken);
+      console.log("RefreshTOken", refreshToken);
+
+      await persistSetAccessToken(accessToken);
+      await persistSetRefreshToken(refreshToken);
+
+      const decoded = jwtDecode(accessToken);
       await persistSetUserRole(decoded.role);
       router.push("/profile");
     } catch (error) {
