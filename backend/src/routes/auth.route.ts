@@ -22,6 +22,4 @@ authRouter.post("/verify-reset-code", AuthController.verifyResetCode);
 authRouter.post("/reset-password", AuthController.resetPassword);
 authRouter.post("/change-password", verifyJWT, AuthController.changePassword);
 authRouter.get("/user-details", verifyJWT, AuthController.userInfo);
-
-// Logout Endpoint
-// Fix Refresh + Login Endpoint for React Native cookieless jwt
+authRouter.post("/logout", verifyJWT, AuthController.logout);

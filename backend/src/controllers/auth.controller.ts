@@ -11,6 +11,7 @@ import {
   userVerifyResetCode,
   userChangePassword,
   userResendResetCode,
+  userLogout,
 } from "../service/auth.service";
 
 export const register = async (req: Request, res: Response) => {
@@ -44,6 +45,17 @@ export const login = async (req: Request, res: Response) => {
     return res.status(200).json({ accessToken: accessToken, ...(isMobile && { refreshToken }) });
   } catch (error) {
     return res.status(400).json({ error: "Invalid Credentials" });
+  }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  const userId = req.userId;
+
+  try {
+    const result = await userLogout(userId);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };
 

@@ -133,6 +133,16 @@ async function userLogin(email: string, password: string) {
   return { accessToken, refreshToken };
 }
 
+async function userLogout(userId: string) {
+  const user = await UserModel.findById(userId);
+  if (user.refreshTokens.length === 0) {
+    throw new Error("User already logged out");
+  }
+
+  await UserModel.findByIdAndUpdate(userId, { $set: { refreshTokens: [], pushTokens: [] } });
+  return { message: "Logged out successfully" };
+}
+
 /** [3] Auth Refresh
  * Allows user to stay loggedIn
  **/
@@ -399,4 +409,5 @@ export {
   userVerifyResetCode,
   userChangePassword,
   userResendResetCode,
+  userLogout,
 };
