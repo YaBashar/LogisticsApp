@@ -2,7 +2,7 @@ import { jwtDecode } from "jwt-decode";
 import axios from "../services/axios";
 import * as SecureStorage from "expo-secure-store";
 
-const validate = async (savedAccessToken, savedRefreshToken) => {
+const validate = async (savedAccessToken) => {
   if (!savedAccessToken) {
     return false;
   }
