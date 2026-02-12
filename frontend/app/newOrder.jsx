@@ -8,13 +8,13 @@ import {
   ScrollView,
   Platform,
 } from "react-native";
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import { font } from "../styles/font";
 import AddressInput from "../components/inputs/AddressInput";
 import PackageTypeInput from "../components/inputs/PackageTypeInput";
 import { router } from "expo-router";
 import ItemInfoInput from "../components/inputs/ItemInfoInput";
 import ContactInput from "../components/inputs/ContactInput";
+import { axiosPrivate } from "../services/axios";
 
 export default function NewOrder() {
   const [itemDescription, setItemDescription] = useState("");
@@ -32,8 +32,6 @@ export default function NewOrder() {
   const [recipientEmail, setRecipientEmail] = useState("");
   const [senderPhone, setSenderPhone] = useState("");
   const [recipientPhone, setRecipientPhone] = useState("");
-
-  const axiosPrivate = useAxiosPrivate();
 
   const handleSubmitNewOrder = async () => {
     try {
@@ -109,18 +107,11 @@ export default function NewOrder() {
           New Booking
         </Text>
 
-        <PackageTypeInput
-          packageType={packageType}
-          setPackageType={setPackageType}
-        />
+        <PackageTypeInput packageType={packageType} setPackageType={setPackageType} />
 
         {/* Delivery Details */}
-        <View
-          style={{ height: 122, backgroundColor: "#E7E5E4", borderRadius: 10 }}
-        >
-          <Text style={[font, { paddingLeft: 10, paddingTop: 10 }]}>
-            Details
-          </Text>
+        <View style={{ height: 122, backgroundColor: "#E7E5E4", borderRadius: 10 }}>
+          <Text style={[font, { paddingLeft: 10, paddingTop: 10 }]}>Details</Text>
 
           <AddressInput
             value={origin}
@@ -176,12 +167,7 @@ export default function NewOrder() {
             width: 250,
           }}
         >
-          <Text
-            style={[
-              font,
-              { color: "#004F3B", textAlign: "center", fontSize: 20 },
-            ]}
-          >
+          <Text style={[font, { color: "#004F3B", textAlign: "center", fontSize: 20 }]}>
             Book Now
           </Text>
         </Pressable>

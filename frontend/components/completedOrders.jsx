@@ -1,7 +1,7 @@
 import { View, Text, Image, FlatList, ActivityIndicator } from "react-native";
 import { useState, useEffect } from "react";
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import { font } from "../styles/font";
+import { axiosPrivate } from '../services/axios';
 import ShipmentCard from "./shipmentCard";
 
 export default function CompletedOrders() {
@@ -10,7 +10,6 @@ export default function CompletedOrders() {
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
 
-  const axiosPrivate = useAxiosPrivate();
 
   useEffect(() => {
     let isCancelled = false;

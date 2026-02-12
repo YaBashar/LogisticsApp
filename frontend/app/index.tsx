@@ -1,10 +1,27 @@
-import * as React from "react";
-import { View, Pressable, Text, Image, StyleSheet } from "react-native";
+import { useEffect } from "react";
+import { View, Pressable, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { font } from "../styles/font";
 import { router } from "expo-router";
+import useAuth from "../hooks/useAuth";
 
 export default function Index() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      router.replace("/profile");
+    }
+  }, [isAuthenticated, isLoading]);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color="#007A55"></ActivityIndicator>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View>
@@ -31,7 +48,7 @@ export default function Index() {
         </Pressable>
 
         <Pressable onPress={() => router.push("auth/login")} style={styles.buttonDark}>
-          <Text style={[font, { color: "004F3B", textAlign: "center", fontSize: 20 }]}>Login</Text>
+          <Text style={[font, { color: "#004F3B", textAlign: "center", fontSize: 20 }]}>Login</Text>
         </Pressable>
       </View>
     </SafeAreaView>

@@ -3,11 +3,10 @@ import { useState } from "react";
 import { font } from "../styles/font";
 import useAuth from "../hooks/useAuth";
 import PackageTimeline from "./PackageTimeline";
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import { axiosPrivate } from "../services/axios";
 
 export default function ShipmentCard({ shipment }) {
   const { role } = useAuth();
-  const axiosPrivate = useAxiosPrivate();
 
   const states = ["Pending", "Picked", "Shipped", "Delivered", "Received"];
   const [currentStatus, setCurrentStatus] = useState(shipment.status);

@@ -1,7 +1,7 @@
 import { View, Text, Image, FlatList, ActivityIndicator } from "react-native";
 import { font } from "../styles/font";
 import { useEffect, useState } from "react";
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import { axiosPrivate } from '../services/axios';
 import ShipmentCard from "./shipmentCard";
 
 export default function CustomerProfile() {
@@ -9,8 +9,6 @@ export default function CustomerProfile() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
-
-  const axiosPrivate = useAxiosPrivate();
 
   useEffect(() => {
     let isCancelled = false;

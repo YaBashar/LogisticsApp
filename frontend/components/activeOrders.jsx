@@ -8,7 +8,7 @@ import {
   RefreshControl,
 } from "react-native";
 import { useState, useEffect } from "react";
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import axiosPrivate from "@/services/axios";
 import { font } from "../styles/font";
 import { router } from "expo-router";
 import ShipmentCard from "./shipmentCard";
@@ -19,8 +19,6 @@ export default function ActiveOrders() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
-  const axiosPrivate = useAxiosPrivate();
 
   useEffect(() => {
     let isCancelled = false;

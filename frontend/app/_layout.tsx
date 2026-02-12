@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import { useEffect } from "react";
 import { AuthProvider } from "../components/AuthProvider";
+import "@/services/axiosConfig";
 import * as SplashScreen from "expo-splash-screen";
 
 // Prevent splash screen from auto-hiding
