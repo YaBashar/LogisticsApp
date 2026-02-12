@@ -2,7 +2,6 @@ import { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "../../services/axios";
-import useAuth from "../../hooks/useAuth";
 import { router } from "expo-router";
 import { font } from "../../styles/font";
 import PasswordInput from "../../components/inputs/PasswordInput";
@@ -17,17 +16,14 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { persistSetUserId } = useAuth();
-
   const handleSubmit = async () => {
     try {
-      const response = await axios.post("/auth/register", {
+      await axios.post("/auth/register", {
         firstName,
         lastName,
         password,
         email,
       });
-      await persistSetUserId(response.data.userId);
       alert(`Signed Up Successfully, Please Verify Email to Continue`);
       router.push("/auth/verifyEmail");
     } catch (error) {

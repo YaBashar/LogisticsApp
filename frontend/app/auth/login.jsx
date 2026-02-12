@@ -5,7 +5,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import useAuth from "@/hooks/useAuth";
 import { router } from "expo-router";
 import { font } from "../../styles/font";
-import { jwtDecode } from "jwt-decode";
 import PasswordInput from "../../components/inputs/PasswordInput";
 
 // Minor UI
@@ -14,7 +13,7 @@ import PasswordInput from "../../components/inputs/PasswordInput";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { persistSetAccessToken, persistSetUserRole, persistSetRefreshToken } = useAuth();
+  const { login } = useAuth();
 
   const handleSubmit = async () => {
     try {
@@ -23,11 +22,8 @@ export default function Login() {
       console.log("AccessToken", accessToken);
       console.log("RefreshTOken", refreshToken);
 
-      await persistSetAccessToken(accessToken);
-      await persistSetRefreshToken(refreshToken);
+      login(accessToken, refreshToken);
 
-      const decoded = jwtDecode(accessToken);
-      await persistSetUserRole(decoded.role);
       router.push("/profile");
     } catch (error) {
       console.log(error);
