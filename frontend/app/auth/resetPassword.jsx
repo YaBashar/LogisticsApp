@@ -1,15 +1,8 @@
-import {
-  View,
-  Text,
-  TextInput,
-  Image,
-  Pressable,
-  StyleSheet,
-} from "react-native";
+import { View, Text, TextInput, Image, Pressable, StyleSheet } from "react-native";
 import { useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { font } from "../../styles/font";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "../../services/axios";
 
 export default function ResetPassword() {
@@ -30,22 +23,12 @@ export default function ResetPassword() {
       router.push("/auth/login");
     } catch (error) {
       console.log("Verification Error:", error);
-      alert(
-        "Verification Failed. Please check the code and try again.",
-        resetCode
-      );
+      alert("Verification Failed. Please check the code and try again.", resetCode);
     }
   };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        flexDirection: "column",
-        alignItems: "center",
-        backgroundColor: "white",
-      }}
-    >
+    <SafeAreaView style={styles.container}>
       <Image
         source={require("../../assets/images/Key.png")}
         style={{ width: 100, height: 100, marginTop: 100, marginBottom: 10 }}
@@ -82,37 +65,38 @@ export default function ResetPassword() {
           marginTop: 30,
         }}
       >
-        <Pressable
-          onPress={handleSubmit}
-          style={{
-            backgroundColor: "#A4F4CF",
-            paddingVertical: 10,
-            paddingHorizontal: 10,
-            borderRadius: 15,
-            width: 250,
-          }}
-        >
-          <Text
-            style={[
-              font,
-              { color: "#004F3B", textAlign: "center", fontSize: 20 },
-            ]}
-          >
+        <Pressable onPress={handleSubmit} style={styles.button}>
+          <Text style={[font, { color: "#004F3B", textAlign: "center", fontSize: 20 }]}>
             Reset Password
           </Text>
         </Pressable>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   input: {
-    width: 300,
+    width: "90%",
     height: 60,
     borderColor: "#004F3B",
     borderWidth: 2,
     borderRadius: 10,
     paddingHorizontal: 10,
+  },
+
+  button: {
+    backgroundColor: "#A4F4CF",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+    width: "85%",
+  },
+
+  container: {
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center",
+    backgroundColor: "white",
   },
 });

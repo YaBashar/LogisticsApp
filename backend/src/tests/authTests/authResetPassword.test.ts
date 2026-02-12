@@ -13,12 +13,7 @@ let resetCode: string;
 beforeEach(async () => {
   await requestDelete();
 
-  await requestAuthRegister(
-    "Mubashir",
-    "Hussain",
-    "Abcdefgh123456$",
-    "example@gmail.com"
-  );
+  await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
   await requestResetPassword("example@gmail.com");
 
   // Get the reset code directly from DB

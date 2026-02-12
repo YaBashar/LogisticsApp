@@ -27,18 +27,13 @@ beforeAll(async () => {
 
 describe("Success Cases", () => {
   test("Success", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh1234$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
     const res1 = await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
     const cookie = res1.headers["set-cookie"];
 
     const res2 = await requestRefreshToken(cookie);
     const data = res2.body;
-    expect(data).toStrictEqual({ token: expect.any(String) });
+    expect(data).toStrictEqual({ accessToken: expect.any(String) });
     expect(res2.statusCode).toStrictEqual(200);
   });
 });

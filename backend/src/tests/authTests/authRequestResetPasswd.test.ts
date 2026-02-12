@@ -1,8 +1,4 @@
-import {
-  requestDelete,
-  requestAuthRegister,
-  requestResetPassword,
-} from "../requestHelpers";
+import { requestDelete, requestAuthRegister, requestResetPassword } from "../requestHelpers";
 import mongoose from "mongoose";
 
 beforeEach(async () => {
@@ -26,12 +22,7 @@ beforeAll(async () => {
 
 describe("Success", () => {
   test("Sent Successfully", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh1234$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
     const res = await requestResetPassword("example@gmail.com");
     expect(res.statusCode).toStrictEqual(200);
     expect(res.body.result).toStrictEqual({ success: true });
@@ -40,12 +31,7 @@ describe("Success", () => {
 
 describe("Error", () => {
   test("Invalid Email", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh1234$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
     const res = await requestResetPassword("invalid@gmail.com");
 
     expect(res.statusCode).toStrictEqual(400);

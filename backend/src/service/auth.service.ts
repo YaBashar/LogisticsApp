@@ -46,9 +46,7 @@ async function registerUser(
       timestamp: new Date().toISOString(),
     });
 
-    throw new Error(
-      "Registration failed. Please check your information and try again."
-    );
+    throw new Error("Registration failed. Please check your information and try again.");
   }
 
   const { code, expiry } = generateCode();
@@ -74,11 +72,7 @@ async function registerUser(
 
     Promise.all([
       sendEmail(welcomeEmail.to, welcomeEmail.subject, welcomeEmail.html),
-      sendEmail(
-        verificationEmail.to,
-        verificationEmail.subject,
-        verificationEmail.html
-      ),
+      sendEmail(verificationEmail.to, verificationEmail.subject, verificationEmail.html),
     ]).catch((emailError) => {
       console.error("Error sending emails:", emailError);
       // Don't fail registration if emails fail
@@ -113,11 +107,9 @@ async function userLogin(email: string, password: string) {
     expiresIn: "10m",
   });
 
-  const refreshToken = jwt.sign(
-    { userId: user._id, role: user.role },
-    REFRESH_SECRET,
-    { expiresIn: "1d" }
-  );
+  const refreshToken = jwt.sign({ userId: user._id, role: user.role }, REFRESH_SECRET, {
+    expiresIn: "1d",
+  });
 
   // remove expired refreshTokens
   user.refreshTokens = user.refreshTokens.filter((token) => {
@@ -139,6 +131,16 @@ async function userLogin(email: string, password: string) {
 
   await user.save();
   return { accessToken, refreshToken };
+}
+
+async function userLogout(userId: string) {
+  const user = await UserModel.findById(userId);
+  if (user.refreshTokens.length === 0) {
+    throw new Error("User already logged out");
+  }
+
+  await UserModel.findByIdAndUpdate(userId, { $set: { refreshTokens: [], pushTokens: [] } });
+  return { message: "Logged out successfully" };
 }
 
 /** [3] Auth Refresh
@@ -167,11 +169,9 @@ async function authRefresh(refreshToken: string) {
     expiresIn: "10m",
   });
 
-  const newRefreshToken = jwt.sign(
-    { userId: user._id, role: user.role },
-    REFRESH_SECRET,
-    { expiresIn: "1d" }
-  );
+  const newRefreshToken = jwt.sign({ userId: user._id, role: user.role }, REFRESH_SECRET, {
+    expiresIn: "1d",
+  });
 
   user.refreshTokens.push(newRefreshToken);
   await user.save();
@@ -250,11 +250,7 @@ async function userResendResetCode(email: string) {
     console.log("🔑 New reset code:", code);
 
     try {
-      await sendEmail(
-        resetCodeEmail.to,
-        resetCodeEmail.subject,
-        resetCodeEmail.html
-      );
+      await sendEmail(resetCodeEmail.to, resetCodeEmail.subject, resetCodeEmail.html);
       console.log("✅ Reset code resent successfully");
     } catch (error) {
       console.error("❌ Failed to resend reset code:", error);
@@ -329,9 +325,7 @@ async function userResetPassword(resetCode: string, newPassword: string) {
 
   // Check if new password is same as current
   if (await bcrypt.compare(newPassword, user.password)) {
-    throw new Error(
-      "New password must be different from your current password"
-    );
+    throw new Error("New password must be different from your current password");
   }
 
   try {
@@ -366,11 +360,7 @@ async function userDetails(userId: string) {
   };
 }
 
-async function userChangePassword(
-  userId: string,
-  currentPassword: string,
-  newPassword: string
-) {
+async function userChangePassword(userId: string, currentPassword: string, newPassword: string) {
   if (newPassword.length < 12) {
     throw new Error("Password must be at least 8 characters");
   }
@@ -382,19 +372,14 @@ async function userChangePassword(
   }
 
   // Verify current password is valid
-  const isCurrentPasswordValid = await bcrypt.compare(
-    currentPassword,
-    user.password
-  );
+  const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
   if (!isCurrentPasswordValid) {
     throw new Error("Current password is incorrect");
   }
 
   // Check if new password is same as current
   if (await bcrypt.compare(newPassword, user.password)) {
-    throw new Error(
-      "New password must be different from your current password"
-    );
+    throw new Error("New password must be different from your current password");
   }
 
   try {
@@ -424,4 +409,5 @@ export {
   userVerifyResetCode,
   userChangePassword,
   userResendResetCode,
+  userLogout,
 };

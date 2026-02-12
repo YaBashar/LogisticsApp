@@ -28,12 +28,7 @@ beforeAll(async () => {
 describe("Error Cases", () => {
   describe("Test Email", () => {
     test("email address is already used by another user", async () => {
-      await requestAuthRegister(
-        "firstname",
-        "lastname",
-        "abcdefghIJ123456*",
-        "email@unsw.edu.au"
-      );
+      await requestAuthRegister("firstname", "lastname", "abcdefghIJ123456*", "email@unsw.edu.au");
       const res = await requestAuthRegister(
         "firstname1",
         "lastname1",
@@ -55,12 +50,7 @@ describe("Error Cases", () => {
       "34678893487",
       "#$%^&*()&*()",
     ])("invalid email address", async (email) => {
-      const res = await requestAuthRegister(
-        "firstName",
-        "lastname",
-        "abcdefghIJ123456*",
-        email
-      );
+      const res = await requestAuthRegister("firstName", "lastname", "abcdefghIJ123456*", email);
       const data = res.body;
 
       expect(data).toStrictEqual({ error: expect.any(String) });
@@ -220,12 +210,9 @@ describe("Success Cases", () => {
     const data1 = res1.body;
     const userId = data1.userId;
 
-    const res2 = await requestAuthLogin(
-      "Mubashirmh04@gmail.com",
-      "SecurePassword123*"
-    );
+    const res2 = await requestAuthLogin("Mubashirmh04@gmail.com", "SecurePassword123*");
     const data2 = res2.body;
-    const token = data2.token;
+    const token = data2.accessToken;
 
     const res3 = await requestAuthUserDetails(token);
     const data3 = res3.body;

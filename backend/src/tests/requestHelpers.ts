@@ -13,19 +13,19 @@ export const requestAuthRegister = async (
   password: string,
   email: string
 ) => {
-  return await request(app)
-    .post("/auth/register")
-    .send({ firstName, lastName, password, email });
+  return await request(app).post("/auth/register").send({ firstName, lastName, password, email });
 };
 
 export const requestAuthLogin = async (email: string, password: string) => {
   return await request(app).post("/auth/login").send({ email, password });
 };
 
+export const requestAuthLogout = async (token: string) => {
+  return await request(app).post("/auth/logout").set("Authorization", `Bearer ${token}`);
+};
+
 export const requestAuthUserDetails = async (token: string) => {
-  return await request(app)
-    .get("/auth/user-details")
-    .set("Authorization", `Bearer ${token}`);
+  return await request(app).get("/auth/user-details").set("Authorization", `Bearer ${token}`);
 };
 
 export const requestChangePassword = async (
@@ -40,9 +40,7 @@ export const requestChangePassword = async (
 };
 
 export const requestVerifyEmail = async (verificationCode: string) => {
-  return await request(app)
-    .post("/auth/verify-email")
-    .send({ verificationCode });
+  return await request(app).post("/auth/verify-email").send({ verificationCode });
 };
 
 export const requestResendVerification = async (email: string) => {
@@ -58,9 +56,7 @@ export const requestRefreshToken = async (cookie: string) => {
 };
 
 export const resetPassword = async (resetCode: string, newPassword: string) => {
-  return await request(app)
-    .post("/auth/reset-password")
-    .send({ resetCode, newPassword });
+  return await request(app).post("/auth/reset-password").send({ resetCode, newPassword });
 };
 
 export const requestVerifyResetCode = async (resetCode: string) => {
@@ -68,9 +64,7 @@ export const requestVerifyResetCode = async (resetCode: string) => {
 };
 
 export const requestResetPassword = async (email: string) => {
-  return await request(app)
-    .post("/auth/request-reset-password")
-    .send({ email });
+  return await request(app).post("/auth/request-reset-password").send({ email });
 };
 
 // ShipmentCustomers
@@ -110,34 +104,22 @@ export const requestNewShipment = async (
     .set("Authorization", `Bearer ${token}`);
 };
 
-export const requestCompletedShipments = async (
-  token: string,
-  page: number,
-  limit: number
-) => {
+export const requestCompletedShipments = async (token: string, page: number, limit: number) => {
   return await request(app)
     .get("/shipments-customer/completed")
     .query({ page, limit })
     .set("Authorization", `Bearer ${token}`);
 };
 
-export const requestActiveShipments = async (
-  token: string,
-  page: number,
-  limit: number
-) => {
+export const requestActiveShipments = async (token: string, page: number, limit: number) => {
   return await request(app)
     .get("/shipments-customer/active")
     .set("Authorization", `Bearer ${token}`)
     .query({ page, limit });
 };
 
-// Admin Customer
-export const requestAllActiveShipments = async (
-  token: string,
-  page: number,
-  limit: number
-) => {
+// Admin
+export const requestAllActiveShipments = async (token: string, page: number, limit: number) => {
   return await request(app)
     .get("/shipments-admin/active")
     .query({ page, limit })

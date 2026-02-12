@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { refresh, validate } from "@/utils/tokenManager";
+import * as SecureStorage from "expo-secure-store";
 import { AuthContext } from "./AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 function AuthProvider({ children }) {
   const [userId, setUserId] = useState("");
   const [accessToken, setAccessToken] = useState("");
+  const [refreshToken, setRefreshToken] = useState("");
   const [role, setRole] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const loadAuth = async () => {
@@ -14,12 +19,36 @@ function AuthProvider({ children }) {
         const savedAccessToken = await AsyncStorage.getItem("accessToken");
         const savedUserRole = await AsyncStorage.getItem("role");
         const savedUserId = await AsyncStorage.getItem("userId");
+        const savedRefreshToken = await SecureStorage.getItemAsync("refreshToken");
 
         if (savedUserId) setUserId(savedUserId);
-        if (savedAccessToken) setAccessToken(savedAccessToken);
         if (savedUserRole) setRole(savedUserRole);
+
+        if (savedAccessToken && savedRefreshToken) {
+          const isValid = await validate(savedAccessToken);
+
+          if (isValid) {
+            setAccessToken(savedAccessToken);
+            setRefreshToken(savedRefreshToken);
+            setIsAuthenticated(true);
+          } else {
+            try {
+              const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+                await refresh();
+              await AsyncStorage.setItem("accessToken", newAccessToken);
+              await SecureStorage.setItemAsync("refreshToken", newRefreshToken);
+              setAccessToken(newAccessToken);
+              setRefreshToken(newRefreshToken);
+              setIsAuthenticated(true);
+            } catch (error) {
+              console.error("Failed to refresh token", error);
+              await logout();
+            }
+          }
+        }
       } catch (error) {
         console.error("Failed to load Auth", error);
+        await logout();
       } finally {
         setIsLoading(false);
       }
@@ -28,31 +57,29 @@ function AuthProvider({ children }) {
     loadAuth();
   }, []);
 
-  const persistSetAccessToken = async (token) => {
-    setAccessToken(token);
-    if (token) {
-      await AsyncStorage.setItem("accessToken", token);
-    } else {
-      await AsyncStorage.removeItem("accessToken");
-    }
+  const login = async (accessToken, refreshToken) => {
+    console.log(accessToken);
+    await AsyncStorage.setItem("accessToken", accessToken);
+    await SecureStorage.setItemAsync("refreshToken", refreshToken);
+
+    setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
+
+    const decoded = jwtDecode(accessToken);
+
+    await AsyncStorage.setItem("role", decoded.role);
+    await AsyncStorage.setItem("userId", decoded.userId);
+
+    setRole(decoded.role);
+    setUserId(decoded.userId);
   };
 
-  const persistSetUserRole = async (role) => {
-    setRole(role);
-    if (role) {
-      await AsyncStorage.setItem("role", role);
-    } else {
-      await AsyncStorage.removeItem("role");
-    }
-  };
-
-  const persistSetUserId = async (id) => {
-    setUserId(id);
-    if (id) {
-      await AsyncStorage.setItem("userId", id);
-    } else {
-      await AsyncStorage.removeItem("userId");
-    }
+  const logout = async () => {
+    await AsyncStorage.removeItem("accessToken");
+    await SecureStorage.deleteItemAsync("refreshToken");
+    await AsyncStorage.removeItem("userId");
+    await AsyncStorage.removeItem("role");
+    setIsAuthenticated(false);
   };
 
   if (isLoading) {
@@ -61,16 +88,16 @@ function AuthProvider({ children }) {
 
   const contextValue = {
     userId,
-    persistSetUserId,
     accessToken,
-    persistSetAccessToken,
     role,
-    persistSetUserRole,
+    refreshToken,
+    isAuthenticated,
+    isLoading,
+    login,
+    logout,
   };
 
-  return (
-    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
 
 export { AuthProvider };

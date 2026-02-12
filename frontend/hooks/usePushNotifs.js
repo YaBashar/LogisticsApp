@@ -3,7 +3,7 @@ import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import useAxiosPrivate from "@/services/axiosConfig";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -30,8 +30,7 @@ export default function usePushNotifs() {
     }
 
     if (Device.isDevice) {
-      const { status: existingStatus } =
-        await Notifications.getPermissionsAsync();
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
 
       if (existingStatus !== "granted") {
@@ -40,9 +39,7 @@ export default function usePushNotifs() {
       }
 
       if (finalStatus !== "granted") {
-        throw new Error(
-          "Permission not granted to get push token for push notification"
-        );
+        throw new Error("Permission not granted to get push token for push notification");
       }
 
       const projectId = Constants.expoConfig?.extra?.eas?.projectId;

@@ -1,8 +1,4 @@
-import {
-  requestDelete,
-  requestAuthRegister,
-  requestVerifyEmail,
-} from "../requestHelpers";
+import { requestDelete, requestAuthRegister, requestVerifyEmail } from "../requestHelpers";
 import { UserModel } from "../../models/userModel";
 import mongoose from "mongoose";
 
@@ -27,12 +23,7 @@ afterAll(async () => {
 
 describe("Success", () => {
   test("verifyEmail marks user as verified", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh123456$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
 
     // Get the verification code directly from DB
     const user = await UserModel.findOne({ email: "example@gmail.com" });
@@ -50,12 +41,7 @@ describe("Success", () => {
 
 describe("Error", () => {
   test("Invalid Verification Code", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh123456$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
     const res = await requestVerifyEmail("123456");
     expect(res.statusCode).toStrictEqual(400);
   });

@@ -5,7 +5,7 @@ import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { clear } from "./clear";
-import { authRouter } from "./routes/auth";
+import { authRouter } from "./routes/auth.route";
 import { shipmentsCustomerRouter } from "./routes/shipmentsCustomer";
 import { shipmentsAdminRouter } from "./routes/shipmentsAdmin";
 import NotificationRouter from "./routes/notifications";

@@ -11,7 +11,8 @@ import {
   userVerifyResetCode,
   userChangePassword,
   userResendResetCode,
-} from "../service/auth";
+  userLogout,
+} from "../service/auth.service";
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -32,6 +33,8 @@ export const login = async (req: Request, res: Response) => {
 
   try {
     const { accessToken, refreshToken } = await userLogin(email, password);
+    const isMobile = req.headers["x-client-type"] === "mobile";
+
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -39,21 +42,32 @@ export const login = async (req: Request, res: Response) => {
       maxAge: 24 * 60 * 60 * 1000,
       path: "/auth",
     });
-    return res.status(200).json({ token: accessToken });
+    return res.status(200).json({ accessToken: accessToken, ...(isMobile && { refreshToken }) });
   } catch (error) {
     return res.status(400).json({ error: "Invalid Credentials" });
   }
 };
 
+export const logout = async (req: Request, res: Response) => {
+  const userId = req.userId;
+
+  try {
+    const result = await userLogout(userId);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 export const refresh = async (req: Request, res: Response) => {
-  const refreshToken = req.cookies?.refreshToken;
+  const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
   if (!refreshToken) {
     return res.status(401).json({ error: "Authentication Required" });
   }
 
   try {
-    const { accessToken, refreshToken: newRefreshToken } =
-      await authRefresh(refreshToken);
+    const { accessToken, refreshToken: newRefreshToken } = await authRefresh(refreshToken);
+    const isMobile = req.headers["x-client-type"] === "mobile";
 
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
@@ -62,7 +76,9 @@ export const refresh = async (req: Request, res: Response) => {
       maxAge: 24 * 60 * 60 * 1000,
       path: "/auth",
     });
-    return res.status(200).json({ token: accessToken });
+    return res
+      .status(200)
+      .json({ accessToken: accessToken, ...(isMobile && { refreshToken: newRefreshToken }) });
   } catch (error) {
     res.clearCookie("refreshToken", {
       httpOnly: true,
@@ -121,9 +137,7 @@ export const resetPassword = async (req: Request, res: Response) => {
   const { resetCode, newPassword } = req.body;
 
   if (!resetCode || !newPassword) {
-    return res
-      .status(400)
-      .json({ error: "Reset code and password are required" });
+    return res.status(400).json({ error: "Reset code and password are required" });
   }
 
   try {
@@ -151,17 +165,11 @@ export const changePassword = async (req: Request, res: Response) => {
   const { currentPassword, newPassword } = req.body;
 
   if (!newPassword || !currentPassword) {
-    return res
-      .status(400)
-      .json({ error: "Reset code and password are required" });
+    return res.status(400).json({ error: "Reset code and password are required" });
   }
 
   try {
-    const result = await userChangePassword(
-      userId,
-      currentPassword,
-      newPassword
-    );
+    const result = await userChangePassword(userId, currentPassword, newPassword);
     res.status(200).json({ result });
   } catch (error) {
     res.status(400).json({ error: error.message });

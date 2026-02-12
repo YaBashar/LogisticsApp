@@ -14,14 +14,9 @@ let adminToken: string;
 
 beforeEach(async () => {
   await requestDelete();
-  await requestAuthRegister(
-    "Mubashir",
-    "Hussain",
-    "Abcdefgh1234$",
-    "example@gmail.com"
-  );
+  await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
   const res = await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
-  customerToken = res.body.token;
+  customerToken = res.body.accessToken;
 
   await requestNewShipment(
     customerToken,
@@ -69,11 +64,8 @@ beforeEach(async () => {
     emailVerified: true,
   });
 
-  const res2 = await requestAuthLogin(
-    "mubashirmh04@gmail.com",
-    "YourSecurePassword123!"
-  );
-  adminToken = res2.body.token;
+  const res2 = await requestAuthLogin("mubashirmh04@gmail.com", "YourSecurePassword123!");
+  adminToken = res2.body.accessToken;
 });
 
 afterEach(async () => {

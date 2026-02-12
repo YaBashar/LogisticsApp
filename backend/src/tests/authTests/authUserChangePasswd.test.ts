@@ -11,15 +11,10 @@ let token: string;
 beforeEach(async () => {
   await requestDelete();
 
-  await requestAuthRegister(
-    "Mubashir",
-    "Hussain",
-    "Abcdefgh1234$",
-    "example@gmail.com"
-  );
+  await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
   const res = await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
   const data = res.body;
-  token = data.token;
+  token = data.accessToken;
 });
 
 afterEach(async () => {
@@ -39,11 +34,7 @@ afterAll(async () => {
 
 describe("Success", () => {
   test("Password is changed", async () => {
-    const res1 = await requestChangePassword(
-      token,
-      "Abcdefgh1234$",
-      "NewerPassword1234*"
-    );
+    const res1 = await requestChangePassword(token, "Abcdefgh1234$", "NewerPassword1234*");
     const data1 = res1.body;
 
     expect(res1.statusCode).toStrictEqual(200);
@@ -53,11 +44,7 @@ describe("Success", () => {
 
 describe("Error", () => {
   test("Current Password Invalid", async () => {
-    const res1 = await requestChangePassword(
-      token,
-      "Abcdefsgh123456$",
-      "NewerPassword1234*"
-    );
+    const res1 = await requestChangePassword(token, "Abcdefsgh123456$", "NewerPassword1234*");
     const data1 = res1.body;
 
     expect(res1.statusCode).toStrictEqual(400);
@@ -65,11 +52,7 @@ describe("Error", () => {
   });
 
   test("New Password is the same", async () => {
-    const res1 = await requestChangePassword(
-      token,
-      "Abcdefgh123456$",
-      "Abcdefgh123456$"
-    );
+    const res1 = await requestChangePassword(token, "Abcdefgh123456$", "Abcdefgh123456$");
     const data1 = res1.body;
 
     expect(res1.statusCode).toStrictEqual(400);

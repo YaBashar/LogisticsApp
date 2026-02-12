@@ -53,8 +53,7 @@ const resendVerifLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 3,
   keyGenerator: (req) => req.body.email, // Rate limit per email
-  message:
-    "Too many attempts to resend verification code, Please try again later",
+  message: "Too many attempts to resend verification code, Please try again later",
   standardHeaders: true,
   legacyHeaders: true,
 });

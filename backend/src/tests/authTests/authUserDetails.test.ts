@@ -27,12 +27,7 @@ beforeAll(async () => {
 
 describe("Error Case", () => {
   test("Invalid Token", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh1234$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
     await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
 
     const res1 = await requestAuthUserDetails("Invalid Token");
@@ -44,15 +39,10 @@ describe("Error Case", () => {
 
 describe("Success Case", () => {
   test("Success", async () => {
-    await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "Abcdefgh1234$",
-      "example@gmail.com"
-    );
+    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
     const res = await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
     const data = res.body;
-    const token = data.token;
+    const token = data.accessToken;
 
     const res1 = await requestAuthUserDetails(token);
     const data1 = res1.body;

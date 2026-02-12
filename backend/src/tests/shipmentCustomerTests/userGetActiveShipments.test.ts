@@ -11,14 +11,9 @@ let token: string;
 
 beforeEach(async () => {
   await requestDelete();
-  await requestAuthRegister(
-    "Mubashir",
-    "Hussain",
-    "Abcdefgh1234$",
-    "example@gmail.com"
-  );
+  await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
   const res = await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
-  token = res.body.token;
+  token = res.body.accessToken;
 });
 
 afterEach(async () => {

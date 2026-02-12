@@ -2,10 +2,7 @@ import * as Brevo from "@getbrevo/brevo";
 
 // Initialize the API client
 const apiInstance = new Brevo.TransactionalEmailsApi();
-apiInstance.setApiKey(
-  Brevo.TransactionalEmailsApiApiKeys.apiKey,
-  process.env.BREVO_API_KEY || ""
-);
+apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY || "");
 
 export const sendEmail = async (
   to: string,
