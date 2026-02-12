@@ -14,7 +14,7 @@ beforeEach(async () => {
   await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
   const res = await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
   const data = res.body;
-  token = data.token;
+  token = data.accessToken;
 });
 
 afterEach(async () => {

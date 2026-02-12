@@ -42,7 +42,7 @@ describe("Success Case", () => {
     await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
     const res = await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
     const data = res.body;
-    const token = data.token;
+    const token = data.accessToken;
 
     const res1 = await requestAuthUserDetails(token);
     const data1 = res1.body;

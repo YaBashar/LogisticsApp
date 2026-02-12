@@ -33,7 +33,7 @@ describe("Success Cases", () => {
 
     const res2 = await requestRefreshToken(cookie);
     const data = res2.body;
-    expect(data).toStrictEqual({ token: expect.any(String) });
+    expect(data).toStrictEqual({ accessToken: expect.any(String) });
     expect(res2.statusCode).toStrictEqual(200);
   });
 });

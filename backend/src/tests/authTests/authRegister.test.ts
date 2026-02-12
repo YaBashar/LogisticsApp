@@ -212,7 +212,7 @@ describe("Success Cases", () => {
 
     const res2 = await requestAuthLogin("Mubashirmh04@gmail.com", "SecurePassword123*");
     const data2 = res2.body;
-    const token = data2.token;
+    const token = data2.accessToken;
 
     const res3 = await requestAuthUserDetails(token);
     const data3 = res3.body;

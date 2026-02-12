@@ -48,14 +48,14 @@ describe("Success Cases", () => {
   test("Logged In Successfully", async () => {
     const res = await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
     const data = res.body;
-    expect(data).toStrictEqual({ token: expect.any(String) });
+    expect(data).toStrictEqual({ accessToken: expect.any(String) });
     expect(res.statusCode).toStrictEqual(200);
   });
 
   test("Correct User LoggedIn", async () => {
     const res = await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
     const data = res.body;
-    const token = data.token;
+    const token = data.accessToken;
 
     const res1 = await requestAuthUserDetails(token);
     const data1 = res1.body;
