@@ -1,6 +1,15 @@
 import axios from "@/services/axios";
 import { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import useAuth from "@/hooks/useAuth";
 import { router } from "expo-router";
@@ -13,138 +22,188 @@ import PasswordInput from "../../components/inputs/PasswordInput";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
+  const isEmailValid = /\S+@\S+\.\S+/.test(email.trim());
+  const canSubmit = isEmailValid && password.trim().length > 0 && !isSubmitting;
 
   const handleSubmit = async () => {
+    if (!canSubmit) {
+      setErrorMessage("Enter a valid email and password.");
+      return;
+    }
     try {
+      setErrorMessage("");
+      setIsSubmitting(true);
       const response = await axios.post("/auth/login", { email, password });
       const { accessToken, refreshToken } = response.data;
-      console.log("AccessToken", accessToken);
-      console.log("RefreshTOken", refreshToken);
-
       login(accessToken, refreshToken);
-
       router.push("/profile");
     } catch (error) {
-      console.log(error);
+      console.log("Login error:", error);
+      setErrorMessage("Login failed. Please check your credentials and try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={[font, styles.title]}> Welcome Back </Text>
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.card}>
+            <Text style={[font, styles.title]}>Welcome Back</Text>
+            <Text style={[font, styles.subtitle]}>Login to continue tracking your shipments.</Text>
+            <View style={styles.formArea}>
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                style={styles.input}
+                placeholder="Enter your Email"
+                placeholderTextColor="#A6A09B"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              ></TextInput>
+              <PasswordInput setPassword={setPassword} password={password}></PasswordInput>
 
-      <View style={styles.outerView}>
-        <View style={styles.innerView}>
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            style={styles.input}
-            placeholder="Enter your Email"
-            placeholderTextColor="#A6A09B"
-          ></TextInput>
-          <PasswordInput setPassword={setPassword} password={password}></PasswordInput>
+              <Pressable>
+                <Text
+                  onPress={() => router.push("/auth/requestResetPassword")}
+                  style={[font, styles.linkText]}
+                >
+                  Forgot your password?
+                </Text>
+              </Pressable>
+            </View>
+            {!!errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
 
-          <Pressable>
-            <Text
-              onPress={() => router.push("/auth/requestResetPassword")}
-              style={[
-                font,
-                {
-                  color: "#004F3B",
-                  textAlign: "left",
-                  fontSize: 16,
-                  marginLeft: 10,
-                  marginBottom: 30,
-                  marginTop: 10,
-                  textDecorationLine: "underline",
-                },
-              ]}
-            >
-              Forgot your password?
-            </Text>
-          </Pressable>
-        </View>
+            <View style={styles.footer}>
+              <Pressable
+                onPress={handleSubmit}
+                style={[styles.button, !canSubmit && styles.buttonDisabled]}
+              >
+                <Text style={[font, styles.buttonText]}>
+                  {isSubmitting ? "Logging in..." : "Login"}
+                </Text>
+              </Pressable>
 
-        <View style={{ width: "100%", flexDirection: "column", alignItems: "center" }}>
-          <Pressable onPress={handleSubmit} style={styles.button}>
-            <Text style={[font, { color: "004F3B", textAlign: "center", fontSize: 20 }]}>
-              Login
-            </Text>
-          </Pressable>
-
-          <Pressable onPress={() => router.push("/auth/register")}>
-            <Text style={[font, { textAlign: "center", fontSize: 20 }]}>
-              {" "}
-              Dont Have an account?
-            </Text>
-            <Text
-              style={[
-                font,
-                {
-                  color: "#004F3B",
-                  textAlign: "center",
-                  fontSize: 20,
-                  textDecorationLine: "underline",
-                },
-              ]}
-            >
-              Sign Up
-            </Text>
-          </Pressable>
-        </View>
-      </View>
+              <Pressable onPress={() => router.push("/auth/register")}>
+                <Text style={[font, styles.switchText]}>Dont Have an account?</Text>
+                <Text style={[font, styles.switchAction]}>Sign Up</Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   input: {
-    marginTop: 20,
-    marginBottom: 15,
+    marginTop: 10,
+    marginBottom: 12,
     width: "100%",
-    height: "30%",
-    borderColor: "#004F3B",
-    borderWidth: 2,
-    borderRadius: 10,
-    paddingHorizontal: 10,
+    height: 56,
+    borderColor: "#0E9F6E",
+    borderWidth: 1.5,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    backgroundColor: "#F8FFFC",
   },
-
   title: {
-    fontSize: 24,
-    color: "#004F3B",
-    marginHorizontal: 10,
-    marginTop: 50,
+    fontSize: 30,
+    color: "#065F46",
+    textAlign: "center",
   },
-
-  button: {
-    marginBottom: 30,
-    marginTop: 20,
-    backgroundColor: "#A4F4CF",
-    padding: 10,
-    borderRadius: 15,
-    width: "80%",
+  subtitle: {
+    textAlign: "center",
+    color: "#0E9F6E",
+    marginTop: 6,
+    marginBottom: 18,
+    fontSize: 15,
   },
-
   container: {
     flex: 1,
-    flexDirection: "column",
-    justifyContent: "flex-start",
+    backgroundColor: "#FFFFFF",
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "white",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
   },
-
-  outerView: {
-    flexDirection: "column",
-    width: "90%",
-    height: "100%",
-    justifyContent: "flex-start",
-  },
-
-  innerView: {
+  card: {
     width: "100%",
-    height: "30%",
+    maxWidth: 460,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#BFE9D6",
+    paddingHorizontal: 18,
+    paddingVertical: 22,
+  },
+  formArea: {
+    width: "100%",
+  },
+  linkText: {
+    color: "#0E9F6E",
+    textAlign: "left",
+    fontSize: 15,
+    marginLeft: 6,
+    marginBottom: 14,
+    marginTop: 8,
+    textDecorationLine: "underline",
+  },
+  footer: {
     flexDirection: "column",
-    justifyContent: "flex-start",
+    alignItems: "center",
+    marginTop: 2,
+  },
+  button: {
+    marginBottom: 20,
+    marginTop: 4,
+    backgroundColor: "#0E9F6E",
+    paddingVertical: 14,
+    borderRadius: 16,
+    width: "100%",
+  },
+  buttonDisabled: {
+    opacity: 0.55,
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    textAlign: "center",
+    fontSize: 19,
+  },
+  errorText: {
+    color: "#B42318",
+    textAlign: "center",
+    marginTop: 2,
+    marginBottom: 2,
+    fontSize: 14,
+  },
+  switchText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#064E3B",
+  },
+  switchAction: {
+    color: "#0E9F6E",
+    textAlign: "center",
+    fontSize: 18,
+    textDecorationLine: "underline",
   },
 });

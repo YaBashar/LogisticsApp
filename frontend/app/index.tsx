@@ -24,31 +24,22 @@ export default function Index() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View>
+      <View style={styles.hero}>
         <Text style={[font, styles.title]}>Shipping App</Text>
-        <Text style={[font, { fontSize: 16, color: "#007A55", textAlign: "center" }]}>
-          Track your packages with ease
-        </Text>
+        <Text style={[font, styles.subtitle]}>Track your packages with ease</Text>
       </View>
 
-      <Image
-        source={require("../assets/images/LandingImage.png")}
-        style={{
-          width: "75%",
-          height: "50%",
-          borderRadius: 20,
-        }}
-      />
+      <View style={styles.imageCard}>
+        <Image source={require("../assets/images/LandingImage.png")} style={styles.image} />
+      </View>
 
-      <View style={{ width: "100%", flexDirection: "column", alignItems: "center", gap: 15 }}>
+      <View style={styles.actionArea}>
         <Pressable onPress={() => router.push("auth/register")} style={styles.buttonLight}>
-          <Text style={[font, { color: "#004F3B", textAlign: "center", fontSize: 20 }]}>
-            Create account
-          </Text>
+          <Text style={[font, styles.primaryButtonText]}>Create account</Text>
         </Pressable>
 
         <Pressable onPress={() => router.push("auth/login")} style={styles.buttonDark}>
-          <Text style={[font, { color: "#004F3B", textAlign: "center", fontSize: 20 }]}>Login</Text>
+          <Text style={[font, styles.secondaryButtonText]}>Login</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -57,33 +48,76 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     flexDirection: "column",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
-    height: "80%",
-    marginTop: 50,
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 28,
   },
-
+  hero: {
+    alignItems: "center",
+    marginTop: 16,
+  },
   title: {
-    fontSize: 45,
+    fontSize: 40,
     fontFamily: "Inter-Bold",
-    color: "#004F3B",
+    color: "#065F46",
   },
-
-  buttonLight: {
-    backgroundColor: "#A4F4CF",
-    padding: 10,
-    borderRadius: 15,
-    width: "50%",
+  subtitle: {
+    fontSize: 16,
+    color: "#0E9F6E",
+    textAlign: "center",
+    marginTop: 8,
   },
-
-  buttonDark: {
-    backgroundColor: "#F5F5F4",
-    padding: 10,
-    borderColor: "#004F3B",
+  imageCard: {
+    width: "100%",
+    flex: 1,
+    marginTop: 22,
+    marginBottom: 24,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 28,
     borderWidth: 1,
-    borderRadius: 15,
-    width: "50%",
+    borderColor: "#BFE9D6",
+    overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  actionArea: {
+    width: "100%",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 12,
+  },
+  buttonLight: {
+    backgroundColor: "#0E9F6E",
+    paddingVertical: 14,
+    borderRadius: 16,
+    width: "100%",
+  },
+  buttonDark: {
+    backgroundColor: "#F8FFFC",
+    paddingVertical: 14,
+    borderColor: "#0E9F6E",
+    borderWidth: 1,
+    borderRadius: 16,
+    width: "100%",
+  },
+  primaryButtonText: {
+    color: "#FFFFFF",
+    textAlign: "center",
+    fontSize: 19,
+  },
+  secondaryButtonText: {
+    color: "#065F46",
+    textAlign: "center",
+    fontSize: 19,
   },
 });

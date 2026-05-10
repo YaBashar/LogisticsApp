@@ -1,4 +1,13 @@
-import { View, TextInput, Text, StyleSheet, Pressable } from "react-native";
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import axios from "../../services/axios";
@@ -7,89 +16,134 @@ import { font } from "../../styles/font";
 
 export default function ResendVerification() {
   const [email, setEmail] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const canSubmit = /\S+@\S+\.\S+/.test(email.trim()) && !isSubmitting;
 
   const handleSubmit = async () => {
-    // Call resend verification endpoint
+    if (!canSubmit) {
+      setErrorMessage("Enter a valid email address.");
+      return;
+    }
     try {
+      setErrorMessage("");
+      setIsSubmitting(true);
       await axios.post("/auth/resend-verification", { email });
-      console.log("Email Sent");
       router.push("/auth/verifyEmail");
     } catch (error) {
-      console.log(error);
+      console.log("Resend verification error:", error);
+      setErrorMessage("Failed to resend code. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text
-        style={[
-          font,
-          {
-            marginTop: 100,
-            fontSize: 25,
-            color: "#004F3B",
-            marginHorizontal: 10,
-            textAlign: "center",
-          },
-        ]}
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        Verify Account
-      </Text>
-      <Text
-        style={[
-          font,
-          {
-            fontSize: 20,
-            color: "#004F3B",
-            width: 250,
-            marginHorizontal: 10,
-            marginBottom: 20,
-            textAlign: "center",
-          },
-        ]}
-      >
-        Enter the email that you used for signup
-      </Text>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.card}>
+            <Text style={[font, styles.title]}>Verify Account</Text>
+            <Text style={[font, styles.subtitle]}>Enter the email that you used for signup.</Text>
 
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        placeholder="Enter your Email"
-      ></TextInput>
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              style={styles.input}
+              placeholder="Enter your Email"
+              placeholderTextColor="#A6A09B"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            ></TextInput>
 
-      <Pressable onPress={handleSubmit} style={styles.button}>
-        <Text style={[font, { color: "004F3B", textAlign: "center", fontSize: 20 }]}>
-          Resend Code
-        </Text>
-      </Pressable>
+            {!!errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+            <Pressable
+              onPress={handleSubmit}
+              style={[styles.button, !canSubmit && styles.buttonDisabled]}
+            >
+              <Text style={[font, styles.buttonText]}>
+                {isSubmitting ? "Sending code..." : "Resend Code"}
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   input: {
-    width: "90%",
-    height: 60,
-    borderColor: "#004F3B",
-    borderWidth: 2,
-    borderRadius: 10,
-    paddingHorizontal: 10,
+    width: "100%",
+    height: 56,
+    borderColor: "#0E9F6E",
+    borderWidth: 1.5,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    backgroundColor: "#F8FFFC",
   },
-
   container: {
     flex: 1,
-    flexDirection: "column",
-    alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "#FFFFFF",
   },
-
+  keyboardContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+  },
+  card: {
+    width: "100%",
+    maxWidth: 460,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: "#BFE9D6",
+    paddingHorizontal: 18,
+    paddingVertical: 22,
+  },
+  title: {
+    fontSize: 30,
+    color: "#065F46",
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 15,
+    color: "#0E9F6E",
+    textAlign: "center",
+    marginBottom: 18,
+    marginTop: 6,
+  },
   button: {
-    backgroundColor: "#A4F4CF",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 15,
-    width: "85%",
-    marginTop: 25,
+    backgroundColor: "#0E9F6E",
+    paddingVertical: 14,
+    borderRadius: 16,
+    width: "100%",
+    marginTop: 16,
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    textAlign: "center",
+    fontSize: 19,
+  },
+  buttonDisabled: {
+    opacity: 0.55,
+  },
+  errorText: {
+    color: "#B42318",
+    textAlign: "center",
+    marginTop: 12,
+    fontSize: 14,
   },
 });
