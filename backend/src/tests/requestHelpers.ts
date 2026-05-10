@@ -1,5 +1,6 @@
 import request from "supertest";
 import { app } from "../app";
+import { UserModel } from "../models/userModel";
 
 // Clear
 export const requestDelete = async () => {
@@ -7,25 +8,46 @@ export const requestDelete = async () => {
 };
 
 // Auth
-export const requestAuthRegister = async (
+export const requestRegister = async (
   firstName: string,
   lastName: string,
   password: string,
   email: string
 ) => {
-  return await request(app).post("/auth/register").send({ firstName, lastName, password, email });
+  const body: Record<string, string> = { firstName, lastName, password, email };
+  return await request(app).post("/auth/register").send(body);
 };
 
-export const requestAuthLogin = async (email: string, password: string) => {
+export const requestLogin = async (email: string, password: string) => {
   return await request(app).post("/auth/login").send({ email, password });
 };
 
-export const requestAuthLogout = async (token: string) => {
-  return await request(app).post("/auth/logout").set("Authorization", `Bearer ${token}`);
+export const requestRefresh = async (token: string) => {
+  return await request(app).post("/auth/refresh").send({ refreshToken: token });
 };
 
-export const requestAuthUserDetails = async (token: string) => {
-  return await request(app).get("/auth/user-details").set("Authorization", `Bearer ${token}`);
+export const requestVerifyEmail = async (verificationCode: string) => {
+  return await request(app).post("/auth/verify-email").send({ verificationCode });
+};
+
+export const requestResendVerifyEmail = async (email: string) => {
+  return await request(app).post("/auth/resend-verification").send({ email });
+};
+
+export const requestForgot = async (email: string) => {
+  return await request(app).post("/auth/forgot-password").send({ email });
+};
+
+export const requestResendResetCode = async (email: string) => {
+  return await request(app).post("/auth/resend-reset-code").send({ email });
+};
+
+export const requestVerifyResetCode = async (resetCode: string) => {
+  return await request(app).post("/auth/verify-reset-code").send({ resetCode });
+};
+
+export const requestResetPassword = async (resetCode: string, newPassword: string) => {
+  return await request(app).post("/auth/reset-password").send({ resetCode, newPassword });
 };
 
 export const requestChangePassword = async (
@@ -35,37 +57,46 @@ export const requestChangePassword = async (
 ) => {
   return await request(app)
     .post("/auth/change-password")
-    .send({ currentPassword, newPassword })
-    .set("Authorization", `Bearer ${token}`);
+    .set("Authorization", `Bearer ${token}`)
+    .send({ currentPassword, newPassword });
 };
 
-export const requestVerifyEmail = async (verificationCode: string) => {
-  return await request(app).post("/auth/verify-email").send({ verificationCode });
+export const requestLogout = async (token: string) => {
+  return await request(app).post("/auth/logout").set("Authorization", `Bearer ${token}`);
 };
 
-export const requestResendVerification = async (email: string) => {
-  return await request(app).post("/auth/resend-verification").send({ email });
+export const requestDeleteAccount = async (token: string) => {
+  return await request(app).delete("/auth/delete-account").set("Authorization", `Bearer ${token}`);
 };
 
-export const requestResendResetCode = async (email: string) => {
-  return await request(app).post("/auth/resend-reset-code").send({ email });
+export const requestReactivateAccount = async (email: string, password: string) => {
+  return await request(app).post("/auth/reactivate").send({ email, password });
 };
 
-export const requestRefreshToken = async (cookie: string) => {
-  return await request(app).post("/auth/refresh").set("Cookie", cookie);
-};
+export async function getToken(
+  firstName: string,
+  lastName: string,
+  email: string,
+  password: string
+): Promise<string> {
+  const reg = await requestRegister(firstName, lastName, password, email);
+  expect(reg.status).toBe(201);
+  await verifyEmail(email, reg.body.code);
 
-export const resetPassword = async (resetCode: string, newPassword: string) => {
-  return await request(app).post("/auth/reset-password").send({ resetCode, newPassword });
-};
+  const loginResponse = await requestLogin(email, password);
+  expect(loginResponse.status).toBe(200);
+  expect(loginResponse.body.accessToken).toBeDefined();
+  return loginResponse.body.accessToken;
+}
 
-export const requestVerifyResetCode = async (resetCode: string) => {
-  return await request(app).post("/auth/verify-reset-code").send({ resetCode });
-};
+export async function verifyEmail(email: string, verificationCode: string): Promise<void> {
+  const response = await requestVerifyEmail(verificationCode);
+  expect(response.statusCode).toBe(200);
 
-export const requestResetPassword = async (email: string) => {
-  return await request(app).post("/auth/request-reset-password").send({ email });
-};
+  const updatedUser = await UserModel.findOne({ email });
+  expect(updatedUser?.emailVerified).toBe(true);
+  expect(updatedUser?.verificationCode).toBe(undefined);
+}
 
 // ShipmentCustomers
 export const requestNewShipment = async (

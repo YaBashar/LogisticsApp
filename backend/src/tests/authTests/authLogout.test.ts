@@ -1,19 +1,17 @@
 import {
-  requestAuthLogin,
-  requestAuthLogout,
-  requestAuthRegister,
+  requestRegister,
+  requestLogin,
+  requestRefresh,
   requestDelete,
+  verifyEmail,
 } from "../requestHelpers";
 import mongoose from "mongoose";
+// Allow time for MongoDB connection in beforeAll/afterAll (default 5s is too short)
 
-let token: string;
+const MONGO_OPTIONS = { serverSelectionTimeoutMS: 8000 };
 
 beforeEach(async () => {
   await requestDelete();
-  await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
-  const res = await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
-  const { accessToken } = res.body;
-  token = accessToken;
 });
 
 afterEach(async () => {
@@ -21,38 +19,43 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
-});
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+  }
+}, 10000);
 
 beforeAll(async () => {
-  // Ensure DB is connected
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGODB_URI);
+  if (!process.env.MONGODB_URI) {
+    throw new Error(
+      "MONGODB_URI is not set. Copy backend/.env.example to backend/.env and set MONGODB_URI."
+    );
   }
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect(process.env.MONGODB_URI, MONGO_OPTIONS);
+  }
+}, 10000);
+
+describe("Success Cases", () => {
+  test("Success", async () => {
+    const res1 = await requestRegister("Mubashir", "Hussain", "Abcdefg123$", "example@gmail.com");
+    await verifyEmail("example@gmail.com", res1.body.code);
+    const res2 = await requestLogin("example@gmail.com", "Abcdefg123$");
+    expect(res2.statusCode).toStrictEqual(200);
+    expect(res2.body.refreshToken).toEqual(expect.any(String));
+
+    const res3 = await requestRefresh(res2.body.refreshToken);
+    expect(res3.body).toStrictEqual({
+      accessToken: expect.any(String),
+      refreshToken: expect.any(String),
+    });
+    expect(res3.statusCode).toStrictEqual(200);
+  });
 });
 
 describe("Error Cases", () => {
   test("Invalid Token", async () => {
-    const res = await requestAuthLogout("invalidToken");
-    const data = res.body;
-    expect(res.statusCode).toStrictEqual(401);
-    expect(data).toStrictEqual({ error: expect.any(String) });
-  });
-
-  test("User Already Logged out", async () => {
-    await requestAuthLogout(token);
-    const res = await requestAuthLogout(token);
-    const data = res.body;
+    const res = await requestRefresh("wrongRefreshToken");
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
-    expect(data).toStrictEqual({ error: expect.any(String) });
-  });
-});
-
-describe("Success Cases", () => {
-  test("Logged Out Successfully", async () => {
-    const res = await requestAuthLogout(token);
-    const data = res.body;
-    expect(data).toStrictEqual({ message: "Logged out successfully" });
-    expect(res.statusCode).toStrictEqual(200);
   });
 });

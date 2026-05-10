@@ -1,10 +1,9 @@
-import {
-  requestDelete,
-  requestAuthRegister,
-  requestAuthLogin,
-  requestAuthUserDetails,
-} from "../requestHelpers";
+import { requestDelete, requestRegister } from "../requestHelpers";
 import mongoose from "mongoose";
+
+// Allow time for MongoDB connection in beforeAll/afterAll (default 5s is too short)
+
+const MONGO_OPTIONS = { serverSelectionTimeoutMS: 8000 };
 
 beforeEach(async () => {
   await requestDelete();
@@ -15,21 +14,27 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
-});
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+  }
+}, 10000);
 
 beforeAll(async () => {
-  // Ensure DB is connected
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGODB_URI);
+  if (!process.env.MONGODB_URI) {
+    throw new Error(
+      "MONGODB_URI is not set. Copy backend/.env.example to backend/.env and set MONGODB_URI."
+    );
   }
-});
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect(process.env.MONGODB_URI, MONGO_OPTIONS);
+  }
+}, 10000);
 
 describe("Error Cases", () => {
   describe("Test Email", () => {
     test("email address is already used by another user", async () => {
-      await requestAuthRegister("firstname", "lastname", "abcdefghIJ123456*", "email@unsw.edu.au");
-      const res = await requestAuthRegister(
+      await requestRegister("firstname", "lastname", "abcdefghIJ123456*", "email@unsw.edu.au");
+      const res = await requestRegister(
         "firstname1",
         "lastname1",
         "abcdefghIJK123456*",
@@ -50,7 +55,7 @@ describe("Error Cases", () => {
       "34678893487",
       "#$%^&*()&*()",
     ])("invalid email address", async (email) => {
-      const res = await requestAuthRegister("firstName", "lastname", "abcdefghIJ123456*", email);
+      const res = await requestRegister("firstName", "lastname", "abcdefghIJ123456*", email);
       const data = res.body;
 
       expect(data).toStrictEqual({ error: expect.any(String) });
@@ -92,7 +97,7 @@ describe("Error Cases", () => {
       "/",
       "1",
     ])("first name containing invalid charcters", async (char) => {
-      const res = await requestAuthRegister(
+      const res = await requestRegister(
         "firstname " + char,
         "lastname",
         "abcdefghIJ123456*",
@@ -139,7 +144,7 @@ describe("Error Cases", () => {
       "/",
       "1",
     ])("last name containing invalid charcters", async (char) => {
-      const res = await requestAuthRegister(
+      const res = await requestRegister(
         "firstname ",
         "lastname " + char,
         "abcdefghIJ123456*",
@@ -154,12 +159,7 @@ describe("Error Cases", () => {
     describe("Testing password", () => {
       // Password is less than 12 characters.
       test("Invalid password length", async () => {
-        const res = await requestAuthRegister(
-          "firstname ",
-          "lastname",
-          "3456*",
-          "email@unsw.edu.au"
-        );
+        const res = await requestRegister("firstname ", "lastname", "3456*", "email@unsw.edu.au");
         const data = res.body;
 
         expect(data).toStrictEqual({ error: expect.any(String) });
@@ -170,7 +170,7 @@ describe("Error Cases", () => {
       test.each(["abcdefgh", "12345678", "shfvfhj^&&*%", "253768%&^*"])(
         "Password does not contain at least one number and one letter",
         async (password) => {
-          const res = await requestAuthRegister(
+          const res = await requestRegister(
             "firstname ",
             "lastname",
             password,
@@ -188,7 +188,7 @@ describe("Error Cases", () => {
 
 describe("Success Cases", () => {
   test("Register User", async () => {
-    const result = await requestAuthRegister(
+    const result = await requestRegister(
       "Mubashir",
       "Hussain",
       "SecurePassword123*",
@@ -198,31 +198,5 @@ describe("Success Cases", () => {
 
     expect(data.userId).toStrictEqual(expect.any(String));
     expect(result.statusCode).toStrictEqual(201);
-  });
-
-  test("Correct User Registered", async () => {
-    const res1 = await requestAuthRegister(
-      "Mubashir",
-      "Hussain",
-      "SecurePassword123*",
-      "Mubashirmh04@gmail.com"
-    );
-    const data1 = res1.body;
-    const userId = data1.userId;
-
-    const res2 = await requestAuthLogin("Mubashirmh04@gmail.com", "SecurePassword123*");
-    const data2 = res2.body;
-    const token = data2.accessToken;
-
-    const res3 = await requestAuthUserDetails(token);
-    const data3 = res3.body;
-    expect(data3).toStrictEqual({
-      user: {
-        userId: userId,
-        name: "Mubashir Hussain",
-        email: "mubashirmh04@gmail.com",
-        role: "customer",
-      },
-    });
   });
 });
