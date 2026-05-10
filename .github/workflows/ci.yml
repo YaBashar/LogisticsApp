@@ -45,7 +45,7 @@ jobs:
           NODE_ENV: test
           JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
           JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}  
+          MONGODB_URI: mongodb://127.0.0.1:27017/logistics 
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           REFRESH_TOKEN_TTL_DAYS: ${{ secrets.REFRESH_TOKEN_TTL_DAYS }}
