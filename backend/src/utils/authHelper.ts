@@ -10,17 +10,17 @@ export function checkPassword(password: string): void {
   }
 
   if (!(/[a-z]/.test(password) && /[A-Z]/.test(password))) {
-    throw new AuthError("password must containe upper and lower case characters");
+    throw new AuthError("Password must contain upper and lower case characters");
   }
 
   if (!/[^a-zA-Z0-9]/.test(password)) {
-    throw new AuthError("password must contain a special character");
+    throw new AuthError("Password must contain a special character");
   }
 }
 
 export function validateEmailFormat(email: string): string {
   if (typeof email !== "string") {
-    throw new AuthError("invalid email format");
+    throw new AuthError("Invalid email format");
   }
 
   const sanitized = email
@@ -28,7 +28,7 @@ export function validateEmailFormat(email: string): string {
     .toLowerCase()
     .trim();
   if (sanitized.length > 254 || !validator.isEmail(sanitized)) {
-    throw new AuthError("invalid email format");
+    throw new AuthError("Invalid email format");
   }
 
   return sanitized;
@@ -37,7 +37,7 @@ export function validateEmailFormat(email: string): string {
 export async function checkEmailAvailable(email: string): Promise<void> {
   const existingEmail = await UserModel.findOne({ email });
   if (existingEmail) {
-    throw new AuthError("Account already exists with email");
+    throw new AuthError("Account already exists with this email");
   }
 }
 
