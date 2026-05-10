@@ -1,12 +1,11 @@
 import axios from "axios";
 import Constants from "expo-constants";
 
-const LOCAL_URL = "https://heriberto-unflowing-conclusionally.ngrok-free.dev";
-const PROD_URL = Constants.expoConfig?.extra?.apiUrl || "https://logisticsapp-uldj.onrender.com";
+const API_URL = Constants.expoConfig?.extra?.apiUrl || "";
 
-// Automatically use local in dev, production in builds
-const BASE_URL = __DEV__ ? LOCAL_URL : PROD_URL;
-console.log("Using API URL:", BASE_URL, __DEV__ ? "(LOCAL)" : "(PRODUCTION)");
+// Expo tunnel only exposes Metro; backend should be reachable at apiUrl.
+const BASE_URL = API_URL;
+console.log("Using API URL:", BASE_URL);
 
 export default axios.create({
   baseURL: BASE_URL,

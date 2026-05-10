@@ -1,4 +1,13 @@
-import { View, Text, Image, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  Pressable,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import { router } from "expo-router";
@@ -7,21 +16,29 @@ import NumericalCodeInput from "../../components/inputs/NumericalCodeInput";
 import axios from "../../services/axios";
 
 export default function VerifyEmail() {
-  // Call verifyEmail endpoint
-  // If successful go to login page.
-
   const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const joinedCode = code.join("");
+  const canSubmit = /^\d{6}$/.test(joinedCode) && !isSubmitting;
 
   const handleVerify = async () => {
-    const verificationCode = code.join("");
-    console.log("Verification Code:", verificationCode);
+    if (!canSubmit) {
+      setErrorMessage("Enter the 6-digit verification code.");
+      return;
+    }
     try {
+      setErrorMessage("");
+      setIsSubmitting(true);
+      const verificationCode = joinedCode;
       await axios.post("/auth/verify-email", { verificationCode });
       alert("Email Verified Successfully! You can now log in.");
       router.push("/auth/login");
     } catch (error) {
       console.log("Verification Error:", error);
-      alert("Verification Failed. Please check the code and try again.", verificationCode);
+      setErrorMessage("Verification failed. Please check the code and try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -31,63 +48,43 @@ export default function VerifyEmail() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image
-        source={require("../../assets/images/Key.png")}
-        style={{ width: 100, height: 100, marginTop: 100, marginBottom: 10 }}
-      />
-
-      <Text
-        style={[
-          font,
-          {
-            fontSize: 25,
-            color: "#004F3B",
-            marginTop: 10,
-            marginHorizontal: 10,
-            textAlign: "center",
-          },
-        ]}
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        Verify Account
-      </Text>
-      <Text
-        style={[
-          font,
-          {
-            fontSize: 20,
-            color: "#004F3B",
-            width: 250,
-            marginHorizontal: 10,
-            textAlign: "center",
-          },
-        ]}
-      >
-        Enter the code sent to your email to verify
-      </Text>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.card}>
+            <Image source={require("../../assets/images/Key.png")} style={styles.image} />
 
-      <NumericalCodeInput code={code} setCode={setCode} />
+            <Text style={[font, styles.title]}>Verify Account</Text>
+            <Text style={[font, styles.subtitle]}>
+              Enter the code sent to your email to verify.
+            </Text>
 
-      <View
-        style={{
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 15,
-          marginTop: 30,
-        }}
-      >
-        <Pressable onPress={handleVerify} style={styles.button}>
-          <Text style={[font, { color: "#004F3B", textAlign: "center", fontSize: 20 }]}>
-            Verify Email
-          </Text>
-        </Pressable>
+            <NumericalCodeInput code={code} setCode={setCode} />
+            {!!errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
 
-        <Pressable onPress={handleResend} style={styles.resendButton}>
-          <Text style={[font, { color: "#004F3B", textAlign: "center", fontSize: 20 }]}>
-            Resend Code
-          </Text>
-        </Pressable>
-      </View>
+            <View style={styles.actionArea}>
+              <Pressable
+                onPress={handleVerify}
+                style={[styles.button, !canSubmit && styles.buttonDisabled]}
+              >
+                <Text style={[font, styles.buttonText]}>
+                  {isSubmitting ? "Verifying..." : "Verify Email"}
+                </Text>
+              </Pressable>
+
+              <Pressable onPress={handleResend} style={styles.resendButton}>
+                <Text style={[font, styles.resendText]}>Resend Code</Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -95,26 +92,84 @@ export default function VerifyEmail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "column",
+    backgroundColor: "#FFFFFF",
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "white",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
   },
-
-  button: {
-    backgroundColor: "#A4F4CF",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 15,
-    width: "85%",
-  },
-
-  resendButton: {
-    backgroundColor: "#F5F5F4",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderColor: "#004F3B",
+  card: {
+    width: "100%",
+    maxWidth: 460,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
     borderWidth: 1,
-    borderRadius: 15,
-    width: "85%",
+    borderColor: "#BFE9D6",
+    paddingHorizontal: 18,
+    paddingVertical: 22,
+    alignItems: "center",
+  },
+  image: {
+    width: 84,
+    height: 84,
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 30,
+    color: "#065F46",
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 15,
+    color: "#0E9F6E",
+    textAlign: "center",
+    marginTop: 6,
+    marginBottom: 8,
+    width: "100%",
+  },
+  actionArea: {
+    width: "100%",
+    gap: 10,
+    marginTop: 18,
+  },
+  button: {
+    backgroundColor: "#0E9F6E",
+    paddingVertical: 14,
+    borderRadius: 16,
+    width: "100%",
+  },
+  resendButton: {
+    backgroundColor: "#F8FFFC",
+    paddingVertical: 14,
+    borderColor: "#0E9F6E",
+    borderWidth: 2,
+    borderRadius: 16,
+    width: "100%",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    textAlign: "center",
+    fontSize: 19,
+  },
+  resendText: {
+    color: "#065F46",
+    textAlign: "center",
+    fontSize: 19,
+  },
+  buttonDisabled: {
+    opacity: 0.55,
+  },
+  errorText: {
+    color: "#B42318",
+    textAlign: "center",
+    marginTop: 10,
+    fontSize: 14,
+    width: "100%",
   },
 });
