@@ -46,7 +46,7 @@ export default {
       "@react-native-firebase/messaging",
     ],
     extra: {
-      apiUrl: process.env.API_URL || "https://logisticsapp-uldj.onrender.com",
+      apiUrl: process.env.API_URL || "",
       geoApiKey: process.env.GEO_API_KEY,
       router: {},
       eas: {

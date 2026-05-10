@@ -72,9 +72,9 @@ axiosPrivate.interceptors.response.use(
 
 axiosPrivate.interceptors.request.use(
   async (config) => {
-    const token = AsyncStorage.getItem("accessToken");
+    const token = await AsyncStorage.getItem("accessToken");
     if (token && !config.headers["Authorization"]) {
-      config.headers["Authorization"] = `bearer ${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
