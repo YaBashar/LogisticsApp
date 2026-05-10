@@ -1,188 +1,173 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import {
   registerUser,
   userLogin,
   authRefresh,
-  userDetails,
-  verifyEmail,
+  forgotPassword,
+  resetPasswordService,
+  verifyResetCodeService,
+  resendResetCodeService,
   resendVerificationCode,
-  requestResetPassword,
-  userResetPassword,
-  userVerifyResetCode,
-  userChangePassword,
-  userResendResetCode,
+  userVerifyEmail,
   userLogout,
+  reactivateAccount,
+  deleteAccount,
+  changePasswordService,
 } from "../service/auth.service";
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response, next: NextFunction) => {
+  const { firstName, lastName, email, password } = req.body;
+
   try {
-    const { firstName, lastName, email, password } = req.body;
-    if (!firstName || !lastName || !email || !password) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-    const result = await registerUser(firstName, lastName, password, email);
-    return res.status(201).json({ userId: result });
+    const result = await registerUser({ firstName, lastName, password, email });
+    res.status(201).json(result);
   } catch (error) {
-    console.log(error.message);
-    return res.status(400).json({ error: error.message });
+    next(error);
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
 
   try {
-    const { accessToken, refreshToken } = await userLogin(email, password);
-    const isMobile = req.headers["x-client-type"] === "mobile";
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000,
-      path: "/auth",
-    });
-    return res.status(200).json({ accessToken: accessToken, ...(isMobile && { refreshToken }) });
+    const result = await userLogin({ email, password });
+    res.json(result).status(200);
   } catch (error) {
-    return res.status(400).json({ error: "Invalid Credentials" });
+    next(error);
   }
 };
 
-export const logout = async (req: Request, res: Response) => {
-  const userId = req.userId;
-
-  try {
-    const result = await userLogout(userId);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-export const refresh = async (req: Request, res: Response) => {
-  const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
-  if (!refreshToken) {
-    return res.status(401).json({ error: "Authentication Required" });
-  }
+export async function refresh(req: Request, res: Response, next: NextFunction) {
+  const refreshToken = req.body?.refreshToken;
 
   try {
     const { accessToken, refreshToken: newRefreshToken } = await authRefresh(refreshToken);
-    const isMobile = req.headers["x-client-type"] === "mobile";
-
-    res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000,
-      path: "/auth",
-    });
-    return res
-      .status(200)
-      .json({ accessToken: accessToken, ...(isMobile && { refreshToken: newRefreshToken }) });
+    res.status(200).json({ accessToken: accessToken, refreshToken: newRefreshToken });
   } catch (error) {
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/auth",
-    });
-    return res.status(400).json({ error: error.message });
+    next(error);
   }
-};
+}
 
-export const userVerifyEmail = async (req: Request, res: Response) => {
+export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
   const { verificationCode } = req.body;
+
   try {
-    const result = await verifyEmail(verificationCode);
-    res.status(200).json({ result });
+    const result = await userVerifyEmail(verificationCode);
+    res.status(200).json(result);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
 
-export const resendVerifyEmail = async (req: Request, res: Response) => {
+export const resendVerifyEmail = async (req: Request, res: Response, next: NextFunction) => {
   const { email } = req.body;
-
   try {
     const result = await resendVerificationCode(email);
     res.status(200).json(result);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
 
-export const resendResetCode = async (req: Request, res: Response) => {
+export const forgot = async (req: Request, res: Response, next: NextFunction) => {
   const { email } = req.body;
 
   try {
-    const result = await userResendResetCode(email);
-    res.status(200).json(result);
+    const result = await forgotPassword(email);
+    return res.status(200).json(result);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
 
-export const requestPasswordReset = async (req: Request, res: Response) => {
-  const { email } = req.body;
-
-  try {
-    const result = await requestResetPassword(email);
-    res.status(200).json({ result });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-export const resetPassword = async (req: Request, res: Response) => {
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
   const { resetCode, newPassword } = req.body;
 
-  if (!resetCode || !newPassword) {
-    return res.status(400).json({ error: "Reset code and password are required" });
-  }
-
   try {
-    const result = await userResetPassword(resetCode, newPassword);
-    res.status(200).json({ result });
+    const result = await resetPasswordService(resetCode, newPassword);
+    return res.status(200).json(result);
   } catch (error) {
-    console.log(error);
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
 
-export const verifyResetCode = async (req: Request, res: Response) => {
+export const verifyResetCode = async (req: Request, res: Response, next: NextFunction) => {
   const { resetCode } = req.body;
 
   try {
-    const result = await userVerifyResetCode(resetCode);
-    res.status(200).json({ result });
+    const result = await verifyResetCodeService(resetCode);
+    return res.status(200).json(result);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
 
-export const changePassword = async (req: Request, res: Response) => {
-  const userId = (req as any).userId;
+export const resendResetCode = async (req: Request, res: Response, next: NextFunction) => {
+  const { email } = req.body;
+
+  try {
+    const result = await resendResetCodeService(email);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changePassword = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.user?.sub;
   const { currentPassword, newPassword } = req.body;
 
-  if (!newPassword || !currentPassword) {
-    return res.status(400).json({ error: "Reset code and password are required" });
-  }
-
   try {
-    const result = await userChangePassword(userId, currentPassword, newPassword);
-    res.status(200).json({ result });
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication Required" });
+    }
+    const result = await changePasswordService(userId, currentPassword, newPassword);
+    return res.status(200).json(result);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
 
-export const userInfo = async (req: Request, res: Response) => {
-  const userId = req.userId;
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.user?.sub;
 
   try {
-    const result = await userDetails(userId);
-    res.status(200).json({ user: result });
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication Required" });
+    }
+    const result = await userLogout(userId);
+    return res.status(200).json(result);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
+
+export const deleteUserAccount = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.user!.sub;
+  try {
+    const result = await deleteAccount(userId);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export async function reactivate(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { email, password } = req.body;
+
+    const result = await reactivateAccount(email, password);
+
+    res.status(200).json({
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      user: {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
