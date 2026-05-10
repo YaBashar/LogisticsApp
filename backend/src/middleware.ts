@@ -1,77 +1,107 @@
 import "dotenv/config";
-import jwt, { JwtPayload } from "jsonwebtoken";
-const SECRET = process.env.JWT_SECRET;
-import rateLimit from "express-rate-limit";
+import jwt from "jsonwebtoken";
+const SECRET = process.env.JWT_ACCESS_SECRET;
+
 import { Request, Response, NextFunction } from "express";
+import rateLimit from "express-rate-limit";
 
-const verifyJWT = (req: Request, res: Response, next: NextFunction) => {
-  const authHeaders = req.headers.authorization;
-  if (!authHeaders) {
-    return res.status(401).json({ error: "Unauthorised: No token proivded" });
+export interface JwtPayload {
+  sub: string;
+  email: string;
+  name: string;
+  role: "customer" | "admin";
+}
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    interface Request {
+      user?: JwtPayload;
+    }
   }
+}
 
-  const token = authHeaders.split(" ")[1];
+export function requireAuth(req: Request, res: Response, next: NextFunction): void {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : undefined;
+
   if (!token) {
-    return res.status(401).json({ error: "Unauthorised: Malformed JWT Token" });
+    res.status(401).json({ error: "Authentication Required" });
+    return;
   }
 
   try {
     const decoded = jwt.verify(token, SECRET) as JwtPayload;
-    req.userId = decoded.userId;
+    req.user = decoded;
     next();
-  } catch (error) {
-    return res.status(401).json({ error: error.message });
+  } catch {
+    res.status(401).json({ error: "Authentication Required" });
   }
-};
+}
 
-const registrationLimiter = rateLimit({
+export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
+  if (req.user?.role !== "admin") {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+  next();
+}
+
+// Limits registration attempts to 5 per IP every 15 minutes to prevent abuse.
+// Skipped in test environments.
+export const registrationLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
-  message: "Too many registration attempts. Please try again later.",
+  max: process.env.NODE_ENV === "test" ? 1000 : 5,
+  message: { error: "Too many registration attempts. Please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => process.env.NODE_ENV === "test",
 });
 
-const loginLimiter = rateLimit({
+export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: process.env.NODE_ENV === "test" ? 1000 : 5,
-  message: "Too many login attempts, please try again later",
+  message: { error: "Too many login attempts, please try again later." },
   standardHeaders: true,
-  legacyHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
 });
 
-const refreshLimiter = rateLimit({
+export const resendVerifLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
-  message: "Too many refresh attempts please try again later",
-  standardHeaders: true,
-  legacyHeaders: true,
-});
-
-const resendVerifLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 3,
-  keyGenerator: (req) => req.body.email, // Rate limit per email
-  message: "Too many attempts to resend verification code, Please try again later",
-  standardHeaders: true,
-  legacyHeaders: true,
-});
-
-const verifyEmailLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
-  keyGenerator: (req) => req.body.email, // Per email
-  message: "Too many verification attempts. Please request a new code.",
+  max: process.env.NODE_ENV === "test" ? 1000 : 3,
+  skipFailedRequests: false,
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-export {
-  verifyJWT,
-  registrationLimiter,
-  loginLimiter,
-  refreshLimiter,
-  resendVerifLimiter,
-  verifyEmailLimiter,
-};
+export const verifyEmailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === "test" ? 1000 : 10,
+  message: { error: "Too many verification attempts. Please request a new code." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === "test" ? 1000 : 10,
+  message: { error: "Too many refresh attempts. Please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const forgotPasswordLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: process.env.NODE_ENV === "test" ? 1000 : 5,
+  message: { error: "Too many password reset attempts. Please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const resetCodeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === "test" ? 1000 : 5,
+  message: { error: "Too many attempts. Please request a new reset code." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
