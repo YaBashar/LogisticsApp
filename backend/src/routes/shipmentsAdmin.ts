@@ -1,16 +1,8 @@
 import express from "express";
 import * as adminShipmentsController from "../controllers/shipmentsAdmin.controller";
-import { verifyJWT } from "../middleware";
+import { requireAuth, requireAdmin } from "../middleware";
 
 export const shipmentsAdminRouter = express.Router();
 
-shipmentsAdminRouter.put(
-  "/:shipmentId/status",
-  verifyJWT,
-  adminShipmentsController.updateStatus
-);
-shipmentsAdminRouter.get(
-  "/active",
-  verifyJWT,
-  adminShipmentsController.getAllActiveOrders
-);
+shipmentsAdminRouter.put("/:shipmentId/status", requireAuth, requireAdmin, adminShipmentsController.updateStatus);
+shipmentsAdminRouter.get("/active", requireAuth, requireAdmin, adminShipmentsController.getAllActiveOrders);
