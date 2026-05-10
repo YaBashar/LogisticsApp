@@ -34,7 +34,8 @@ export default [
         afterAll: "readonly",
         test: "readonly",
         expect: "readonly",
-        describe: "readonly"
+        describe: "readonly",
+        it: "readonly",
       },
     },
     plugins: {

@@ -1,18 +1,17 @@
 import {
-  requestAuthLogin,
-  requestAuthRegister,
   requestDelete,
   requestNewShipment,
+  getToken,
 } from "../requestHelpers";
 import mongoose from "mongoose";
+
+const MONGO_OPTIONS = { serverSelectionTimeoutMS: 5000 };
 
 let token: string;
 
 beforeEach(async () => {
   await requestDelete();
-  await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
-  const res = await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
-  token = res.body.accessToken;
+  token = await getToken("Mubashir", "Hussain", "example@gmail.com", "Abcdefgh1234$");
 });
 
 afterEach(async () => {
@@ -20,15 +19,21 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
-});
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+  }
+}, 10000);
 
 beforeAll(async () => {
-  // Ensure DB is connected
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGODB_URI);
+  if (!process.env.MONGODB_URI) {
+    throw new Error(
+      "MONGODB_URI is not set. Copy backend/.env.example to backend/.env and set MONGODB_URI."
+    );
   }
-});
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect(process.env.MONGODB_URI, MONGO_OPTIONS);
+  }
+}, 10000);
 
 describe("Error", () => {
   // Item Description

@@ -6,7 +6,7 @@ import {
 } from "../service/shipmentsCustomer";
 
 export const createShipment = async (req: Request, res: Response) => {
-  const userId = req.userId;
+  const userId = req.user!.sub;
   const {
     packageType,
     itemDescription,
@@ -49,7 +49,7 @@ export const createShipment = async (req: Request, res: Response) => {
 };
 
 export const getActiveOrders = async (req: Request, res: Response) => {
-  const userId = req.userId;
+  const userId = req.user!.sub;
   const page = parseInt(req.query.page as string);
   const limit = parseInt(req.query.limit as string);
 
@@ -62,7 +62,7 @@ export const getActiveOrders = async (req: Request, res: Response) => {
 };
 
 export const getCompletedOrders = async (req: Request, res: Response) => {
-  const userId = req.userId;
+  const userId = req.user!.sub;
   const page = parseInt(req.query.page as string);
   const limit = parseInt(req.query.limit as string);
 

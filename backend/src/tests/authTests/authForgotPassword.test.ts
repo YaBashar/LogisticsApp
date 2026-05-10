@@ -1,13 +1,8 @@
 import mongoose from "mongoose";
-import {
-  requestDelete,
-  requestRegister,
-  requestForgot,
-  requestVerifyResetCode,
-} from "../requestHelpers";
+import { requestDelete, requestRegister, requestForgot } from "../requestHelpers";
 
 const EMAIL = "example@gmail.com";
-const PASSWORD = "Abcdefgh123456$";
+const PASSWORD = "Abcdefgh1234$";
 
 const MONGO_OPTIONS = { serverSelectionTimeoutMS: 8000 };
 
@@ -36,21 +31,20 @@ beforeAll(async () => {
   }
 }, 10000);
 
-describe("POST /auth/verify-reset-code", () => {
-  it("returns 200 when reset code is valid", async () => {
+describe("POST /auth/forgot-password", () => {
+  it("returns 200 when email is sent successfully", async () => {
     await requestRegister("Mubashir", "Hussain", PASSWORD, EMAIL);
     const res = await requestForgot(EMAIL);
 
-    const resetCode = res.body.code;
-    const res1 = await requestVerifyResetCode(resetCode);
-
-    expect(res1.statusCode).toBe(200);
+    expect(res.statusCode).toStrictEqual(200);
+    expect(res.body).toStrictEqual({ success: true, code: expect.any(String) });
   });
 
-  it("returns 400 when reset code is invalid", async () => {
+  it("returns 200 when email does not exist but with no code", async () => {
     await requestRegister("Mubashir", "Hussain", PASSWORD, EMAIL);
-    const res = await requestVerifyResetCode("123456");
+    const res = await requestForgot("invalid@gmail.com");
 
-    expect(res.statusCode).toStrictEqual(400);
+    expect(res.statusCode).toStrictEqual(200);
+    expect(res.body.code).toBeUndefined();
   });
 });

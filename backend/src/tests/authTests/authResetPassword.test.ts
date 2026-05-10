@@ -1,62 +1,94 @@
+import mongoose from "mongoose";
 import {
   requestDelete,
-  requestAuthRegister,
-  requestResetPassword,
+  requestRegister,
+  requestForgot,
   requestVerifyResetCode,
-  resetPassword,
+  requestResetPassword,
 } from "../requestHelpers";
-import { UserModel } from "../../models/userModel";
-import mongoose from "mongoose";
+
+const EMAIL = "example@gmail.com";
+const PASSWORD = "Abcdefgh123456$";
+
+const MONGO_OPTIONS = { serverSelectionTimeoutMS: 8000 };
 
 let resetCode: string;
 
 beforeEach(async () => {
   await requestDelete();
 
-  await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
-  await requestResetPassword("example@gmail.com");
+  await requestRegister("Mubashir", "Hussain", PASSWORD, EMAIL);
+  const res = await requestForgot(EMAIL);
+  resetCode = res.body.code;
 
-  // Get the reset code directly from DB
-  const user = await UserModel.findOne({ email: "example@gmail.com" });
-  resetCode = user?.resetCode;
-
-  const res = await requestVerifyResetCode(resetCode);
-  const data = res.body;
-  expect(res.statusCode).toStrictEqual(200);
-  expect(data.result).toStrictEqual({ success: true });
+  const res1 = await requestVerifyResetCode(resetCode);
+  expect(res1.statusCode).toStrictEqual(200);
+  expect(res1.body).toStrictEqual({ success: true });
 });
 
 afterEach(async () => {
   await requestDelete();
 });
 
-beforeAll(async () => {
-  // Ensure DB is connected
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGODB_URI);
-  }
-});
-
 afterAll(async () => {
-  await mongoose.connection.close();
-});
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+  }
+}, 10000);
 
-describe("Success", () => {
-  test("Password is reset", async () => {
-    const res1 = await resetPassword(resetCode, "NewerPassword1234*");
-    const data1 = res1.body;
+beforeAll(async () => {
+  if (!process.env.MONGODB_URI) {
+    throw new Error(
+      "MONGODB_URI is not set. Copy backend/.env.example to backend/.env and set MONGODB_URI."
+    );
+  }
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect(process.env.MONGODB_URI, MONGO_OPTIONS);
+  }
+}, 10000);
 
-    expect(res1.statusCode).toStrictEqual(200);
-    expect(data1.result).toStrictEqual({ success: true });
+describe("POST /auth/reset-password", () => {
+  it("returns 200 when password is reset successfully", async () => {
+    const res = await requestResetPassword(resetCode, "NewerPassword1234*");
+
+    expect(res.statusCode).toStrictEqual(200);
+    expect(res.body).toStrictEqual({
+      success: true,
+      accessToken: expect.any(String),
+      refreshToken: expect.any(String),
+      user: {
+        id: expect.any(String),
+        name: expect.any(String),
+        email: expect.any(String),
+      },
+    });
   });
-});
 
-describe("Error", () => {
-  test("Using Same Password", async () => {
-    const res1 = await resetPassword(resetCode, "Abcdefgh123456$");
-    const data1 = res1.body;
+  it("returns 400 when using the same password", async () => {
+    const res = await requestResetPassword(resetCode, PASSWORD);
 
-    expect(res1.statusCode).toStrictEqual(400);
-    expect(data1).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(400);
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+  });
+
+  it("returns 400 when new password is too short", async () => {
+    const res = await requestResetPassword(resetCode, "Short1!");
+
+    expect(res.statusCode).toStrictEqual(400);
+    expect(res.body).toStrictEqual({ error: "Password must be at least 12 characters" });
+  });
+
+  it("returns 400 when reset code is invalid", async () => {
+    const res = await requestResetPassword("invalid-code", "NewerPassword1234*");
+
+    expect(res.statusCode).toStrictEqual(400);
+    expect(res.body).toStrictEqual({ error: "Invalid or expired reset code" });
+  });
+
+  it("returns 400 when password fails complexity validation", async () => {
+    const res = await requestResetPassword(resetCode, "aaaaaaaaaaaa");
+
+    expect(res.statusCode).toStrictEqual(400);
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
   });
 });

@@ -1,11 +1,12 @@
 import {
   requestDelete,
-  requestAuthRegister,
+  requestRegister,
+  requestResendVerifyEmail,
   requestVerifyEmail,
-  requestResendVerification,
 } from "../requestHelpers";
 import mongoose from "mongoose";
-import { UserModel } from "../../models/userModel";
+
+const MONGO_OPTIONS = { serverSelectionTimeoutMS: 8000 };
 
 beforeEach(async () => {
   await requestDelete();
@@ -17,41 +18,49 @@ afterEach(async () => {
 
 afterAll(async () => {
   await mongoose.connection.close();
-});
+}, 15000);
 
 beforeAll(async () => {
   // Ensure DB is connected
   if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI!, MONGO_OPTIONS);
   }
-});
+}, 15000);
 
 describe("Success", () => {
   test("Sent Successfully", async () => {
-    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
+    await requestRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
 
-    await requestResendVerification("example@gmail.com");
-    // Get the verification code directly from DB
-    const user = await UserModel.findOne({ email: "example@gmail.com" });
-    const verificationCode = user?.verificationCode;
+    const res = await requestResendVerifyEmail("example@gmail.com");
 
-    const response = await requestVerifyEmail(verificationCode);
-    expect(response.statusCode).toBe(200);
-
-    // Verify user is actually verified from db
-    const updatedUser = await UserModel.findOne({ email: "example@gmail.com" });
-    expect(updatedUser?.emailVerified).toBe(true);
-    expect(updatedUser?.verificationCode).toBe(null);
+    expect(res.statusCode).toStrictEqual(200);
+    expect(res.body).toStrictEqual({ success: true, code: expect.any(String) });
   });
 });
 
 describe("Error", () => {
-  test("Invalid Email", async () => {
-    await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
-    const res = await requestResendVerification("invalid@gmail.com");
+  test("Invalid Email with no code sent", async () => {
+    await requestRegister("Mubashir", "Hussain", "Abcdefgh123456$", "example@gmail.com");
+    const res = await requestResendVerifyEmail("invalid@gmail.com");
     const data = res.body;
 
+    expect(res.statusCode).toStrictEqual(200);
+    expect(data.code).toBeUndefined();
+  });
+
+  test("returns 400 when email is already verified", async () => {
+    const registerRes = await requestRegister(
+      "Mubashir",
+      "Hussain",
+      "Abcdefgh123456$",
+      "verified@example.com"
+    );
+
+    await requestVerifyEmail(registerRes.body.code);
+
+    const res = await requestResendVerifyEmail("verified@example.com");
+
     expect(res.statusCode).toStrictEqual(400);
-    expect(data).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: "Email is already verified" });
   });
 });

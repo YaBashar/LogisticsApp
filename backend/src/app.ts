@@ -4,10 +4,11 @@ import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-import { clear } from "./clear";
+import { clear } from "./utils/clear";
 import { authRouter } from "./routes/auth.route";
 import { shipmentsCustomerRouter } from "./routes/shipmentsCustomer";
 import { shipmentsAdminRouter } from "./routes/shipmentsAdmin";
+import { AuthError } from "./service/auth.service";
 import NotificationRouter from "./routes/notifications";
 
 // Load dotenv FIRST, but only if vars aren't already set (e.g., in CI)
@@ -46,9 +47,13 @@ app.use("/auth", authRouter);
 app.use("/shipments-customer", shipmentsCustomerRouter);
 app.use("/shipments-admin", shipmentsAdminRouter);
 app.use("/notifications", NotificationRouter);
+// eslint-disable-next-line no-unused-vars
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  if (err instanceof AuthError) {
+    return res.status(err.statusCode).json({ error: err.message });
+  }
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error("ERROR CAUGHT:", err);
-  console.error("Stack:", err.stack);
-  res.status(500).json({ error: err.message, stack: err.stack });
+  console.error(err);
+  // Fallback to 500 if doesnt match any other type of error
+  return res.status(500).json({ error: "Internal Server Error" });
 });

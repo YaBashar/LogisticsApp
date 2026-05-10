@@ -1,11 +1,13 @@
 import {
   requestAllActiveShipments,
-  requestAuthLogin,
-  requestAuthRegister,
+  requestLogin,
   requestDelete,
   requestNewShipment,
+  getToken,
 } from "../requestHelpers";
 import mongoose from "mongoose";
+
+const MONGO_OPTIONS = { serverSelectionTimeoutMS: 5000 };
 import { UserModel } from "../../models/userModel";
 import bcrypt from "bcrypt";
 
@@ -14,9 +16,7 @@ let adminToken: string;
 
 beforeEach(async () => {
   await requestDelete();
-  await requestAuthRegister("Mubashir", "Hussain", "Abcdefgh1234$", "example@gmail.com");
-  const res = await requestAuthLogin("example@gmail.com", "Abcdefgh1234$");
-  customerToken = res.body.accessToken;
+  customerToken = await getToken("Mubashir", "Hussain", "example@gmail.com", "Abcdefgh1234$");
 
   await requestNewShipment(
     customerToken,
@@ -57,14 +57,13 @@ beforeEach(async () => {
     name: "Admin User",
     email: "mubashirmh04@gmail.com",
     password: hashedPassword,
-    refreshTokens: [],
     role: "admin",
     loginAttempts: 0,
     accountLocked: false,
     emailVerified: true,
   });
 
-  const res2 = await requestAuthLogin("mubashirmh04@gmail.com", "YourSecurePassword123!");
+  const res2 = await requestLogin("mubashirmh04@gmail.com", "YourSecurePassword123!");
   adminToken = res2.body.accessToken;
 });
 
@@ -73,15 +72,21 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
-});
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+  }
+}, 10000);
 
 beforeAll(async () => {
-  // Ensure DB is connected
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGODB_URI);
+  if (!process.env.MONGODB_URI) {
+    throw new Error(
+      "MONGODB_URI is not set. Copy backend/.env.example to backend/.env and set MONGODB_URI."
+    );
   }
-});
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect(process.env.MONGODB_URI, MONGO_OPTIONS);
+  }
+}, 10000);
 
 describe("Error", () => {
   test("Invalid Token", async () => {
@@ -89,6 +94,14 @@ describe("Error", () => {
     const data = res.body;
 
     expect(res.statusCode).toStrictEqual(401);
+    expect(data).toStrictEqual({ error: expect.any(String) });
+  });
+
+  test("Regular user cannot access admin route", async () => {
+    const res = await requestAllActiveShipments(customerToken, 1, 1);
+    const data = res.body;
+
+    expect(res.statusCode).toStrictEqual(403);
     expect(data).toStrictEqual({ error: expect.any(String) });
   });
 });
