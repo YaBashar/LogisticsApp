@@ -11,8 +11,7 @@ import mongoose from "mongoose";
 const PORT: number = parseInt(process.env.PORT || "3229");
 const HOST: string = process.env.host || "0.0.0.0";
 
-const MONGODB_URI =
-  process.env.NODE_ENV === "test" ? process.env.MONGODB_URI : process.env.MONGODB_URI_PROD;
+const MONGODB_URI = process.env.MONGODB_URI;
 
 mongoose
   .connect(MONGODB_URI!)
