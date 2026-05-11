@@ -1,58 +1,49 @@
 import { useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import { font } from "../styles/font";
 import ActiveOrders from "./activeOrders";
 import CompletedOrders from "./completedOrders";
 
 export default function CustomerProfile() {
+  const { width } = useWindowDimensions();
+  const contentMaxWidth = Math.min(420, width - 32);
   const tabs = ["Active", "Completed"];
   const [activeTab, setActiveTab] = useState("Active");
 
   return (
     <>
-      <View
-        style={{
-          flex: 1,
-          flexDirection: "column",
-          justifyContent: "flex-start",
-          alignItems: "center",
-          backgroundColor: "white",
-        }}
-      >
+      <View style={styles.screen}>
         <Text
           style={[
             font,
             {
-              marginTop: 35,
-              fontSize: 32,
-              color: "#004F3B",
+              marginTop: 18,
+              fontSize: 26,
+              color: "#0B6B4B",
               marginHorizontal: 10,
+              letterSpacing: 0.2,
             },
           ]}
         >
           My Orders
         </Text>
 
-        <View style={{ flexDirection: "row", gap: 10 }}>
+        <View style={[styles.tabsWrap, { width: contentMaxWidth }]}>
           {tabs.map((tab) => {
+            const isActive = activeTab === tab;
             return (
               <Pressable
                 key={tab}
                 onPress={() => setActiveTab(tab)}
                 style={({ pressed }) => [
-                  {
-                    marginTop: 5,
-                    marginBottom: 10,
-                    padding: 10,
-                    borderRadius: 5,
-                    borderWidth: 1,
-                    borderColor: "#004F3B",
-                    backgroundColor: activeTab === tab ? "#A4F4CF" : "white", // ← Active state
-                    opacity: pressed ? 0.7 : 1, // ← Pressed feedback
-                  },
+                  styles.tabPill,
+                  isActive ? styles.tabPillActive : styles.tabPillInactive,
+                  { opacity: pressed ? 0.92 : 1 },
                 ]}
               >
-                <Text style={[font]}>{tab} Orders</Text>
+                <Text style={[font, styles.tabText, isActive ? styles.tabTextActive : null]}>
+                  {tab} Orders
+                </Text>
               </Pressable>
             );
           })}
@@ -64,3 +55,51 @@ export default function CustomerProfile() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#CFEFE1",
+    alignItems: "center",
+    paddingTop: 8,
+  },
+  tabsWrap: {
+    flexDirection: "row",
+    gap: 10,
+    padding: 6,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.65)",
+    borderWidth: 1,
+    borderColor: "rgba(15, 23, 42, 0.08)",
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  tabPill: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tabPillActive: {
+    backgroundColor: "#1E9E73",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 3,
+  },
+  tabPillInactive: {
+    backgroundColor: "rgba(255,255,255,0.85)",
+  },
+  tabText: {
+    fontSize: 13,
+    letterSpacing: 0.2,
+    color: "#0F172A",
+    fontWeight: "700",
+  },
+  tabTextActive: {
+    color: "#FFFFFF",
+  },
+});
