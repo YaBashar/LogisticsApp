@@ -1,5 +1,4 @@
-import { View, Text, TextInput, StyleSheet } from "react-native";
-import { font } from "../../styles/font";
+import { View, TextInput, StyleSheet } from "react-native";
 
 export default function ItemInfoInput({
   itemDescription,
@@ -17,7 +16,6 @@ export default function ItemInfoInput({
 }) {
   return (
     <View style={{ marginTop: 5 }}>
-      <Text style={[font]}>Item Information</Text>
       <TextInput
         value={itemDescription}
         onChangeText={setItemDescription}

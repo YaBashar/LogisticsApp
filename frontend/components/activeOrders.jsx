@@ -81,8 +81,8 @@ export default function ActiveOrders() {
           </Text>
         </View>
       ) : (
-        <>
-          <View style={[styles.listCard, { width: contentMaxWidth }]}>
+        <View style={[styles.content, { width: contentMaxWidth }]}>
+          <View style={styles.listCard}>
             {shipments.length === 0 && (
               <View style={styles.emptyState}>
                 <Image source={require("../assets/images/idleBox.png")} style={styles.emptyImage} />
@@ -122,12 +122,12 @@ export default function ActiveOrders() {
             onPress={() => router.push("/newOrder")}
             style={({ pressed }) => [
               styles.primaryButton,
-              { width: contentMaxWidth, opacity: pressed ? 0.92 : 1 },
+              { opacity: pressed ? 0.92 : 1 },
             ]}
           >
             <Text style={[font, styles.primaryButtonText]}>Request New Order</Text>
           </Pressable>
-        </>
+        </View>
       )}
     </View>
   );
@@ -140,7 +140,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 8,
-    paddingBottom: 24,
+    paddingBottom: 32,
+  },
+  content: {
+    flex: 1,
+    alignSelf: "center",
+    paddingBottom: 22, // keeps CTA above Android bottom navigation area
   },
   loadingWrap: {
     flex: 1,
@@ -181,6 +186,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     marginTop: 14,
+    marginBottom: 8,
     borderRadius: 18,
     backgroundColor: "#1E9E73",
     paddingVertical: 14,

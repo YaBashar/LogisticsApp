@@ -1,5 +1,4 @@
 import { View, Text, Pressable } from "react-native";
-import { font } from "../../styles/font";
 
 export default function PackageTypeInput({ packageType, setPackageType }) {
   const packageTypes = ["pallet", "crate", "box"];
@@ -17,30 +16,26 @@ export default function PackageTypeInput({ packageType, setPackageType }) {
   });
 
   return (
-    <View>
-      <Text style={[font]}>Package Type</Text>
-      <View
-        style={{
-          flexDirection: "row",
-          gap: 10,
-          justifyContent: "flex-start",
-          marginBottom: 10,
-        }}
-      >
-        {packageTypes.map((type) => {
-          return (
-            <Pressable
-              key={type}
-              onPress={() => setPackageType(type)}
-              style={({ pressed }) => getButtonStyle(type, pressed)}
-            >
-              <Text style={{ textAlign: "center" }}>
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+    <View
+      style={{
+        flexDirection: "row",
+        gap: 10,
+        justifyContent: "center",
+      }}
+    >
+      {packageTypes.map((type) => {
+        return (
+          <Pressable
+            key={type}
+            onPress={() => setPackageType(type)}
+            style={({ pressed }) => getButtonStyle(type, pressed)}
+          >
+            <Text style={{ textAlign: "center" }}>
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }

@@ -17,7 +17,6 @@ export default function ContactInput({
         flexDirection: "row",
         justifyContent: "space-around",
         gap: 5,
-        marginTop: 15,
       }}
     >
       <View style={{ flexDirection: "column", gap: 5 }}>

@@ -25,7 +25,6 @@ export default function CompletedOrders() {
 
     const fetchActiveShipments = async () => {
       if (!hasMore) return;
-      if (loading) return;
       setLoading(true);
 
       try {
@@ -50,7 +49,7 @@ export default function CompletedOrders() {
     return () => {
       isCancelled = true;
     };
-  }, [page]);
+  }, [page, hasMore]);
 
   const loadMore = () => {
     if (loading || !hasMore) return;
@@ -92,9 +91,7 @@ export default function CompletedOrders() {
 
           <FlatList
             data={shipments}
-            renderItem={(item) => {
-              <ShipmentCard shipment={item} />;
-            }}
+            renderItem={({ item }) => <ShipmentCard shipment={item} />}
             keyExtractor={(item) => item._id}
             onEndReached={loadMore}
             onEndReachedThreshold={0.1}

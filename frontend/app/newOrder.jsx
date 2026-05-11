@@ -44,8 +44,6 @@ export default function NewOrder() {
       const widthInt = parseInt(width, 10);
       const lengthInt = parseInt(length, 10);
 
-      console.log(packageType);
-
       const res = await axiosPrivate.post("/shipments-customer/", {
         packageType,
         itemDescription,
@@ -93,7 +91,7 @@ export default function NewOrder() {
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
+        keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
       >
         <Text
@@ -111,18 +109,20 @@ export default function NewOrder() {
           New Booking
         </Text>
 
-        <View style={{ width: contentMaxWidth }}>
+        <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
+          <Text style={[font, styles.sectionTitle]}>Package type</Text>
           <PackageTypeInput packageType={packageType} setPackageType={setPackageType} />
         </View>
 
         {/* Delivery Details */}
-        <View style={[styles.sectionCard, { width: contentMaxWidth }]}>
+        <View style={[styles.sectionCard, styles.layerTop, { width: contentMaxWidth }]}>
           <Text style={[font, styles.sectionTitle]}>Details</Text>
 
           <AddressInput
             value={origin}
             onChangeText={setOrigin}
             style={[styles.mediumInput, { width: "100%" }]}
+            wrapperStyle={styles.pickupAddressWrapper}
             placeholder="Pickup From"
             placeholderTextColor="#A6A09B"
           />
@@ -131,12 +131,14 @@ export default function NewOrder() {
             value={destination}
             onChangeText={setDestination}
             style={[styles.mediumInput, { width: "100%" }]}
+            wrapperStyle={styles.destinationAddressWrapper}
             placeholder="Deliver To"
             placeholderTextColor="#A6A09B"
           />
         </View>
 
-        <View style={{ width: contentMaxWidth }}>
+        <View style={[styles.sectionCard, styles.layerMiddle, { width: contentMaxWidth }]}>
+          <Text style={[font, styles.sectionTitle]}>Item information</Text>
           <ItemInfoInput
             itemDescription={itemDescription}
             setItemDescription={setItemDescription}
@@ -153,7 +155,8 @@ export default function NewOrder() {
           />
         </View>
 
-        <View style={{ width: contentMaxWidth }}>
+        <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
+          <Text style={[font, styles.sectionTitle]}>Contact details</Text>
           <ContactInput
             senderEmail={senderEmail}
             setSenderEmail={setSenderEmail}
@@ -188,9 +191,10 @@ const styles = StyleSheet.create({
   scrollContent: {
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingBottom: 28,
+    paddingBottom: 36,
   },
   sectionCard: {
+    position: "relative",
     marginTop: 10,
     padding: 12,
     borderRadius: 20,
@@ -202,6 +206,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 18,
     elevation: 3,
+  },
+  layerTop: {
+    zIndex: 40,
+    elevation: 8,
+  },
+  layerMiddle: {
+    zIndex: 10,
+    elevation: 2,
+  },
+  layerBase: {
+    zIndex: 1,
+    elevation: 1,
   },
   sectionTitle: {
     fontSize: 14,
@@ -226,6 +242,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     backgroundColor: "rgba(248,250,252,0.9)",
+  },
+  pickupAddressWrapper: {
+    zIndex: 20,
+    elevation: 20,
+  },
+  destinationAddressWrapper: {
+    zIndex: 10,
+    elevation: 10,
   },
   halfInput: {
     width: 120,
