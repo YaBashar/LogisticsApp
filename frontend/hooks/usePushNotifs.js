@@ -3,7 +3,7 @@ import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
-import useAxiosPrivate from "@/services/axiosConfig";
+import { axiosPrivate } from "@/services/axios";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -17,7 +17,6 @@ Notifications.setNotificationHandler({
 
 export default function usePushNotifs() {
   const [expoPushToken, setExpoPushToken] = useState("");
-  const axiosPrivate = useAxiosPrivate();
 
   async function registerForPushNotificationsAsync() {
     if (Platform.OS === "android") {
@@ -67,7 +66,7 @@ export default function usePushNotifs() {
 
   async function sendToken(pushToken) {
     try {
-      const response = await axiosPrivate.post("notifications/register-token", {
+      const response = await axiosPrivate.post("/notifications/register-token", {
         token: pushToken,
       });
       console.log("Token registered with Backend", response.data);
@@ -78,7 +77,7 @@ export default function usePushNotifs() {
 
   async function removeToken(pushToken) {
     try {
-      const response = await axiosPrivate.post("notifications/remove-token", {
+      const response = await axiosPrivate.post("/notifications/remove-token", {
         token: pushToken,
       });
       console.log("Token registered with Backend", response.data);
