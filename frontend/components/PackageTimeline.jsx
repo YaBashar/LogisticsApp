@@ -1,12 +1,55 @@
 import { View, Text, StyleSheet } from "react-native";
 
-export default function PackageTimeline({ status }) {
+export default function PackageTimeline({ status, variant = "compact" }) {
   const states = ["Pending", "Picked", "Shipped", "Delivered", "Received"];
   const icons = ["🕛", "🛻", "✈️", "🚚", "✅"];
+  const stepHelp = {
+    Pending: "Order is confirmed and waiting for pickup.",
+    Picked: "Courier has picked up the package.",
+    Shipped: "Package is currently in transit.",
+    Delivered: "Package reached destination address.",
+    Received: "Recipient confirmed package receipt.",
+  };
 
   const currentStatusIndex = states.findIndex(
     (state) => state.toLowerCase() === status.toLowerCase()
   );
+  const activeIndex = currentStatusIndex >= 0 ? currentStatusIndex : 0;
+
+  if (variant === "detailed") {
+    return (
+      <View style={styles.detailedWrap}>
+        {states.map((state, index) => {
+          const isCompleted = index <= activeIndex;
+          const isCurrent = index === activeIndex;
+          return (
+            <View key={state} style={styles.detailRow}>
+              <View style={styles.detailRail}>
+                <View style={[styles.detailDot, isCompleted ? styles.dotOn : styles.dotOff]}>
+                  <Text style={styles.detailIcon}>{icons[index]}</Text>
+                </View>
+                {index !== states.length - 1 && (
+                  <View
+                    style={[
+                      styles.detailConnector,
+                      isCompleted ? styles.connectorOn : styles.connectorOff,
+                    ]}
+                  />
+                )}
+              </View>
+
+              <View style={styles.detailTextWrap}>
+                <Text style={[styles.detailTitle, isCurrent ? styles.detailTitleCurrent : null]}>
+                  {state}
+                </Text>
+                <Text style={styles.detailSubtitle}>{stepHelp[state]}</Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.wrap}>
@@ -128,6 +171,59 @@ const styles = StyleSheet.create({
     color: "#0F172A",
   },
   labelOff: {
+    color: "#64748B",
+  },
+  detailedWrap: {
+    marginTop: 10,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "rgba(15, 23, 42, 0.08)",
+  },
+  detailRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    minHeight: 58,
+  },
+  detailRail: {
+    width: 30,
+    alignItems: "center",
+  },
+  detailDot: {
+    width: 24,
+    height: 24,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+  },
+  detailIcon: {
+    fontSize: 12,
+    color: "#FFFFFF",
+  },
+  detailConnector: {
+    width: 2,
+    flex: 1,
+    marginTop: 4,
+    borderRadius: 999,
+  },
+  detailTextWrap: {
+    flex: 1,
+    paddingLeft: 10,
+    paddingBottom: 12,
+  },
+  detailTitle: {
+    fontSize: 14,
+    color: "#0F172A",
+    fontWeight: "700",
+  },
+  detailTitleCurrent: {
+    color: "#0B6B4B",
+  },
+  detailSubtitle: {
+    marginTop: 2,
+    fontSize: 12,
     color: "#64748B",
   },
 });

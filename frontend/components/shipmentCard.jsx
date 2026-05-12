@@ -10,8 +10,8 @@ import {
 import { useState } from "react";
 import { font } from "../styles/font";
 import useAuth from "../hooks/useAuth";
-import PackageTimeline from "./PackageTimeline";
 import { axiosPrivate } from "../services/axios";
+import { router } from "expo-router";
 
 export default function ShipmentCard({ shipment }) {
   const { width } = useWindowDimensions();
@@ -59,54 +59,67 @@ export default function ShipmentCard({ shipment }) {
   };
 
   return (
-    <>
-      <TouchableOpacity key={shipment._id} activeOpacity={0.7}>
-        <View style={[styles.card, { width: cardWidth }]}>
-          {/* Main Card Content */}
-          <View style={styles.cardInner}>
-            {/* Header Row */}
-            <View style={styles.headerRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={[font, styles.orderNumber]}>#{shipment.orderNumber}</Text>
-                <Text style={[font, styles.title]}>{shipment.itemDescription}</Text>
-
-                <View style={styles.metaRow}>
-                  <Text style={[font, styles.metaText]}>⚖️ {shipment.weight} kg</Text>
-                  <Text style={[font, styles.metaText]}>
-                    📦{" "}
-                    {shipment.packageType.charAt(0).toUpperCase() + shipment.packageType.slice(1)}
-                  </Text>
-                </View>
-              </View>
+    <TouchableOpacity
+      key={shipment._id}
+      activeOpacity={0.78}
+      onPress={() =>
+        router.push({
+          pathname: "/orderDetails",
+          params: { shipment: JSON.stringify({ ...shipment, status: currentStatus }) },
+        })
+      }
+    >
+      <View style={[styles.card, { width: cardWidth }]}>
+        <View style={styles.cardInner}>
+          <View style={styles.headerRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={[font, styles.orderNumber]}>#{shipment.orderNumber}</Text>
+              <Text numberOfLines={1} style={[font, styles.title]}>
+                {shipment.itemDescription}
+              </Text>
             </View>
-
-            {/* Route Display */}
-            <View style={styles.routeWrap}>
-              <Text style={[font, styles.routeLabel]}>📌 Origin</Text>
-              <Text style={[font, styles.routeValue]}>{shipment.origin}</Text>
-              <Text style={[font, styles.routeLabel]}>📌 Destination</Text>
-              <Text style={[font, styles.routeValue]}>{shipment.destination}</Text>
+            <View style={styles.statusPill}>
+              <Text style={[font, styles.statusText]}>{currentStatus}</Text>
             </View>
+          </View>
 
-            {/*Package TimeLine*/}
-            <PackageTimeline status={currentStatus} />
+          <View style={styles.metaRow}>
+            <Text style={[font, styles.metaText]}>⚖️ {shipment.weight} kg</Text>
+            <Text style={[font, styles.metaText]}>
+              📦 {shipment.packageType.charAt(0).toUpperCase() + shipment.packageType.slice(1)}
+            </Text>
+          </View>
 
+          <View style={styles.routeCompact}>
+            <Text numberOfLines={1} style={[font, styles.routeLine]}>
+              {shipment.origin}
+            </Text>
+            <Text style={[font, styles.routeArrow]}>→</Text>
+            <Text numberOfLines={1} style={[font, styles.routeLine]}>
+              {shipment.destination}
+            </Text>
+          </View>
+
+          <View style={styles.actionsRow}>
+            <Text style={[font, styles.viewDetailsText]}>Tap to view details and timeline</Text>
             {role === "admin" && (
               <Pressable
                 onPress={handleUpdateStatus}
                 disabled={updating}
                 style={({ pressed }) => [
                   styles.adminButton,
-                  { opacity: pressed || updating ? 0.92 : 1 },
+                  { opacity: pressed || updating ? 0.9 : 1 },
                 ]}
               >
-                <Text style={[font, styles.adminButtonText]}>Update Status</Text>
+                <Text style={[font, styles.adminButtonText]}>
+                  {updating ? "Updating..." : "Next Status"}
+                </Text>
               </Pressable>
             )}
           </View>
         </View>
-      </TouchableOpacity>
-    </>
+      </View>
+    </TouchableOpacity>
   );
 }
 
@@ -126,7 +139,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   cardInner: {
-    padding: 12,
+    padding: 11,
   },
   headerRow: {
     flexDirection: "row",
@@ -138,11 +151,25 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   title: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
     color: "#0F172A",
-    marginBottom: 6,
+    marginBottom: 2,
     letterSpacing: 0.1,
+  },
+  statusPill: {
+    backgroundColor: "rgba(30, 158, 115, 0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(30, 158, 115, 0.25)",
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginLeft: 10,
+  },
+  statusText: {
+    fontSize: 11,
+    color: "#0B6B4B",
+    fontWeight: "700",
   },
   metaRow: {
     flexDirection: "row",
@@ -155,36 +182,50 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "#475569",
   },
-  routeWrap: {
-    marginTop: 10,
-    padding: 10,
-    borderRadius: 14,
+  routeCompact: {
+    marginTop: 8,
+    borderRadius: 12,
     backgroundColor: "rgba(16, 185, 129, 0.08)",
     borderWidth: 1,
     borderColor: "rgba(16, 185, 129, 0.14)",
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    flexDirection: "row",
+    alignItems: "center",
   },
-  routeLabel: {
-    fontSize: 10,
-    color: "#0F172A",
-    marginTop: 2,
+  routeLine: {
+    flex: 1,
+    fontSize: 11,
+    color: "#334155",
   },
-  routeValue: {
-    fontSize: 10,
-    color: "#475569",
-    marginLeft: 2,
-    marginBottom: 6,
+  routeArrow: {
+    marginHorizontal: 8,
+    color: "#0E9F6E",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  actionsRow: {
+    marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  viewDetailsText: {
+    fontSize: 11,
+    color: "#64748B",
+    flex: 1,
   },
   adminButton: {
-    marginTop: 10,
-    borderRadius: 14,
+    borderRadius: 10,
     backgroundColor: "#0B6B4B",
-    paddingVertical: 12,
-    paddingHorizontal: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
   },
   adminButtonText: {
     color: "#FFFFFF",
     textAlign: "center",
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: "700",
     letterSpacing: 0.2,
   },

@@ -120,10 +120,7 @@ export default function ActiveOrders() {
 
           <Pressable
             onPress={() => router.push("/newOrder")}
-            style={({ pressed }) => [
-              styles.primaryButton,
-              { opacity: pressed ? 0.92 : 1 },
-            ]}
+            style={({ pressed }) => [styles.primaryButton, { opacity: pressed ? 0.92 : 1 }]}
           >
             <Text style={[font, styles.primaryButtonText]}>Request New Order</Text>
           </Pressable>
