@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
+  useWindowDimensions,
 } from "react-native";
 import { font } from "../styles/font";
 import AddressInput from "../components/inputs/AddressInput";
@@ -17,6 +18,8 @@ import ContactInput from "../components/inputs/ContactInput";
 import { axiosPrivate } from "../services/axios";
 
 export default function NewOrder() {
+  const { width: screenWidth } = useWindowDimensions();
+  const contentMaxWidth = Math.min(420, screenWidth - 32);
   const [itemDescription, setItemDescription] = useState("");
   const [quantity, setQuantity] = useState("");
   const [origin, setOrigin] = useState("");
@@ -40,8 +43,6 @@ export default function NewOrder() {
       const heightInt = parseInt(height, 10);
       const widthInt = parseInt(width, 10);
       const lengthInt = parseInt(length, 10);
-
-      console.log(packageType);
 
       const res = await axiosPrivate.post("/shipments-customer/", {
         packageType,
@@ -85,38 +86,43 @@ export default function NewOrder() {
 
   return (
     <KeyboardAvoidingView
-      style={{ backgroundColor: "white" }}
+      style={styles.screen}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        contentContainerStyle={{ alignItems: "center" }}
-        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
       >
         <Text
           style={[
             font,
             {
-              marginTop: 45,
-              fontSize: 32,
-              color: "#004F3B",
+              marginTop: 18,
+              fontSize: 26,
+              color: "#0B6B4B",
               marginHorizontal: 10,
+              letterSpacing: 0.2,
             },
           ]}
         >
           New Booking
         </Text>
 
-        <PackageTypeInput packageType={packageType} setPackageType={setPackageType} />
+        <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
+          <Text style={[font, styles.sectionTitle]}>Package type</Text>
+          <PackageTypeInput packageType={packageType} setPackageType={setPackageType} />
+        </View>
 
         {/* Delivery Details */}
-        <View style={{ height: 122, backgroundColor: "#E7E5E4", borderRadius: 10 }}>
-          <Text style={[font, { paddingLeft: 10, paddingTop: 10 }]}>Details</Text>
+        <View style={[styles.sectionCard, styles.layerTop, { width: contentMaxWidth }]}>
+          <Text style={[font, styles.sectionTitle]}>Details</Text>
 
           <AddressInput
             value={origin}
             onChangeText={setOrigin}
-            style={styles.mediumInput}
+            style={[styles.mediumInput, { width: "100%" }]}
+            wrapperStyle={styles.pickupAddressWrapper}
             placeholder="Pickup From"
             placeholderTextColor="#A6A09B"
           />
@@ -124,52 +130,53 @@ export default function NewOrder() {
           <AddressInput
             value={destination}
             onChangeText={setDestination}
-            style={styles.mediumInput}
+            style={[styles.mediumInput, { width: "100%" }]}
+            wrapperStyle={styles.destinationAddressWrapper}
             placeholder="Deliver To"
             placeholderTextColor="#A6A09B"
           />
         </View>
 
-        <ItemInfoInput
-          itemDescription={itemDescription}
-          setItemDescription={setItemDescription}
-          quantity={quantity}
-          setQuantity={setQuantity}
-          weight={weight}
-          setWeight={setWeight}
-          height={height}
-          setHeight={setHeight}
-          width={width}
-          setWidth={setWidth}
-          length={length}
-          setLength={setLength}
-        />
+        <View style={[styles.sectionCard, styles.layerMiddle, { width: contentMaxWidth }]}>
+          <Text style={[font, styles.sectionTitle]}>Item information</Text>
+          <ItemInfoInput
+            itemDescription={itemDescription}
+            setItemDescription={setItemDescription}
+            quantity={quantity}
+            setQuantity={setQuantity}
+            weight={weight}
+            setWeight={setWeight}
+            height={height}
+            setHeight={setHeight}
+            width={width}
+            setWidth={setWidth}
+            length={length}
+            setLength={setLength}
+          />
+        </View>
 
-        <ContactInput
-          senderEmail={senderEmail}
-          setSenderEmail={setSenderEmail}
-          senderPhone={senderPhone}
-          setSenderPhone={setSenderPhone}
-          recipientEmail={recipientEmail}
-          setRecipientEmail={setRecipientEmail}
-          recipientPhone={recipientPhone}
-          setRecipientPhone={setRecipientPhone}
-        />
+        <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
+          <Text style={[font, styles.sectionTitle]}>Contact details</Text>
+          <ContactInput
+            senderEmail={senderEmail}
+            setSenderEmail={setSenderEmail}
+            senderPhone={senderPhone}
+            setSenderPhone={setSenderPhone}
+            recipientEmail={recipientEmail}
+            setRecipientEmail={setRecipientEmail}
+            recipientPhone={recipientPhone}
+            setRecipientPhone={setRecipientPhone}
+          />
+        </View>
 
         <Pressable
           onPress={handleSubmitNewOrder}
-          style={{
-            marginTop: 15,
-            backgroundColor: "#A4F4CF",
-            paddingVertical: 10,
-            paddingHorizontal: 10,
-            borderRadius: 15,
-            width: 250,
-          }}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            { width: contentMaxWidth, opacity: pressed ? 0.92 : 1 },
+          ]}
         >
-          <Text style={[font, { color: "#004F3B", textAlign: "center", fontSize: 20 }]}>
-            Book Now
-          </Text>
+          <Text style={[font, styles.primaryButtonText]}>Book Now</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -177,6 +184,48 @@ export default function NewOrder() {
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#CFEFE1",
+  },
+  scrollContent: {
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingBottom: 36,
+  },
+  sectionCard: {
+    position: "relative",
+    marginTop: 10,
+    padding: 12,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.92)",
+    borderWidth: 1,
+    borderColor: "rgba(15, 23, 42, 0.08)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 3,
+  },
+  layerTop: {
+    zIndex: 40,
+    elevation: 8,
+  },
+  layerMiddle: {
+    zIndex: 10,
+    elevation: 2,
+  },
+  layerBase: {
+    zIndex: 1,
+    elevation: 1,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    color: "#0F172A",
+    fontWeight: "700",
+    marginBottom: 10,
+    letterSpacing: 0.2,
+  },
   input: {
     width: 250,
     height: 45,
@@ -186,13 +235,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   mediumInput: {
-    marginHorizontal: 10,
-    width: 280,
+    marginBottom: 10,
     height: 40,
-    borderColor: "#004F3B",
+    borderColor: "rgba(15, 23, 42, 0.14)",
     borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    backgroundColor: "rgba(248,250,252,0.9)",
+  },
+  pickupAddressWrapper: {
+    zIndex: 20,
+    elevation: 20,
+  },
+  destinationAddressWrapper: {
+    zIndex: 10,
+    elevation: 10,
   },
   halfInput: {
     width: 120,
@@ -201,5 +258,24 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderRadius: 10,
     paddingHorizontal: 10,
+  },
+  primaryButton: {
+    marginTop: 14,
+    borderRadius: 18,
+    backgroundColor: "#1E9E73",
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.14,
+    shadowRadius: 18,
+    elevation: 5,
+  },
+  primaryButtonText: {
+    color: "#FFFFFF",
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "700",
+    letterSpacing: 0.2,
   },
 });

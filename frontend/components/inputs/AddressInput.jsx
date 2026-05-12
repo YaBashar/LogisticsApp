@@ -1,12 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  View,
-  TextInput,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View, TextInput, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import axios from "axios";
 import Constants from "expo-constants";
 
@@ -14,14 +7,16 @@ export default function AddressInput({
   value,
   onChangeText,
   style,
+  wrapperStyle,
   placeholder,
   placeholderTextColor,
   countries = ["au", "sa"],
 }) {
   const [suggestions, setSuggestions] = useState([]);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
-    if (value.length === 0) {
+    if (!isFocused || value.length === 0) {
       setSuggestions([]);
       return;
     }
@@ -31,7 +26,7 @@ export default function AddressInput({
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [value]);
+  }, [value, isFocused]);
 
   const searchAddress = async (text) => {
     if (text.length < 3) {
@@ -42,16 +37,13 @@ export default function AddressInput({
     const API_KEY = Constants.expoConfig?.extra?.geoApiKey;
     try {
       const countryFilter = `countrycode:${countries.join(",")}`;
-      const response = await axios.get(
-        "https://api.geoapify.com/v1/geocode/autocomplete",
-        {
-          params: {
-            text: text,
-            apiKey: API_KEY,
-            filter: countryFilter,
-          },
-        }
-      );
+      const response = await axios.get("https://api.geoapify.com/v1/geocode/autocomplete", {
+        params: {
+          text: text,
+          apiKey: API_KEY,
+          filter: countryFilter,
+        },
+      });
       console.log("API Response:", response.data); // Debug
       setSuggestions(response.data.features || []);
     } catch (error) {
@@ -67,20 +59,25 @@ export default function AddressInput({
   };
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, wrapperStyle]}>
       <TextInput
         style={style}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={placeholderTextColor}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => {
+          setIsFocused(false);
+          setSuggestions([]);
+        }}
       />
 
-      {suggestions.length > 0 && (
+      {isFocused && suggestions.length > 0 && (
         <View style={styles.suggestionsContainer}>
           <ScrollView
             nestedScrollEnabled={true}
-            keyboardShouldPersistTaps="handled"
+            keyboardShouldPersistTaps="always"
             showsVerticalScrollIndicator={false}
           >
             {suggestions.map((item, index) => (
@@ -89,9 +86,7 @@ export default function AddressInput({
                 style={styles.suggestion}
                 onPress={() => selectAddress(item)}
               >
-                <Text style={styles.suggestionText}>
-                  {item.properties.formatted}
-                </Text>
+                <Text style={styles.suggestionText}>{item.properties.formatted}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -103,7 +98,9 @@ export default function AddressInput({
 
 const styles = StyleSheet.create({
   wrapper: {
-    width: 300, // Match your input width
+    position: "relative",
+    width: "100%",
+    zIndex: 100,
   },
   suggestionsContainer: {
     position: "absolute",
@@ -111,9 +108,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: "white",
-    borderWidth: 2,
-    borderColor: "#004F3B",
-    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "rgba(15, 23, 42, 0.14)",
+    borderRadius: 12,
     maxHeight: 150,
     zIndex: 9999,
     elevation: 10,

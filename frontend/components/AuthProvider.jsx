@@ -58,20 +58,30 @@ function AuthProvider({ children }) {
   }, []);
 
   const login = async (accessToken, refreshToken) => {
-    console.log(accessToken);
-    await AsyncStorage.setItem("accessToken", accessToken);
-    await SecureStorage.setItemAsync("refreshToken", refreshToken);
+    const safeAccessToken = typeof accessToken === "string" ? accessToken : "";
+    const safeRefreshToken = typeof refreshToken === "string" ? refreshToken : "";
 
-    setAccessToken(accessToken);
-    setRefreshToken(refreshToken);
+    if (!safeAccessToken || !safeRefreshToken) {
+      throw new Error("Invalid tokens provided to login()");
+    }
 
-    const decoded = jwtDecode(accessToken);
+    await AsyncStorage.setItem("accessToken", safeAccessToken);
+    await SecureStorage.setItemAsync("refreshToken", safeRefreshToken);
 
-    await AsyncStorage.setItem("role", decoded.role);
-    await AsyncStorage.setItem("userId", decoded.userId);
+    setAccessToken(safeAccessToken);
+    setRefreshToken(safeRefreshToken);
 
-    setRole(decoded.role);
-    setUserId(decoded.userId);
+    const decoded = jwtDecode(safeAccessToken);
+
+    const safeRole = typeof decoded?.role === "string" ? decoded.role : "";
+    const safeUserId = typeof decoded?.userId === "string" ? decoded.userId : "";
+
+    if (safeRole) await AsyncStorage.setItem("role", safeRole);
+    if (safeUserId) await AsyncStorage.setItem("userId", safeUserId);
+
+    setRole(safeRole);
+    setUserId(safeUserId);
+    setIsAuthenticated(true);
   };
 
   const logout = async () => {
@@ -80,6 +90,10 @@ function AuthProvider({ children }) {
     await AsyncStorage.removeItem("userId");
     await AsyncStorage.removeItem("role");
     setIsAuthenticated(false);
+    setAccessToken("");
+    setRefreshToken("");
+    setRole("");
+    setUserId("");
   };
 
   if (isLoading) {
