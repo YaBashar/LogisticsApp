@@ -174,6 +174,10 @@ export async function userLogin(input: LoginInput) {
  * Allows user to stay loggedIn
  **/
 export async function authRefresh(token: string) {
+  if (!token || typeof token !== "string") {
+    throw new AuthError("Refresh token is required");
+  }
+
   const refreshToken = await RefreshTokenModel.findOne({ token, revokedAt: null });
   if (!refreshToken) {
     // token was invalid possible reuse attack
@@ -181,7 +185,7 @@ export async function authRefresh(token: string) {
     if (compromised) {
       await RefreshTokenModel.updateMany(
         { user: compromised.user },
-        { $set: { revoked: Date.now() } }
+        { $set: { revokedAt: new Date() } }
       );
     }
     throw new AuthError("Token is invalid");
