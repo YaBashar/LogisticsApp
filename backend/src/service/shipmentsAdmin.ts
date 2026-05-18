@@ -1,4 +1,4 @@
-import { ShipmentModel } from "../models/shipmentsModel";
+import { ShipmentModel, ShipmentStatus } from "../models/shipmentsModel";
 import { UserModel } from "../models/userModel";
 import { sendNotification } from "./notifications.service";
 
@@ -11,7 +11,9 @@ async function allActiveOrders(page: number, limit: number) {
   return shipments;
 }
 
-async function updateShipmentStatus(shipmentId: string, status: string) {
+
+async function updateShipmentStatus(shipmentId: string) {
+
   const shipment = await ShipmentModel.findOne({
     _id: shipmentId,
     completed: false,
@@ -21,15 +23,25 @@ async function updateShipmentStatus(shipmentId: string, status: string) {
     throw new Error("Shipment doesnt exist");
   }
 
-  const validStates = ["Pending", "Picked", "Shipped", "Delivered", "Received"];
-  if (!validStates.includes(status)) {
-    throw new Error("Invalid Status type");
-  }
+  const status = shipment.status;
 
-  shipment.status = status;
-  if (status === "Recieved") {
+  if (status === ShipmentStatus.Pending) {
+    shipment.status = ShipmentStatus.Picked;
+    shipment.datePicked = new Date();
+  } else if (status === ShipmentStatus.Picked) {
+    shipment.status = ShipmentStatus.Shipped;
+    shipment.dateShipped = new Date();
+  } else if (status === ShipmentStatus.Shipped) {
+    shipment.status = ShipmentStatus.Delivered;
+    shipment.dateDelivered = new Date();
+  } else if (status === ShipmentStatus.Delivered) {
+    shipment.status = ShipmentStatus.Received;
+    shipment.dateRecieved = new Date();
     shipment.completed = true;
+  } else if (status === ShipmentStatus.Received) {
+    throw new Error("Cannot update status for a completed shipment")
   }
+  
   await shipment.save();
 
   const user = await UserModel.findById(shipment.userId);

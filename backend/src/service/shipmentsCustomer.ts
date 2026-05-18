@@ -71,6 +71,7 @@ async function userCreateShipment(
     destination: sanitisedDestination,
     origin: sanitisedOrigin,
     completed: false,
+    dateSubmitted: new Date(),
   });
 
   await shipment.save();
@@ -89,10 +90,6 @@ async function userCreateShipment(
   return shipment._id.toString();
 }
 
-// 2 -> Edit Shipment order (only allow before admin approves)
-// 3 -> Delete Shipment order (only allow before admin approves)
-
-// 4 -> View all active orders
 async function userGetActiveOrders(
   userId: string,
   page: number,
