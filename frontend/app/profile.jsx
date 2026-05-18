@@ -1,11 +1,97 @@
-import useAuth from "@/hooks/useAuth";
-import CustomerProfile from "../components/customerProfile";
-import AdminProfile from "../components/adminProfile";
 import usePushNotifs from "../hooks/usePushNotifs";
+import { useState } from "react";
+import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-native";
+import useAuth from "@/hooks/useAuth";
+import { font } from "../styles/font";
+import ActiveOrders from "../components/activeOrders";
+import CompletedOrders from "../components/completedOrders";
+import ProfileScreenHeader from "../components/ProfileScreenHeader";
 
 export default function Profile() {
-  const { role } = useAuth();
   usePushNotifs();
 
-  return <>{role === "admin" ? <AdminProfile /> : <CustomerProfile />}</>;
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
+  const { width } = useWindowDimensions();
+  const contentMaxWidth = Math.min(420, width - 32);
+
+  const tabs = isAdmin ? ["Active"] : ["Active", "Completed"];
+  const [activeTab, setActiveTab] = useState("Active");
+
+  return (
+    <View style={styles.screen}>
+      <ProfileScreenHeader title="My Orders" />
+
+      <View style={[styles.tabsWrap, { width: contentMaxWidth }]}>
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab;
+          return (
+            <Pressable
+              key={tab}
+              onPress={() => setActiveTab(tab)}
+              style={({ pressed }) => [
+                styles.tabPill,
+                isActive ? styles.tabPillActive : styles.tabPillInactive,
+                { opacity: pressed ? 0.92 : 1 },
+              ]}
+            >
+              <Text style={[font, styles.tabText, isActive ? styles.tabTextActive : null]}>
+                {tab} Orders
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {activeTab === "Completed" && <CompletedOrders />}
+      {activeTab === "Active" && <ActiveOrders />}
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#CFEFE1",
+    alignItems: "center",
+  },
+  tabsWrap: {
+    flexDirection: "row",
+    gap: 10,
+    padding: 6,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.65)",
+    borderWidth: 1,
+    borderColor: "rgba(15, 23, 42, 0.08)",
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  tabPill: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tabPillActive: {
+    backgroundColor: "#1E9E73",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 3,
+  },
+  tabPillInactive: {
+    backgroundColor: "rgba(255,255,255,0.85)",
+  },
+  tabText: {
+    fontSize: 13,
+    letterSpacing: 0.2,
+    color: "#0F172A",
+    fontWeight: "700",
+  },
+  tabTextActive: {
+    color: "#FFFFFF",
+  },
+});
