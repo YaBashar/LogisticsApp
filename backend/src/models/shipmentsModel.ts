@@ -1,7 +1,46 @@
-import mongoose from "mongoose";
-import { Shipments } from "./interfaces";
+import mongoose, { Document } from "mongoose";
 
-const shipmentSchema = new mongoose.Schema({
+// Add date for timeline
+// Use interface
+// Use enum as const for status types
+
+export const ShipmentStatus = {
+  Pending: "Pending",
+  Picked: "Picked",
+  Shipped: "Shipped",
+  Delivered: "Delivered",
+  Received: "Received",
+} as const;
+
+export type ShipmentStatus = (typeof ShipmentStatus)[keyof typeof ShipmentStatus];
+
+export interface Shipment extends Document {
+  userId: mongoose.Types.ObjectId;
+  orderNumber: number;
+  itemDescription: string;
+  quantity: number;
+  weight: number;
+  height: number;
+  width: number;
+  length: number;
+  packageType: "pallet" | "crate" | "box";
+  status: ShipmentStatus;
+  senderEmail: string;
+  senderPhone: string;
+  recipientEmail: string;
+  recipientPhone: string;
+  destination: string;
+  origin: string;
+  completed?: boolean;
+  trackingNumber?: string;
+  dateSubmitted: Date;
+  datePicked?: Date;
+  dateShipped?: Date;
+  dateDelivered?: Date;
+  dateRecieved?: Date;
+}
+
+const shipmentSchema = new mongoose.Schema<Shipment>({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   orderNumber: { type: Number, required: true },
   itemDescription: { type: String, required: true },
@@ -16,7 +55,7 @@ const shipmentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Pending", "Picked", "Shipped", "Delivered", "Received"],
+    enum: Object.values(ShipmentStatus),
     default: "Pending",
   },
   senderEmail: { type: String, required: true },
@@ -27,9 +66,11 @@ const shipmentSchema = new mongoose.Schema({
   origin: { type: String, required: true },
   completed: { type: Boolean },
   trackingNumber: { type: String },
+  dateSubmitted: { type: Date },
+  datePicked: { type: Date },
+  dateShipped: { type: Date },
+  dateDelivered: { type: Date },
+  dateRecieved: { type: Date },
 });
 
-export const ShipmentModel = mongoose.model<Shipments>(
-  "Shipments",
-  shipmentSchema
-);
+export const ShipmentModel = mongoose.model<Shipment>("Shipments", shipmentSchema);
