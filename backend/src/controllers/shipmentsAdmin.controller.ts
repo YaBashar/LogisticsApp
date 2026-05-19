@@ -1,7 +1,4 @@
-import {
-  allActiveOrders,
-  updateShipmentStatus,
-} from "../service/shipmentsAdmin";
+import { allActiveOrders, updateShipmentStatus } from "../service/shipmentsAdmin";
 import { Request, Response } from "express";
 
 export const getAllActiveOrders = async (req: Request, res: Response) => {
@@ -10,7 +7,6 @@ export const getAllActiveOrders = async (req: Request, res: Response) => {
 
   try {
     const result = await allActiveOrders(page, limit);
-    console.log(result);
     res.status(200).json({ result });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -18,11 +14,10 @@ export const getAllActiveOrders = async (req: Request, res: Response) => {
 };
 
 export const updateStatus = async (req: Request, res: Response) => {
-  const { status } = req.body;
   const shipmentId = req.params.shipmentId as string;
 
   try {
-    const result = await updateShipmentStatus(shipmentId, status);
+    const result = await updateShipmentStatus(shipmentId);
     res.status(200).json({ result });
   } catch (error) {
     res.status(400).json({ error: error.message });

@@ -1,67 +1,19 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Pressable,
-  Alert,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
-import { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from "react-native";
 import { font } from "../styles/font";
-import useAuth from "../hooks/useAuth";
-import { axiosPrivate } from "../services/axios";
 import { router } from "expo-router";
+import { coerceShipmentStatus } from "../hooks/useAdvanceShipmentStatus";
 
 export default function ShipmentCard({ shipment }) {
   const { width } = useWindowDimensions();
   const cardWidth = Math.min(420, width - 32);
-  const { role } = useAuth();
-
-  const states = ["Pending", "Picked", "Shipped", "Delivered", "Received"];
-  const [currentStatus, setCurrentStatus] = useState(shipment.status);
-  const [updating, setUpdating] = useState(false);
-
-  // Update to show linear travel from origin to destination
-  // Show update functionality for admin
-
-  const handleUpdateStatus = () => {
-    const currentIndex = states.indexOf(currentStatus);
-    if (currentIndex === states.length - 1) {
-      Alert.alert("Info", "Package is already Delivered");
-    }
-
-    const nextStatus = states[currentIndex + 1];
-    Alert.alert("Update Status", `Update status from "${currentStatus}" to "${nextStatus}"?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Update",
-        onPress: async () => {
-          setUpdating(true);
-          try {
-            await axiosPrivate.put(`/shipments-admin/${shipment._id}/status`, {
-              status: nextStatus,
-            });
-            setCurrentStatus(nextStatus);
-            Alert.alert(
-              "Success",
-              "Status updated successfully \n Customer has been notified of update"
-            );
-          } catch (error) {
-            console.error(error);
-            Alert.alert("Error", "Failed to update status");
-          } finally {
-            setUpdating(false);
-          }
-        },
-      },
-    ]);
-  };
+  const currentStatus = coerceShipmentStatus(shipment.status);
 
   return (
     <TouchableOpacity
       key={shipment._id}
       activeOpacity={0.78}
+      accessibilityRole="button"
+      accessibilityHint="Opens order details and shipment timeline"
       onPress={() =>
         router.push({
           pathname: "/orderDetails",
@@ -72,7 +24,7 @@ export default function ShipmentCard({ shipment }) {
       <View style={[styles.card, { width: cardWidth }]}>
         <View style={styles.cardInner}>
           <View style={styles.headerRow}>
-            <View style={{ flex: 1 }}>
+            <View style={styles.headerText}>
               <Text style={[font, styles.orderNumber]}>#{shipment.orderNumber}</Text>
               <Text numberOfLines={1} style={[font, styles.title]}>
                 {shipment.itemDescription}
@@ -100,22 +52,11 @@ export default function ShipmentCard({ shipment }) {
             </Text>
           </View>
 
-          <View style={styles.actionsRow}>
-            <Text style={[font, styles.viewDetailsText]}>Tap to view details and timeline</Text>
-            {role === "admin" && (
-              <Pressable
-                onPress={handleUpdateStatus}
-                disabled={updating}
-                style={({ pressed }) => [
-                  styles.adminButton,
-                  { opacity: pressed || updating ? 0.9 : 1 },
-                ]}
-              >
-                <Text style={[font, styles.adminButtonText]}>
-                  {updating ? "Updating..." : "Next Status"}
-                </Text>
-              </Pressable>
-            )}
+          <View style={styles.footerRow}>
+            <Text style={[font, styles.viewDetailsText]}>View details & timeline</Text>
+            <View style={styles.chevronBadge}>
+              <Text style={styles.chevron}>›</Text>
+            </View>
           </View>
         </View>
       </View>
@@ -144,6 +85,11 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     alignItems: "flex-start",
+    justifyContent: "space-between",
+  },
+  headerText: {
+    flex: 1,
+    paddingRight: 10,
   },
   orderNumber: {
     fontSize: 10,
@@ -164,7 +110,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    marginLeft: 10,
   },
   statusText: {
     fontSize: 11,
@@ -177,6 +122,7 @@ const styles = StyleSheet.create({
     columnGap: 14,
     rowGap: 6,
     alignItems: "center",
+    marginTop: 8,
   },
   metaText: {
     fontSize: 11,
@@ -204,29 +150,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
   },
-  actionsRow: {
+  footerRow: {
     marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 10,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(15, 23, 42, 0.06)",
+    paddingTop: 10,
   },
   viewDetailsText: {
     fontSize: 11,
-    color: "#64748B",
+    color: "#0B6B4B",
+    fontWeight: "600",
     flex: 1,
   },
-  adminButton: {
-    borderRadius: 10,
-    backgroundColor: "#0B6B4B",
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+  chevronBadge: {
+    width: 26,
+    height: 26,
+    borderRadius: 999,
+    backgroundColor: "rgba(30, 158, 115, 0.12)",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  adminButtonText: {
-    color: "#FFFFFF",
-    textAlign: "center",
-    fontSize: 11,
+  chevron: {
+    fontSize: 20,
+    lineHeight: 22,
+    color: "#0B6B4B",
     fontWeight: "700",
-    letterSpacing: 0.2,
+    marginTop: -1,
   },
 });

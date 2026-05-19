@@ -1,21 +1,23 @@
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Image,
   Pressable,
+  StyleSheet,
+  useWindowDimensions,
+  Image,
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  StyleSheet,
-  useWindowDimensions,
 } from "react-native";
-import { useState, useEffect } from "react";
+import { router } from "expo-router";
 import { axiosPrivate } from "@/services/axios";
 import { font } from "../styles/font";
-import { router } from "expo-router";
-import ShipmentCard from "./shipmentCard";
+import ShipmentCard from "../components/shipmentCard";
 
-export default function ActiveOrders() {
+const PAGE_LIMIT = 3;
+
+export function OrdersListSection({ endpoint, emptyMessage, showRefreshControl, showNewOrderCta }) {
   const { width } = useWindowDimensions();
   const contentMaxWidth = Math.min(420, width - 32);
   const [shipments, setShipments] = useState([]);
@@ -27,12 +29,12 @@ export default function ActiveOrders() {
   useEffect(() => {
     let isCancelled = false;
 
-    const fetchActiveShipments = async () => {
+    const fetchShipments = async () => {
       if (!hasMore) return;
       if (isCancelled) return;
       setLoading(true);
       try {
-        const res = await axiosPrivate.get(`/shipments-customer/active?page=${page}&limit=2`);
+        const res = await axiosPrivate.get(`${endpoint}?page=${page}&limit=${PAGE_LIMIT}`);
         const result = res.data.result;
 
         if (isCancelled) return;
@@ -49,59 +51,46 @@ export default function ActiveOrders() {
       }
     };
 
-    fetchActiveShipments();
+    fetchShipments();
     return () => {
       isCancelled = true;
     };
-  }, [page, hasMore]);
+  }, [page, hasMore, endpoint]);
 
   const loadMore = () => {
     if (loading || !hasMore) return;
-
     setLoading(true);
     setPage((prev) => prev + 1);
   };
 
   const onRefresh = async () => {
+    if (!showRefreshControl) return;
     setRefreshing(true);
     setShipments([]);
     setPage(1);
     setHasMore(true);
-    // The useEffect will re-fetch
     setRefreshing(false);
   };
 
   return (
-    <View style={styles.screen}>
-      {loading ? (
-        <View style={styles.loadingWrap}>
+    <View style={orderListStyles.screen}>
+      {loading && page === 1 && shipments.length === 0 ? (
+        <View style={orderListStyles.loadingWrap}>
           <ActivityIndicator size="large" color="#004F3B" />
-          <Text style={[font, { marginTop: 10, color: "#666", fontSize: 14 }]}>
-            Loading orders...
-          </Text>
+          <Text style={[font, orderListStyles.loadingText]}>Loading orders...</Text>
         </View>
       ) : (
-        <View style={[styles.content, { width: contentMaxWidth }]}>
-          <View style={styles.listCard}>
-            {shipments.length === 0 && (
-              <View style={styles.emptyState}>
-                <Image source={require("../assets/images/idleBox.png")} style={styles.emptyImage} />
-                <Text
-                  style={[
-                    font,
-                    {
-                      fontSize: 18,
-                      textAlign: "center",
-                      marginTop: 14,
-                      paddingHorizontal: 18,
-                      color: "#0F172A",
-                    },
-                  ]}
-                >
-                  No Orders Yet, Your orders will show up here
-                </Text>
+        <View style={[orderListStyles.content, { width: contentMaxWidth }]}>
+          <View style={orderListStyles.listCard}>
+            {shipments.length === 0 && !loading ? (
+              <View style={orderListStyles.emptyState}>
+                <Image
+                  source={require("../assets/images/idleBox.png")}
+                  style={orderListStyles.emptyImage}
+                />
+                <Text style={[font, orderListStyles.emptyText]}>{emptyMessage}</Text>
               </View>
-            )}
+            ) : null}
 
             <FlatList
               data={shipments}
@@ -109,30 +98,42 @@ export default function ActiveOrders() {
               keyExtractor={(item) => item._id}
               onEndReached={loadMore}
               onEndReachedThreshold={0.1}
-              ListFooterComponent={loading ? <ActivityIndicator size="large" /> : null}
-              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+              ListFooterComponent={
+                loading && shipments.length > 0 ? <ActivityIndicator size="large" /> : null
+              }
+              refreshControl={
+                showRefreshControl ? (
+                  <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                ) : undefined
+              }
               showsVerticalScrollIndicator={false}
               contentContainerStyle={
-                shipments.length === 0 ? undefined : styles.listContentContainer
+                shipments.length === 0 ? undefined : orderListStyles.listContentContainer
               }
             />
           </View>
 
-          <Pressable
-            onPress={() => router.push("/newOrder")}
-            style={({ pressed }) => [styles.primaryButton, { opacity: pressed ? 0.92 : 1 }]}
-          >
-            <Text style={[font, styles.primaryButtonText]}>Request New Order</Text>
-          </Pressable>
+          {showNewOrderCta ? (
+            <Pressable
+              onPress={() => router.push("/newOrder")}
+              style={({ pressed }) => [
+                orderListStyles.primaryButton,
+                { opacity: pressed ? 0.92 : 1 },
+              ]}
+            >
+              <Text style={[font, orderListStyles.primaryButtonText]}>Request New Order</Text>
+            </Pressable>
+          ) : null}
         </View>
       )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const orderListStyles = StyleSheet.create({
   screen: {
     flex: 1,
+    width: "100%",
     backgroundColor: "#CFEFE1",
     alignItems: "center",
     paddingHorizontal: 16,
@@ -142,12 +143,17 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignSelf: "center",
-    paddingBottom: 22, // keeps CTA above Android bottom navigation area
+    paddingBottom: 22,
   },
   loadingWrap: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 10,
+    color: "#666",
+    fontSize: 14,
   },
   listCard: {
     flex: 1,
@@ -180,6 +186,13 @@ const styles = StyleSheet.create({
     width: 164,
     height: 164,
     borderRadius: 18,
+  },
+  emptyText: {
+    fontSize: 18,
+    textAlign: "center",
+    marginTop: 14,
+    paddingHorizontal: 18,
+    color: "#0F172A",
   },
   primaryButton: {
     marginTop: 14,

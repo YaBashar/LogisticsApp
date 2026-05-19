@@ -1,4 +1,4 @@
-import { ShipmentModel } from "../models/shipmentsModel";
+import { ShipmentModel, ShipmentStatus } from "../models/shipmentsModel";
 import { UserModel } from "../models/userModel";
 import { sendNotification } from "./notifications.service";
 
@@ -11,7 +11,7 @@ async function allActiveOrders(page: number, limit: number) {
   return shipments;
 }
 
-async function updateShipmentStatus(shipmentId: string, status: string) {
+async function updateShipmentStatus(shipmentId: string) {
   const shipment = await ShipmentModel.findOne({
     _id: shipmentId,
     completed: false,
@@ -21,21 +21,33 @@ async function updateShipmentStatus(shipmentId: string, status: string) {
     throw new Error("Shipment doesnt exist");
   }
 
-  const validStates = ["Pending", "Picked", "Shipped", "Delivered", "Received"];
-  if (!validStates.includes(status)) {
-    throw new Error("Invalid Status type");
+  const currentStatus = shipment.status;
+
+  if (currentStatus === ShipmentStatus.Pending) {
+    shipment.status = ShipmentStatus.Picked;
+    shipment.datePicked = new Date();
+  } else if (currentStatus === ShipmentStatus.Picked) {
+    shipment.status = ShipmentStatus.Shipped;
+    shipment.dateShipped = new Date();
+  } else if (currentStatus === ShipmentStatus.Shipped) {
+    shipment.status = ShipmentStatus.Delivered;
+    shipment.dateDelivered = new Date();
+  } else if (currentStatus === ShipmentStatus.Delivered) {
+    shipment.status = ShipmentStatus.Received;
+    shipment.dateRecieved = new Date();
+    shipment.completed = true;
+  } else if (currentStatus === ShipmentStatus.Received) {
+    throw new Error("Cannot update status for a completed shipment");
+  } else {
+    throw new Error("Invalid status type");
   }
 
-  shipment.status = status;
-  if (status === "Recieved") {
-    shipment.completed = true;
-  }
   await shipment.save();
 
   const user = await UserModel.findById(shipment.userId);
   await sendNotification(user._id.toString(), {
     title: "Shipment Status Updated",
-    body: `Your shipment with order number ${shipment.orderNumber} is now ${status}`,
+    body: `Your shipment with order number ${shipment.orderNumber} is now ${shipment.status}`,
     data: { shipmentId: shipment._id.toString() },
   });
 
