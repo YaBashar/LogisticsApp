@@ -1,15 +1,9 @@
 import { useState, useCallback } from "react";
 import { Alert } from "react-native";
 import { axiosPrivate } from "@/services/axios";
-import { ShipmentStatus, STATES_ORDERED } from "@/components/PackageTimeline";
+import { STATES_ORDERED, coerceShipmentStatus } from "@/constants/shipmentStatus";
 
-export function coerceShipmentStatus(raw) {
-  if (typeof raw !== "string") {
-    return ShipmentStatus.Pending;
-  }
-  const allowed = Object.values(ShipmentStatus);
-  return allowed.includes(raw) ? raw : ShipmentStatus.Pending;
-}
+export { coerceShipmentStatus };
 
 export default function useAdvanceShipmentStatus(shipmentId, initialStatus) {
   const [status, setStatus] = useState(() => coerceShipmentStatus(initialStatus));
@@ -34,9 +28,7 @@ export default function useAdvanceShipmentStatus(shipmentId, initialStatus) {
         onPress: async () => {
           setUpdating(true);
           try {
-            await axiosPrivate.put(`/shipments-admin/${shipmentId}/status`, {
-              status: nextStatus,
-            });
+            await axiosPrivate.put(`/shipments-admin/${shipmentId}/status`);
             setStatus(nextStatus);
             Alert.alert(
               "Success",

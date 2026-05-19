@@ -2,25 +2,8 @@ import { useEffect } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import useAuth from "@/hooks/useAuth";
 import useAdvanceShipmentStatus from "@/hooks/useAdvanceShipmentStatus";
+import { ShipmentStatus, STATES_ORDERED } from "@/constants/shipmentStatus";
 import { font } from "../styles/font";
-
-/** Mirrors backend `ShipmentStatus` in `backend/src/models/shipmentsModel.ts` */
-export const ShipmentStatus = {
-  Pending: "Pending",
-  Picked: "Picked",
-  Shipped: "Shipped",
-  Delivered: "Delivered",
-  Received: "Received",
-};
-
-/** Chronological order — matches backend `ShipmentStatus` progression. */
-export const STATES_ORDERED = [
-  ShipmentStatus.Pending,
-  ShipmentStatus.Picked,
-  ShipmentStatus.Shipped,
-  ShipmentStatus.Delivered,
-  ShipmentStatus.Received,
-];
 
 /** Maps each status step to Shipment date fields (matches shipmentsModel). */
 const STEP_DATE_KEY = {

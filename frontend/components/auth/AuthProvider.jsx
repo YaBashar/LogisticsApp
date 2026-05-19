@@ -5,6 +5,21 @@ import * as SecureStorage from "expo-secure-store";
 import { AuthContext } from "./AuthContext";
 import { jwtDecode } from "jwt-decode";
 
+async function applyTokenClaims(accessToken, setRole, setUserId) {
+  const decoded = jwtDecode(accessToken);
+  const safeRole = typeof decoded?.role === "string" ? decoded.role : "";
+  const safeUserId = typeof decoded?.sub === "string" ? decoded.sub : "";
+
+  if (safeRole) {
+    await AsyncStorage.setItem("role", safeRole);
+    setRole(safeRole);
+  }
+  if (safeUserId) {
+    await AsyncStorage.setItem("userId", safeUserId);
+    setUserId(safeUserId);
+  }
+}
+
 function AuthProvider({ children }) {
   const [userId, setUserId] = useState("");
   const [accessToken, setAccessToken] = useState("");
@@ -19,12 +34,10 @@ function AuthProvider({ children }) {
         await syncApiUrl();
 
         const savedAccessToken = await AsyncStorage.getItem("accessToken");
-        const savedUserRole = await AsyncStorage.getItem("role");
         const savedUserId = await AsyncStorage.getItem("userId");
         const savedRefreshToken = await SecureStorage.getItemAsync("refreshToken");
 
         if (savedUserId) setUserId(savedUserId);
-        if (savedUserRole) setRole(savedUserRole);
 
         if (savedAccessToken && savedRefreshToken) {
           const isValid = await validate(savedAccessToken);
@@ -32,6 +45,7 @@ function AuthProvider({ children }) {
           if (isValid) {
             setAccessToken(savedAccessToken);
             setRefreshToken(savedRefreshToken);
+            await applyTokenClaims(savedAccessToken, setRole, setUserId);
             setIsAuthenticated(true);
           } else {
             try {
@@ -41,6 +55,7 @@ function AuthProvider({ children }) {
               await SecureStorage.setItemAsync("refreshToken", newRefreshToken);
               setAccessToken(newAccessToken);
               setRefreshToken(newRefreshToken);
+              await applyTokenClaims(newAccessToken, setRole, setUserId);
               setIsAuthenticated(true);
             } catch (error) {
               const message = error?.response?.data?.error || error?.message;
@@ -75,16 +90,7 @@ function AuthProvider({ children }) {
     setAccessToken(safeAccessToken);
     setRefreshToken(safeRefreshToken);
 
-    const decoded = jwtDecode(safeAccessToken);
-
-    const safeRole = typeof decoded?.role === "string" ? decoded.role : "";
-    const safeUserId = typeof decoded?.sub === "string" ? decoded.sub : "";
-
-    if (safeRole) await AsyncStorage.setItem("role", safeRole);
-    if (safeUserId) await AsyncStorage.setItem("userId", safeUserId);
-
-    setRole(safeRole);
-    setUserId(safeUserId);
+    await applyTokenClaims(safeAccessToken, setRole, setUserId);
     setIsAuthenticated(true);
   };
 

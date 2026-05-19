@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, ScrollView, useWindowDimensions } from "react-n
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
 import { font } from "../styles/font";
-import PackageTimeline from "../components/PackageTimeline";
-import { coerceShipmentStatus } from "../hooks/useAdvanceShipmentStatus";
+import { PackageTimeline } from "../components/PackageTimeline";
+import { coerceShipmentStatus } from "@/constants/shipmentStatus";
 
 function formatPackageType(packageType) {
   if (!packageType) return "—";
