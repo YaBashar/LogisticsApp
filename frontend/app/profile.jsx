@@ -17,8 +17,6 @@ export default function Profile() {
   const tabs = isAdmin ? ["Active"] : ["Active", "Completed"];
   const [activeTab, setActiveTab] = useState("Active");
 
-  const ordersBase = isAdmin ? "/shipments-admin" : "/shipments-customer";
-
   return (
     <View style={styles.screen}>
       <ProfileScreenHeader title="My Orders" />
@@ -44,10 +42,12 @@ export default function Profile() {
         })}
       </View>
 
-      {activeTab === "Active" && (
+      {activeTab === "Active" && role ? (
         <OrdersListSection
-          key="active-orders"
-          endpoint={`${ordersBase}/active`}
+          key={`active-orders-${role}`}
+          endpoint={
+            isAdmin ? "/shipments-admin/active" : "/shipments-customer/active"
+          }
           emptyMessage={
             isAdmin
               ? "No orders yet. New customer orders will show up here."
@@ -56,7 +56,7 @@ export default function Profile() {
           showRefreshControl
           showNewOrderCta={!isAdmin}
         />
-      )}
+      ) : null}
 
       {activeTab === "Completed" && !isAdmin && (
         <OrdersListSection

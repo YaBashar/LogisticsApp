@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from "react-native";
 import { font } from "../styles/font";
 import { router } from "expo-router";
-import { coerceShipmentStatus } from "../hooks/useAdvanceShipmentStatus";
+import { coerceShipmentStatus } from "@/constants/shipmentStatus";
 
 export default function ShipmentCard({ shipment }) {
   const { width } = useWindowDimensions();
