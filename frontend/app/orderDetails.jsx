@@ -1,8 +1,15 @@
+import { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
 import { font } from "../styles/font";
 import PackageTimeline from "../components/PackageTimeline";
+import { coerceShipmentStatus } from "../hooks/useAdvanceShipmentStatus";
+
+function formatPackageType(packageType) {
+  if (!packageType) return "—";
+  return packageType.charAt(0).toUpperCase() + packageType.slice(1);
+}
 
 export default function OrderDetails() {
   const { width } = useWindowDimensions();
@@ -16,7 +23,11 @@ export default function OrderDetails() {
     shipmentData = null;
   }
 
-  if (!shipmentData) {
+  const [displayStatus, setDisplayStatus] = useState(() =>
+    coerceShipmentStatus(shipmentData?.status)
+  );
+
+  if (!shipmentData?._id) {
     return (
       <SafeAreaView style={styles.screen}>
         <View style={[styles.card, { width: contentMaxWidth }]}>
@@ -27,6 +38,8 @@ export default function OrderDetails() {
     );
   }
 
+  const packageLabel = formatPackageType(shipmentData.packageType);
+
   return (
     <SafeAreaView style={styles.screen}>
       <ScrollView
@@ -35,22 +48,26 @@ export default function OrderDetails() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={[styles.card, { width: contentMaxWidth }]}>
-          <Text style={[font, styles.orderNumber]}>Order #{shipmentData.orderNumber}</Text>
-          <Text style={[font, styles.title]}>{shipmentData.itemDescription}</Text>
-
-          <View style={styles.statusBadge}>
-            <Text style={[font, styles.statusBadgeText]}>{shipmentData.status}</Text>
+          <View style={styles.headerRow}>
+            <View style={styles.headerText}>
+              <Text style={[font, styles.orderNumber]}>Order #{shipmentData.orderNumber}</Text>
+              <Text style={[font, styles.title]}>{shipmentData.itemDescription}</Text>
+            </View>
+            <View style={styles.statusPill}>
+              <Text style={[font, styles.statusPillText]}>{displayStatus}</Text>
+            </View>
           </View>
 
-          <View style={styles.metaGrid}>
-            <Text style={[font, styles.metaLine]}>
-              Package:{" "}
-              {shipmentData.packageType?.charAt(0).toUpperCase() +
-                shipmentData.packageType?.slice(1)}
-            </Text>
-            <Text style={[font, styles.metaLine]}>Weight: {shipmentData.weight} kg</Text>
-            <Text style={[font, styles.metaLine]}>Quantity: {shipmentData.quantity}</Text>
-          </View>
+          <Text style={[font, styles.metaCompact]}>
+            <Text style={styles.metaLabel}>Package: </Text>
+            {packageLabel}
+            <Text style={styles.metaDivider}> · </Text>
+            <Text style={styles.metaLabel}>Weight: </Text>
+            {shipmentData.weight} kg
+            <Text style={styles.metaDivider}> · </Text>
+            <Text style={styles.metaLabel}>Quantity: </Text>
+            {shipmentData.quantity ?? "—"}
+          </Text>
 
           <View style={styles.routeCard}>
             <Text style={[font, styles.routeLabel]}>Pickup From</Text>
@@ -60,7 +77,12 @@ export default function OrderDetails() {
           </View>
 
           <Text style={[font, styles.timelineTitle]}>Shipment Timeline</Text>
-          <PackageTimeline status={shipmentData.status} variant="detailed" />
+          <PackageTimeline
+            status={displayStatus}
+            variant="detailed"
+            shipment={shipmentData}
+            onStatusChange={setDisplayStatus}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -89,6 +111,15 @@ const styles = StyleSheet.create({
     shadowRadius: 18,
     elevation: 4,
   },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+  },
+  headerText: {
+    flex: 1,
+    paddingRight: 12,
+  },
   orderNumber: {
     fontSize: 11,
     color: "#64748B",
@@ -99,28 +130,33 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontWeight: "700",
   },
-  statusBadge: {
-    marginTop: 10,
-    alignSelf: "flex-start",
+  statusPill: {
     backgroundColor: "rgba(30, 158, 115, 0.14)",
     borderWidth: 1,
     borderColor: "rgba(30, 158, 115, 0.25)",
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 5,
+    alignSelf: "flex-start",
   },
-  statusBadgeText: {
+  statusPillText: {
     fontSize: 12,
     color: "#0B6B4B",
     fontWeight: "700",
   },
-  metaGrid: {
+  metaCompact: {
     marginTop: 10,
-    gap: 4,
-  },
-  metaLine: {
     fontSize: 13,
     color: "#334155",
+    lineHeight: 20,
+  },
+  metaLabel: {
+    fontWeight: "700",
+    color: "#0F172A",
+  },
+  metaDivider: {
+    color: "#94A3B8",
+    fontWeight: "400",
   },
   routeCard: {
     marginTop: 12,
