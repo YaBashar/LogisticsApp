@@ -157,13 +157,8 @@ export const requestAllActiveShipments = async (token: string, page: number, lim
     .set("Authorization", `Bearer ${token}`);
 };
 
-export const requestUpdateShipmentStatus = async (
-  token: string,
-  shipmentId: string,
-  status: string
-) => {
+export const requestUpdateShipmentStatus = async (token: string, shipmentId: string) => {
   return await request(app)
     .put(`/shipments-admin/${shipmentId}/status`)
-    .send({ status })
     .set("Authorization", `Bearer ${token}`);
 };
