@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { refresh, validate } from "@/utils/tokenManager";
+import { refresh, validate, syncApiUrl, rememberApiUrl } from "@/utils/tokenManager";
 import * as SecureStorage from "expo-secure-store";
 import { AuthContext } from "./AuthContext";
 import { jwtDecode } from "jwt-decode";
@@ -16,6 +16,8 @@ function AuthProvider({ children }) {
   useEffect(() => {
     const loadAuth = async () => {
       try {
+        await syncApiUrl();
+
         const savedAccessToken = await AsyncStorage.getItem("accessToken");
         const savedUserRole = await AsyncStorage.getItem("role");
         const savedUserId = await AsyncStorage.getItem("userId");
@@ -41,7 +43,8 @@ function AuthProvider({ children }) {
               setRefreshToken(newRefreshToken);
               setIsAuthenticated(true);
             } catch (error) {
-              console.error("Failed to refresh token", error);
+              const message = error?.response?.data?.error || error?.message;
+              console.warn("Session expired, please log in again:", message);
               await logout();
             }
           }
@@ -67,6 +70,7 @@ function AuthProvider({ children }) {
 
     await AsyncStorage.setItem("accessToken", safeAccessToken);
     await SecureStorage.setItemAsync("refreshToken", safeRefreshToken);
+    await rememberApiUrl();
 
     setAccessToken(safeAccessToken);
     setRefreshToken(safeRefreshToken);
@@ -74,7 +78,7 @@ function AuthProvider({ children }) {
     const decoded = jwtDecode(safeAccessToken);
 
     const safeRole = typeof decoded?.role === "string" ? decoded.role : "";
-    const safeUserId = typeof decoded?.userId === "string" ? decoded.userId : "";
+    const safeUserId = typeof decoded?.sub === "string" ? decoded.sub : "";
 
     if (safeRole) await AsyncStorage.setItem("role", safeRole);
     if (safeUserId) await AsyncStorage.setItem("userId", safeUserId);

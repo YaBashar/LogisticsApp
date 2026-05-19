@@ -1,6 +1,5 @@
-import { refresh } from "@/utils/tokenManager";
+import { refresh, clearAuthStorage } from "@/utils/tokenManager";
 import { axiosPrivate } from "@/services/axios";
-import * as SecureStorage from "expo-secure-store";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -44,7 +43,6 @@ axiosPrivate.interceptors.response.use(
 
       try {
         const tokens = await refresh();
-        await AsyncStorage.setItem("accessToken", tokens.accessToken);
 
         processQueue(null, tokens.accessToken);
 
@@ -53,10 +51,7 @@ axiosPrivate.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
 
-        await AsyncStorage.removeItem("accessToken");
-        await AsyncStorage.removeItem("role");
-        await AsyncStorage.removeItem("userId");
-        await SecureStorage.deleteItemAsync("refreshToken");
+        await clearAuthStorage();
 
         router.replace("/auth/login");
 
