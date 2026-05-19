@@ -3,9 +3,8 @@ import { useState } from "react";
 import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import useAuth from "@/hooks/useAuth";
 import { font } from "../styles/font";
-import ActiveOrders from "../components/activeOrders";
-import CompletedOrders from "../components/completedOrders";
-import ProfileScreenHeader from "../components/ProfileScreenHeader";
+import { ProfileScreenHeader } from "../components/ProfileScreenHeader";
+import { OrdersListSection } from "../components/OrderListSection";
 
 export default function Profile() {
   usePushNotifs();
@@ -17,6 +16,8 @@ export default function Profile() {
 
   const tabs = isAdmin ? ["Active"] : ["Active", "Completed"];
   const [activeTab, setActiveTab] = useState("Active");
+
+  const ordersBase = isAdmin ? "/shipments-admin" : "/shipments-customer";
 
   return (
     <View style={styles.screen}>
@@ -43,8 +44,29 @@ export default function Profile() {
         })}
       </View>
 
-      {activeTab === "Completed" && <CompletedOrders />}
-      {activeTab === "Active" && <ActiveOrders />}
+      {activeTab === "Active" && (
+        <OrdersListSection
+          key="active-orders"
+          endpoint={`${ordersBase}/active`}
+          emptyMessage={
+            isAdmin
+              ? "No orders yet. New customer orders will show up here."
+              : "No Orders Yet, Your orders will show up here"
+          }
+          showRefreshControl
+          showNewOrderCta={!isAdmin}
+        />
+      )}
+
+      {activeTab === "Completed" && !isAdmin && (
+        <OrdersListSection
+          key="completed-orders"
+          endpoint="/shipments-customer/completed"
+          emptyMessage="Your Completed Orders will show up here"
+          showRefreshControl={false}
+          showNewOrderCta={false}
+        />
+      )}
     </View>
   );
 }
