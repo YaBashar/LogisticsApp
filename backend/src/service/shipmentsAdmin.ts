@@ -34,7 +34,7 @@ async function updateShipmentStatus(shipmentId: string) {
     shipment.dateDelivered = new Date();
   } else if (currentStatus === ShipmentStatus.Delivered) {
     shipment.status = ShipmentStatus.Received;
-    shipment.dateRecieved = new Date();
+    shipment.dateReceived = new Date();
     shipment.completed = true;
   } else if (currentStatus === ShipmentStatus.Received) {
     throw new Error("Cannot update status for a completed shipment");

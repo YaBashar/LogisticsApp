@@ -37,7 +37,7 @@ export interface Shipment extends Document {
   datePicked?: Date;
   dateShipped?: Date;
   dateDelivered?: Date;
-  dateRecieved?: Date;
+  dateReceived?: Date;
 }
 
 const shipmentSchema = new mongoose.Schema<Shipment>({
@@ -70,7 +70,7 @@ const shipmentSchema = new mongoose.Schema<Shipment>({
   datePicked: { type: Date },
   dateShipped: { type: Date },
   dateDelivered: { type: Date },
-  dateRecieved: { type: Date },
+  dateReceived: { type: Date },
 });
 
 export const ShipmentModel = mongoose.model<Shipment>("Shipments", shipmentSchema);
