@@ -11,7 +11,7 @@ const STEP_DATE_KEY = {
   [ShipmentStatus.Picked]: "datePicked",
   [ShipmentStatus.Shipped]: "dateShipped",
   [ShipmentStatus.Delivered]: "dateDelivered",
-  [ShipmentStatus.Received]: "dateRecieved",
+  [ShipmentStatus.Received]: "dateReceived",
 };
 
 function parseShipmentDate(value) {

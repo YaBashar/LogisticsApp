@@ -96,7 +96,7 @@ describe("Status progression", () => {
     expect(shipment?.datePicked).toBeUndefined();
     expect(shipment?.dateShipped).toBeUndefined();
     expect(shipment?.dateDelivered).toBeUndefined();
-    expect(shipment?.dateRecieved).toBeUndefined();
+    expect(shipment?.dateReceived).toBeUndefined();
 
     let res = await requestUpdateShipmentStatus(adminToken, shipmentId);
     expect(res.statusCode).toStrictEqual(200);
@@ -121,7 +121,7 @@ describe("Status progression", () => {
     shipment = await getShipment();
     expect(shipment?.status).toStrictEqual(ShipmentStatus.Delivered);
     expect(shipment?.dateDelivered).toBeInstanceOf(Date);
-    expect(shipment?.dateRecieved).toBeUndefined();
+    expect(shipment?.dateReceived).toBeUndefined();
     expect(shipment?.completed).not.toBe(true);
 
     res = await requestUpdateShipmentStatus(adminToken, shipmentId);
@@ -129,7 +129,7 @@ describe("Status progression", () => {
 
     shipment = await getShipment();
     expect(shipment?.status).toStrictEqual(ShipmentStatus.Received);
-    expect(shipment?.dateRecieved).toBeInstanceOf(Date);
+    expect(shipment?.dateReceived).toBeInstanceOf(Date);
     expect(shipment?.completed).toBe(true);
 
     res = await requestUpdateShipmentStatus(adminToken, shipmentId);
