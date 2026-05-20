@@ -5,6 +5,7 @@ import { useLocalSearchParams } from "expo-router";
 import { font } from "../styles/font";
 import { PackageTimeline } from "../components/PackageTimeline";
 import { coerceShipmentStatus } from "@/constants/shipmentStatus";
+import useAuth from "@/hooks/useAuth";
 
 function formatPackageType(packageType) {
   if (!packageType) return "—";
@@ -12,6 +13,8 @@ function formatPackageType(packageType) {
 }
 
 export default function OrderDetails() {
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
   const { width } = useWindowDimensions();
   const contentMaxWidth = Math.min(420, width - 32);
   const { shipment } = useLocalSearchParams();
@@ -75,6 +78,19 @@ export default function OrderDetails() {
             <Text style={[font, styles.routeLabel, { marginTop: 10 }]}>Deliver To</Text>
             <Text style={[font, styles.routeValue]}>{shipmentData.destination}</Text>
           </View>
+
+          {isAdmin ? (
+            <View style={styles.contactCard}>
+              <Text style={[font, styles.routeLabel]}>Sender Contact</Text>
+              <Text style={[font, styles.routeValue]}>
+                {shipmentData.senderEmail || "—"} {shipmentData.senderPhone || "—"}
+              </Text>
+              <Text style={[font, styles.routeLabel, { marginTop: 10 }]}>Recipient Contact</Text>
+              <Text style={[font, styles.routeValue]}>
+                {shipmentData.recipientEmail || "—"} {shipmentData.recipientPhone || "—"}
+              </Text>
+            </View>
+          ) : null}
 
           <Text style={[font, styles.timelineTitle]}>Shipment Timeline</Text>
           <PackageTimeline
@@ -175,6 +191,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 12,
     color: "#475569",
+  },
+  contactCard: {
+    marginTop: 10,
+    borderRadius: 14,
+    backgroundColor: "rgba(15, 23, 42, 0.05)",
+    borderWidth: 1,
+    borderColor: "rgba(15, 23, 42, 0.10)",
+    padding: 12,
   },
   timelineTitle: {
     marginTop: 14,
