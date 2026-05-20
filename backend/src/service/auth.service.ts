@@ -26,10 +26,13 @@ const ACCESS_TOKEN_TTL_MINUTES = Number(process.env.accessTokenTtlMinutes) || 15
 
 export class AuthError extends Error {
   statusCode: number;
+  /** Machine-readable API error codes (optional) */
+  code?: string;
 
-  constructor(message: string, statusCode = 400) {
+  constructor(message: string, statusCode = 400, code?: string) {
     super(message);
     this.statusCode = statusCode;
+    this.code = code;
   }
 }
 
@@ -159,6 +162,14 @@ export async function userLogin(input: LoginInput) {
     throw new AuthError("User has not verified email");
   }
 
+  if (user.deletedAt != null) {
+    throw new AuthError(
+      "This account was deleted. Restore it within 30 days or it will be removed permanently.",
+      403,
+      "ACCOUNT_SOFT_DELETED"
+    );
+  }
+
   const accessToken = createAccessToken(user);
   const refreshToken = await createRefreshToken(user);
   await user.save();
@@ -198,6 +209,14 @@ export async function authRefresh(token: string) {
   const user = await UserModel.findById(refreshToken.user);
   if (!user) {
     throw new AuthError("User not found");
+  }
+
+  if (user.deletedAt != null) {
+    throw new AuthError(
+      "This account was deleted. Restore it within 30 days or it will be removed permanently.",
+      403,
+      "ACCOUNT_SOFT_DELETED"
+    );
   }
 
   await RefreshTokenModel.findOneAndUpdate({ token }, { $set: { revokedAt: Date.now() } });
@@ -481,6 +500,10 @@ export async function reactivateAccount(email: string, password: string) {
   const passwordMatches = await bcrypt.compare(password, user.password);
   if (!passwordMatches) {
     throw new AuthError("Invalid credentials", 400);
+  }
+
+  if (!user.emailVerified) {
+    throw new AuthError("User has not verified email");
   }
 
   // Restore the account
