@@ -87,10 +87,14 @@ function AuthProvider({ children }) {
     await SecureStorage.setItemAsync("refreshToken", safeRefreshToken);
     await rememberApiUrl();
 
-    setAccessToken(safeAccessToken);
-    setRefreshToken(safeRefreshToken);
+    const safeRole = typeof decoded?.role === "string" ? decoded.role : "";
+    const safeUserId = typeof decoded?.sub === "string" ? decoded.sub : "";
 
-    await applyTokenClaims(safeAccessToken, setRole, setUserId);
+    await AsyncStorage.setItem("role", safeRole);
+    await AsyncStorage.setItem("userId", safeUserId);
+
+    setRole(safeRole);
+    setUserId(safeUserId);
     setIsAuthenticated(true);
   };
 
@@ -99,6 +103,10 @@ function AuthProvider({ children }) {
     await SecureStorage.deleteItemAsync("refreshToken");
     await AsyncStorage.removeItem("userId");
     await AsyncStorage.removeItem("role");
+    setAccessToken("");
+    setRefreshToken("");
+    setUserId("");
+    setRole("");
     setIsAuthenticated(false);
     setAccessToken("");
     setRefreshToken("");

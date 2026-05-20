@@ -17,9 +17,30 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+async function clearSessionAndGoToLogin(accountDeletedHint = false) {
+  await AsyncStorage.removeItem("accessToken");
+  await AsyncStorage.removeItem("role");
+  await AsyncStorage.removeItem("userId");
+  await SecureStorage.deleteItemAsync("refreshToken");
+
+  if (accountDeletedHint) {
+    router.replace({
+      pathname: "/auth/login",
+      params: { accountDeleted: "1" },
+    });
+  } else {
+    router.replace("/auth/login");
+  }
+}
+
 axiosPrivate.interceptors.response.use(
   (response) => response,
   async (error) => {
+    if (error?.response?.status === 403 && error?.response?.data?.code === "ACCOUNT_SOFT_DELETED") {
+      await clearSessionAndGoToLogin(true);
+      return Promise.reject(error);
+    }
+
     const originalRequest = error?.config;
 
     if (error?.response?.status === 401 && !originalRequest?._retry) {
@@ -51,7 +72,10 @@ axiosPrivate.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
 
-        await clearAuthStorage();
+        await AsyncStorage.removeItem("accessToken");
+        await AsyncStorage.removeItem("role");
+        await AsyncStorage.removeItem("userId");
+        await SecureStorage.deleteItemAsync("refreshToken");
 
         router.replace("/auth/login");
 

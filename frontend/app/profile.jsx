@@ -45,9 +45,7 @@ export default function Profile() {
       {activeTab === "Active" && role ? (
         <OrdersListSection
           key={`active-orders-${role}`}
-          endpoint={
-            isAdmin ? "/shipments-admin/active" : "/shipments-customer/active"
-          }
+          endpoint={isAdmin ? "/shipments-admin/active" : "/shipments-customer/active"}
           emptyMessage={
             isAdmin
               ? "No orders yet. New customer orders will show up here."

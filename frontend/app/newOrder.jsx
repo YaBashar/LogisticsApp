@@ -9,6 +9,7 @@ import {
   Platform,
   useWindowDimensions,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { font } from "../styles/font";
 import AddressInput from "../components/inputs/AddressInput";
 import PackageTypeInput from "../components/inputs/PackageTypeInput";
@@ -16,6 +17,7 @@ import { router } from "expo-router";
 import ItemInfoInput from "../components/inputs/ItemInfoInput";
 import ContactInput from "../components/inputs/ContactInput";
 import { axiosPrivate } from "../services/axios";
+import { AuthenticatedScreenHeader } from "../components/AuthenticatedScreenHeader";
 
 export default function NewOrder() {
   const { width: screenWidth } = useWindowDimensions();
@@ -85,101 +87,103 @@ export default function NewOrder() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.screen}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="always"
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }} edges={["left", "right", "bottom"]}>
+      <AuthenticatedScreenHeader title="New booking" />
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: "white" }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <Text
-          style={[
-            font,
-            {
-              marginTop: 18,
-              fontSize: 26,
-              color: "#0B6B4B",
-              marginHorizontal: 10,
-              letterSpacing: 0.2,
-            },
-          ]}
+        <ScrollView
+          contentContainerStyle={{ alignItems: "center", paddingBottom: 32 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          New Booking
-        </Text>
+          <Text
+            style={[
+              font,
+              {
+                marginTop: 16,
+                fontSize: 22,
+                color: "#004F3B",
+                marginHorizontal: 10,
+              },
+            ]}
+          >
+            Request a shipment
+          </Text>
 
-        <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
-          <Text style={[font, styles.sectionTitle]}>Package type</Text>
-          <PackageTypeInput packageType={packageType} setPackageType={setPackageType} />
-        </View>
+          <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
+            <Text style={[font, styles.sectionTitle]}>Package type</Text>
+            <PackageTypeInput packageType={packageType} setPackageType={setPackageType} />
+          </View>
 
-        {/* Delivery Details */}
-        <View style={[styles.sectionCard, styles.layerTop, { width: contentMaxWidth }]}>
-          <Text style={[font, styles.sectionTitle]}>Details</Text>
+          {/* Delivery Details */}
+          <View style={[styles.sectionCard, styles.layerTop, { width: contentMaxWidth }]}>
+            <Text style={[font, styles.sectionTitle]}>Details</Text>
 
-          <AddressInput
-            value={origin}
-            onChangeText={setOrigin}
-            style={[styles.mediumInput, { width: "100%" }]}
-            wrapperStyle={styles.pickupAddressWrapper}
-            placeholder="Pickup From"
-            placeholderTextColor="#A6A09B"
-          />
+            <AddressInput
+              value={origin}
+              onChangeText={setOrigin}
+              style={[styles.mediumInput, { width: "100%" }]}
+              wrapperStyle={styles.pickupAddressWrapper}
+              placeholder="Pickup From"
+              placeholderTextColor="#A6A09B"
+            />
 
-          <AddressInput
-            value={destination}
-            onChangeText={setDestination}
-            style={[styles.mediumInput, { width: "100%" }]}
-            wrapperStyle={styles.destinationAddressWrapper}
-            placeholder="Deliver To"
-            placeholderTextColor="#A6A09B"
-          />
-        </View>
+            <AddressInput
+              value={destination}
+              onChangeText={setDestination}
+              style={[styles.mediumInput, { width: "100%" }]}
+              wrapperStyle={styles.destinationAddressWrapper}
+              placeholder="Deliver To"
+              placeholderTextColor="#A6A09B"
+            />
+          </View>
 
-        <View style={[styles.sectionCard, styles.layerMiddle, { width: contentMaxWidth }]}>
-          <Text style={[font, styles.sectionTitle]}>Item information</Text>
-          <ItemInfoInput
-            itemDescription={itemDescription}
-            setItemDescription={setItemDescription}
-            quantity={quantity}
-            setQuantity={setQuantity}
-            weight={weight}
-            setWeight={setWeight}
-            height={height}
-            setHeight={setHeight}
-            width={width}
-            setWidth={setWidth}
-            length={length}
-            setLength={setLength}
-          />
-        </View>
+          <View style={[styles.sectionCard, styles.layerMiddle, { width: contentMaxWidth }]}>
+            <Text style={[font, styles.sectionTitle]}>Item information</Text>
+            <ItemInfoInput
+              itemDescription={itemDescription}
+              setItemDescription={setItemDescription}
+              quantity={quantity}
+              setQuantity={setQuantity}
+              weight={weight}
+              setWeight={setWeight}
+              height={height}
+              setHeight={setHeight}
+              width={width}
+              setWidth={setWidth}
+              length={length}
+              setLength={setLength}
+            />
+          </View>
 
-        <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
-          <Text style={[font, styles.sectionTitle]}>Contact details</Text>
-          <ContactInput
-            senderEmail={senderEmail}
-            setSenderEmail={setSenderEmail}
-            senderPhone={senderPhone}
-            setSenderPhone={setSenderPhone}
-            recipientEmail={recipientEmail}
-            setRecipientEmail={setRecipientEmail}
-            recipientPhone={recipientPhone}
-            setRecipientPhone={setRecipientPhone}
-          />
-        </View>
+          <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
+            <Text style={[font, styles.sectionTitle]}>Contact details</Text>
+            <ContactInput
+              senderEmail={senderEmail}
+              setSenderEmail={setSenderEmail}
+              senderPhone={senderPhone}
+              setSenderPhone={setSenderPhone}
+              recipientEmail={recipientEmail}
+              setRecipientEmail={setRecipientEmail}
+              recipientPhone={recipientPhone}
+              setRecipientPhone={setRecipientPhone}
+            />
+          </View>
 
-        <Pressable
-          onPress={handleSubmitNewOrder}
-          style={({ pressed }) => [
-            styles.primaryButton,
-            { width: contentMaxWidth, opacity: pressed ? 0.92 : 1 },
-          ]}
-        >
-          <Text style={[font, styles.primaryButtonText]}>Book Now</Text>
-        </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          <Pressable
+            onPress={handleSubmitNewOrder}
+            style={({ pressed }) => [
+              styles.primaryButton,
+              { width: contentMaxWidth, opacity: pressed ? 0.92 : 1 },
+            ]}
+          >
+            <Text style={[font, styles.primaryButtonText]}>Book Now</Text>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
