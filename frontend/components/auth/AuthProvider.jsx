@@ -87,12 +87,15 @@ function AuthProvider({ children }) {
     await SecureStorage.setItemAsync("refreshToken", safeRefreshToken);
     await rememberApiUrl();
 
+    const decoded = jwtDecode(safeAccessToken);
     const safeRole = typeof decoded?.role === "string" ? decoded.role : "";
     const safeUserId = typeof decoded?.sub === "string" ? decoded.sub : "";
 
     await AsyncStorage.setItem("role", safeRole);
     await AsyncStorage.setItem("userId", safeUserId);
 
+    setAccessToken(safeAccessToken);
+    setRefreshToken(safeRefreshToken);
     setRole(safeRole);
     setUserId(safeUserId);
     setIsAuthenticated(true);
@@ -108,10 +111,6 @@ function AuthProvider({ children }) {
     setUserId("");
     setRole("");
     setIsAuthenticated(false);
-    setAccessToken("");
-    setRefreshToken("");
-    setRole("");
-    setUserId("");
   };
 
   if (isLoading) {
