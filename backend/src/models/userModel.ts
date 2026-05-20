@@ -47,4 +47,13 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+/** Permanently remove soft-deleted users 30 days after `deletedAt` (only applies when `deletedAt` is set). */
+userSchema.index(
+  { deletedAt: 1 },
+  {
+    expireAfterSeconds: 30 * 24 * 60 * 60,
+    partialFilterExpression: { deletedAt: { $ne: null } },
+  }
+);
+
 export const UserModel = mongoose.model<User>("User", userSchema);

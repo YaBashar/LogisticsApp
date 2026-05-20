@@ -123,6 +123,21 @@ describe("DELETE /auth/delete-account", () => {
     });
   });
 
+  describe("soft-deleted login", () => {
+    it("returns 403 ACCOUNT_SOFT_DELETED on login instead of issuing tokens", async () => {
+      await requestDeleteAccount(accessToken);
+
+      const loginRes = await requestLogin(EMAIL, PASSWORD);
+      expect(loginRes.statusCode).toStrictEqual(403);
+      expect(loginRes.body).toMatchObject({
+        error: expect.any(String),
+        code: "ACCOUNT_SOFT_DELETED",
+      });
+      expect(loginRes.body.accessToken).toBeUndefined();
+      expect(loginRes.body.refreshToken).toBeUndefined();
+    });
+  });
+
   describe("authentication failures", () => {
     it("returns 401 when no token is provided", async () => {
       const res = await requestDeleteAccount("");
@@ -155,9 +170,12 @@ describe("DELETE /auth/delete-account", () => {
       expect(first.statusCode).toStrictEqual(200);
 
       const second = await requestDeleteAccount(accessToken);
-      // The account is already deleted; should not succeed again
-      expect(second.statusCode).not.toStrictEqual(200);
-      expect(second.body).toStrictEqual({ error: expect.any(String) });
+      // requireAuth rejects soft-deleted accounts before deleteAccount runs
+      expect(second.statusCode).toStrictEqual(403);
+      expect(second.body).toMatchObject({
+        error: expect.any(String),
+        code: "ACCOUNT_SOFT_DELETED",
+      });
     });
 
     it("does not affect other users' accounts or tokens", async () => {

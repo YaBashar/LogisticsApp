@@ -3,7 +3,7 @@ import { useState } from "react";
 import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import useAuth from "@/hooks/useAuth";
 import { font } from "../styles/font";
-import { ProfileScreenHeader } from "../components/ProfileScreenHeader";
+import { AuthenticatedScreenHeader } from "../components/AuthenticatedScreenHeader";
 import { OrdersListSection } from "../components/OrderListSection";
 
 export default function Profile() {
@@ -19,7 +19,7 @@ export default function Profile() {
 
   return (
     <View style={styles.screen}>
-      <ProfileScreenHeader title="My Orders" />
+      <AuthenticatedScreenHeader title="My Orders" variant="hero" />
 
       <View style={[styles.tabsWrap, { width: contentMaxWidth }]}>
         {tabs.map((tab) => {
@@ -45,9 +45,7 @@ export default function Profile() {
       {activeTab === "Active" && role ? (
         <OrdersListSection
           key={`active-orders-${role}`}
-          endpoint={
-            isAdmin ? "/shipments-admin/active" : "/shipments-customer/active"
-          }
+          endpoint={isAdmin ? "/shipments-admin/active" : "/shipments-customer/active"}
           emptyMessage={
             isAdmin
               ? "No orders yet. New customer orders will show up here."

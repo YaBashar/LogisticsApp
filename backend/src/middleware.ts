@@ -2,6 +2,7 @@ import "dotenv/config";
 import jwt from "jsonwebtoken";
 const SECRET = process.env.JWT_ACCESS_SECRET;
 
+import { UserModel } from "./models/userModel";
 import { Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
 
@@ -21,7 +22,7 @@ declare global {
   }
 }
 
-export function requireAuth(req: Request, res: Response, next: NextFunction): void {
+export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
   const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : undefined;
 
@@ -30,12 +31,34 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
     return;
   }
 
+  let decoded: JwtPayload;
+
   try {
-    const decoded = jwt.verify(token, SECRET) as JwtPayload;
+    decoded = jwt.verify(token, SECRET) as JwtPayload;
+  } catch {
+    res.status(401).json({ error: "Authentication Required" });
+    return;
+  }
+
+  try {
+    const dbUser = await UserModel.findById(decoded.sub).select("deletedAt").lean();
+    if (!dbUser) {
+      res.status(401).json({ error: "Authentication Required" });
+      return;
+    }
+    if (dbUser.deletedAt != null) {
+      res.status(403).json({
+        error:
+          "This account was deleted. Restore it within 30 days or it will be removed permanently.",
+        code: "ACCOUNT_SOFT_DELETED",
+      });
+      return;
+    }
+
     req.user = decoded;
     next();
   } catch {
-    res.status(401).json({ error: "Authentication Required" });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }
 

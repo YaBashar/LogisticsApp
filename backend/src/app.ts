@@ -50,7 +50,9 @@ app.use("/notifications", NotificationRouter);
 // eslint-disable-next-line no-unused-vars
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof AuthError) {
-    return res.status(err.statusCode).json({ error: err.message });
+    const body: { error: string; code?: string } = { error: err.message };
+    if (err.code) body.code = err.code;
+    return res.status(err.statusCode).json(body);
   }
 
   console.error(err);
