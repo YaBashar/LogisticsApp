@@ -170,9 +170,12 @@ describe("DELETE /auth/delete-account", () => {
       expect(first.statusCode).toStrictEqual(200);
 
       const second = await requestDeleteAccount(accessToken);
-      // The account is already deleted; should not succeed again
-      expect(second.statusCode).not.toStrictEqual(200);
-      expect(second.body).toStrictEqual({ error: expect.any(String) });
+      // requireAuth rejects soft-deleted accounts before deleteAccount runs
+      expect(second.statusCode).toStrictEqual(403);
+      expect(second.body).toMatchObject({
+        error: expect.any(String),
+        code: "ACCOUNT_SOFT_DELETED",
+      });
     });
 
     it("does not affect other users' accounts or tokens", async () => {
