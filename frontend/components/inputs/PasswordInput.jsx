@@ -1,27 +1,43 @@
-import { useState } from "react";
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { forwardRef, useState } from "react";
+import { View, TextInput, Pressable, Text, StyleSheet } from "react-native";
+import { colors, spacing, typography, radii, touch } from "@/constants/theme";
 
-export default function PasswordInput({ setPassword, password }) {
+const PasswordInput = forwardRef(function PasswordInput(
+  { setPassword, password, returnKeyType = "done", onSubmitEditing },
+  ref
+) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <View style={styles.wrapper}>
       <TextInput
+        ref={ref}
         value={password}
         onChangeText={setPassword}
         style={styles.input}
         secureTextEntry={!showPassword}
         autoCapitalize="none"
-        placeholder="Enter your Password"
-        placeholderTextColor="#A6A09B"
-      ></TextInput>
-
-      <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.toggleButton}>
+        autoCorrect={false}
+        placeholder="Password"
+        placeholderTextColor={colors.textPlaceholder}
+        returnKeyType={returnKeyType}
+        onSubmitEditing={onSubmitEditing}
+        accessibilityLabel="Password"
+      />
+      <Pressable
+        onPress={() => setShowPassword((v) => !v)}
+        style={styles.toggleButton}
+        accessibilityRole="button"
+        accessibilityLabel={showPassword ? "Hide password" : "Show password"}
+        hitSlop={8}
+      >
         <Text style={styles.toggleText}>{showPassword ? "Hide" : "Show"}</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
-}
+});
+
+export default PasswordInput;
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -29,24 +45,28 @@ const styles = StyleSheet.create({
   },
   input: {
     width: "100%",
-    height: 56,
-    borderColor: "#0E9F6E",
+    height: touch.inputHeight,
+    borderColor: colors.primary,
     borderWidth: 1.5,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    backgroundColor: "#F8FFFC",
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.base,
+    paddingRight: 64,
+    backgroundColor: colors.primarySurface,
+    fontSize: typography.size.lg,
+    color: colors.textPrimary,
   },
   toggleButton: {
     position: "absolute",
-    right: 12,
-    height: 56,
+    right: spacing.md,
+    height: touch.inputHeight,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 10,
+    paddingHorizontal: spacing.sm,
+    minWidth: touch.minHeight,
   },
   toggleText: {
-    color: "#0E9F6E",
-    fontSize: 13,
-    fontWeight: "600",
+    color: colors.primaryCTA,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
   },
 });

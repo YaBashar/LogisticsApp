@@ -1,5 +1,5 @@
 import { View, Text, TextInput, StyleSheet } from "react-native";
-import { font } from "../../styles/font";
+import { colors, spacing, typography, radii, touch } from "@/constants/theme";
 
 export default function ContactInput({
   senderEmail,
@@ -12,59 +12,94 @@ export default function ContactInput({
   setRecipientPhone,
 }) {
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        justifyContent: "space-around",
-        gap: 5,
-      }}
-    >
-      <View style={{ flexDirection: "column", gap: 5 }}>
-        <Text style={[font]}>Sender Details</Text>
+    <View style={styles.container}>
+      <View style={styles.column}>
+        <Text style={styles.columnLabel}>Sender</Text>
         <TextInput
           value={senderEmail}
           onChangeText={setSenderEmail}
           placeholder="Email"
-          style={styles.halfInput}
-        ></TextInput>
-
+          placeholderTextColor={colors.textPlaceholder}
+          style={styles.input}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="next"
+          accessibilityLabel="Sender email"
+        />
         <TextInput
           value={senderPhone}
           onChangeText={setSenderPhone}
-          placeholder="Phone No"
-          keyboardType="numeric"
-          style={styles.halfInput}
-        ></TextInput>
+          placeholder="Phone"
+          placeholderTextColor={colors.textPlaceholder}
+          keyboardType="phone-pad"
+          style={styles.input}
+          returnKeyType="next"
+          accessibilityLabel="Sender phone"
+        />
       </View>
 
-      <View style={{ flexDirection: "column", gap: 5 }}>
-        <Text style={[font]}>Recipient Details</Text>
+      <View style={styles.divider} />
+
+      <View style={styles.column}>
+        <Text style={styles.columnLabel}>Recipient</Text>
         <TextInput
           value={recipientEmail}
           onChangeText={setRecipientEmail}
           placeholder="Email"
-          style={styles.halfInput}
-        ></TextInput>
-
+          placeholderTextColor={colors.textPlaceholder}
+          style={styles.input}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="next"
+          accessibilityLabel="Recipient email"
+        />
         <TextInput
           value={recipientPhone}
           onChangeText={setRecipientPhone}
-          placeholder="Phone No"
-          keyboardType="numeric"
-          style={styles.halfInput}
-        ></TextInput>
+          placeholder="Phone"
+          placeholderTextColor={colors.textPlaceholder}
+          keyboardType="phone-pad"
+          style={styles.input}
+          returnKeyType="done"
+          accessibilityLabel="Recipient phone"
+        />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  halfInput: {
-    width: 150,
-    height: 40,
-    borderColor: "#004F3B",
+  container: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  column: {
+    flex: 1,
+    gap: spacing.sm,
+  },
+  columnLabel: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: colors.textPrimary,
+    letterSpacing: 0.2,
+  },
+  divider: {
+    width: StyleSheet.hairlineWidth,
+    backgroundColor: colors.borderMedium,
+    alignSelf: "stretch",
+    marginTop: spacing.xl,
+  },
+  input: {
+    width: "100%",
+    height: touch.inputHeight,
+    borderColor: colors.primaryDeep,
     borderWidth: 1.5,
-    borderRadius: 10,
-    paddingHorizontal: 5,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.primarySurface,
+    fontSize: typography.size.base,
+    color: colors.textPrimary,
   },
 });

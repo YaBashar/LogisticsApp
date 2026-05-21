@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { View, TextInput, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, TextInput, Text, Pressable, StyleSheet, ScrollView } from "react-native";
 import axios from "axios";
 import Constants from "expo-constants";
+import { colors, spacing, typography, radii, touch, shadows } from "@/constants/theme";
 
 export default function AddressInput({
   value,
@@ -38,16 +39,10 @@ export default function AddressInput({
     try {
       const countryFilter = `countrycode:${countries.join(",")}`;
       const response = await axios.get("https://api.geoapify.com/v1/geocode/autocomplete", {
-        params: {
-          text: text,
-          apiKey: API_KEY,
-          filter: countryFilter,
-        },
+        params: { text, apiKey: API_KEY, filter: countryFilter },
       });
-      console.log("API Response:", response.data); // Debug
       setSuggestions(response.data.features || []);
     } catch (error) {
-      console.error("Error fetching address suggestions:", error.message);
       setSuggestions([]);
     }
   };
@@ -55,39 +50,48 @@ export default function AddressInput({
   const selectAddress = (item) => {
     onChangeText(item.properties.formatted);
     setSuggestions([]);
-    console.log("Selected:", item.properties);
   };
 
   return (
     <View style={[styles.wrapper, wrapperStyle]}>
       <TextInput
-        style={style}
+        style={[styles.defaultInput, style]}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={placeholderTextColor}
+        placeholderTextColor={placeholderTextColor ?? colors.textPlaceholder}
         onFocus={() => setIsFocused(true)}
         onBlur={() => {
           setIsFocused(false);
           setSuggestions([]);
         }}
+        returnKeyType="done"
+        accessibilityLabel={placeholder}
       />
 
       {isFocused && suggestions.length > 0 && (
         <View style={styles.suggestionsContainer}>
           <ScrollView
-            nestedScrollEnabled={true}
+            nestedScrollEnabled
             keyboardShouldPersistTaps="always"
             showsVerticalScrollIndicator={false}
           >
             {suggestions.map((item, index) => (
-              <TouchableOpacity
+              <Pressable
                 key={index}
-                style={styles.suggestion}
+                style={({ pressed }) => [
+                  styles.suggestion,
+                  pressed && styles.suggestionPressed,
+                  index === suggestions.length - 1 && styles.suggestionLast,
+                ]}
                 onPress={() => selectAddress(item)}
+                accessibilityRole="button"
+                accessibilityLabel={item.properties.formatted}
               >
-                <Text style={styles.suggestionText}>{item.properties.formatted}</Text>
-              </TouchableOpacity>
+                <Text style={styles.suggestionText} numberOfLines={2}>
+                  {item.properties.formatted}
+                </Text>
+              </Pressable>
             ))}
           </ScrollView>
         </View>
@@ -102,31 +106,47 @@ const styles = StyleSheet.create({
     width: "100%",
     zIndex: 100,
   },
+  defaultInput: {
+    width: "100%",
+    height: touch.inputHeight,
+    borderColor: colors.borderMedium,
+    borderWidth: 1,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    backgroundColor: "rgba(248,250,252,0.9)",
+    fontSize: typography.size.base,
+    color: colors.textPrimary,
+  },
   suggestionsContainer: {
     position: "absolute",
-    top: 62,
+    top: touch.inputHeight + spacing.xs,
     left: 0,
     right: 0,
-    backgroundColor: "white",
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "rgba(15, 23, 42, 0.14)",
-    borderRadius: 12,
-    maxHeight: 150,
+    borderColor: colors.borderMedium,
+    borderRadius: radii.md,
+    maxHeight: 160,
     zIndex: 9999,
     elevation: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    ...shadows.elevated,
   },
   suggestion: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    backgroundColor: "white",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  suggestionLast: {
+    borderBottomWidth: 0,
+  },
+  suggestionPressed: {
+    backgroundColor: colors.primarySurface,
   },
   suggestionText: {
-    fontSize: 14,
-    color: "#333",
+    fontSize: typography.size.base,
+    color: colors.textPrimary,
+    lineHeight: typography.lineHeight.tight,
   },
 });
