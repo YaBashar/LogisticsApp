@@ -1,19 +1,21 @@
 import {
   View,
   Text,
-  TextInput,
   Image,
   Pressable,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import { font } from "../../styles/font";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "../../services/axios";
+import PasswordInput from "../../components/inputs/PasswordInput";
+import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -30,14 +32,11 @@ export default function ResetPassword() {
     try {
       setErrorMessage("");
       setIsSubmitting(true);
-      await axios.post("/auth/reset-password", {
-        resetCode,
-        newPassword: password,
-      });
-      alert("Password Reset Successfully! You can now log in.");
-      router.push("/auth/login");
+      await axios.post("/auth/reset-password", { resetCode, newPassword: password });
+      Alert.alert("Password reset", "Your password has been updated. You can now log in.", [
+        { text: "Log in", onPress: () => router.push("/auth/login") },
+      ]);
     } catch (error) {
-      console.log("Verification Error:", error);
       setErrorMessage("Password reset failed. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -56,31 +55,52 @@ export default function ResetPassword() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.card}>
-            <Image source={require("../../assets/images/Key.png")} style={styles.image} />
+            <Image
+              source={require("../../assets/images/Key.png")}
+              style={styles.image}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            />
 
-            <Text style={[font, styles.title]}>Reset Password</Text>
-            <Text style={[font, styles.subtitle]}>
+            <Text style={styles.title}>Reset Password</Text>
+            <Text style={styles.subtitle}>
               Enter a strong new password and use it for your next login.
             </Text>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              style={styles.input}
-              secureTextEntry={true}
-              placeholder="Enter your new password"
-              placeholderTextColor="#A6A09B"
-              autoCapitalize="none"
-            ></TextInput>
-            {!!errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+
+            <PasswordInput
+              setPassword={(p) => {
+                setPassword(p);
+                setErrorMessage("");
+              }}
+              password={password}
+              returnKeyType="done"
+              onSubmitEditing={handleSubmit}
+            />
+
+            {!!errorMessage && (
+              <View style={styles.errorBox} accessibilityLiveRegion="polite">
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              </View>
+            )}
 
             <View style={styles.actionArea}>
               <Pressable
                 onPress={handleSubmit}
-                style={[styles.button, !canSubmit && styles.buttonDisabled]}
+                disabled={!canSubmit}
+                style={({ pressed }) => [
+                  styles.button,
+                  !canSubmit && styles.buttonDisabled,
+                  pressed && canSubmit && styles.buttonPressed,
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel={isSubmitting ? "Resetting password" : "Reset Password"}
+                accessibilityState={{ disabled: !canSubmit, busy: isSubmitting }}
               >
-                <Text style={[font, styles.buttonText]}>
-                  {isSubmitting ? "Resetting..." : "Reset Password"}
-                </Text>
+                {isSubmitting ? (
+                  <ActivityIndicator color={colors.textOnDark} />
+                ) : (
+                  <Text style={styles.buttonText}>Reset Password</Text>
+                )}
               </Pressable>
             </View>
           </View>
@@ -91,24 +111,9 @@ export default function ResetPassword() {
 }
 
 const styles = StyleSheet.create({
-  input: {
-    width: "100%",
-    height: 56,
-    borderColor: "#0E9F6E",
-    borderWidth: 1.5,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    backgroundColor: "#F8FFFC",
-  },
-  button: {
-    backgroundColor: "#0E9F6E",
-    paddingVertical: 14,
-    borderRadius: 16,
-    width: "100%",
-  },
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.primarySurface,
   },
   keyboardContainer: {
     flex: 1,
@@ -117,55 +122,75 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.md,
   },
   card: {
     width: "100%",
     maxWidth: 460,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
-    borderWidth: 2,
-    borderColor: "#BFE9D6",
-    paddingHorizontal: 18,
-    paddingVertical: 22,
+    backgroundColor: colors.surface,
+    borderRadius: radii.card,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.xl,
     alignItems: "center",
+    ...shadows.elevated,
   },
   image: {
-    width: 84,
-    height: 84,
-    marginBottom: 8,
+    width: 80,
+    height: 80,
+    marginBottom: spacing.md,
   },
   title: {
-    fontSize: 30,
-    color: "#065F46",
+    fontSize: typography.size.display,
+    fontWeight: typography.weight.bold,
+    color: colors.primaryDark,
     textAlign: "center",
   },
   subtitle: {
-    fontSize: 15,
-    color: "#0E9F6E",
+    fontSize: typography.size.md,
+    color: colors.primaryCTA,
     textAlign: "center",
-    marginTop: 6,
-    marginBottom: 18,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
     width: "100%",
+    lineHeight: typography.lineHeight.base,
+  },
+  errorBox: {
+    marginTop: spacing.md,
+    backgroundColor: colors.errorBg,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    width: "100%",
+  },
+  errorText: {
+    color: colors.error,
+    textAlign: "center",
+    fontSize: typography.size.base,
+    lineHeight: typography.lineHeight.tight,
   },
   actionArea: {
     width: "100%",
-    marginTop: 16,
+    marginTop: spacing.base,
   },
-  buttonText: {
-    color: "#FFFFFF",
-    textAlign: "center",
-    fontSize: 19,
+  button: {
+    height: touch.buttonHeight,
+    backgroundColor: colors.primaryCTA,
+    borderRadius: radii.xl,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonDisabled: {
-    opacity: 0.55,
+    opacity: 0.45,
   },
-  errorText: {
-    color: "#B42318",
+  buttonPressed: {
+    opacity: 0.88,
+  },
+  buttonText: {
+    color: colors.textOnDark,
     textAlign: "center",
-    marginTop: 12,
-    fontSize: 14,
-    width: "100%",
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
   },
 });

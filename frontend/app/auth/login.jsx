@@ -1,5 +1,5 @@
 import axios from "@/services/axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -10,15 +10,13 @@ import {
   Platform,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import useAuth from "@/hooks/useAuth";
 import { router, useLocalSearchParams } from "expo-router";
-import { font } from "../../styles/font";
 import PasswordInput from "../../components/inputs/PasswordInput";
-
-// Minor UI
-// Show error when password or email is wrong
+import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
 export default function Login() {
   const params = useLocalSearchParams();
@@ -27,6 +25,7 @@ export default function Login() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
+  const passwordRef = useRef(null);
   const isEmailValid = /\S+@\S+\.\S+/.test(email.trim());
   const canSubmit = isEmailValid && password.trim().length > 0 && !isSubmitting;
 
@@ -82,12 +81,11 @@ export default function Login() {
     try {
       setErrorMessage("");
       setIsSubmitting(true);
-      const response = await axios.post("/auth/login", { email, password });
+      const response = await axios.post("/auth/login", { email: email.trim(), password });
       const { accessToken, refreshToken } = response.data;
       await login(accessToken, refreshToken);
       router.replace("/profile");
     } catch (error) {
-      console.log("Login error:", error);
       const code = error?.response?.data?.code;
       if (code === "ACCOUNT_SOFT_DELETED") {
         promptReactivate();
@@ -111,44 +109,82 @@ export default function Login() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.card}>
-            <Text style={[font, styles.title]}>Welcome Back</Text>
-            <Text style={[font, styles.subtitle]}>Login to continue tracking your shipments.</Text>
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>Login to continue tracking your shipments.</Text>
+
             <View style={styles.formArea}>
               <TextInput
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(t) => {
+                  setEmail(t);
+                  setErrorMessage("");
+                }}
                 style={styles.input}
-                placeholder="Enter your Email"
-                placeholderTextColor="#A6A09B"
+                placeholder="Email address"
+                placeholderTextColor={colors.textPlaceholder}
                 keyboardType="email-address"
                 autoCapitalize="none"
-              ></TextInput>
-              <PasswordInput setPassword={setPassword} password={password}></PasswordInput>
+                autoCorrect={false}
+                returnKeyType="next"
+                onSubmitEditing={() => passwordRef.current?.focus()}
+                accessibilityLabel="Email address"
+              />
+              <PasswordInput
+                ref={passwordRef}
+                setPassword={(p) => {
+                  setPassword(p);
+                  setErrorMessage("");
+                }}
+                password={password}
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit}
+              />
 
-              <Pressable>
-                <Text
-                  onPress={() => router.push("/auth/requestResetPassword")}
-                  style={[font, styles.linkText]}
-                >
-                  Forgot your password?
-                </Text>
+              <Pressable
+                onPress={() => router.push("/auth/requestResetPassword")}
+                style={({ pressed }) => [styles.forgotPressable, pressed && styles.pressed]}
+                accessibilityRole="button"
+                accessibilityLabel="Forgot your password"
+                hitSlop={8}
+              >
+                <Text style={styles.linkText}>Forgot your password?</Text>
               </Pressable>
             </View>
-            {!!errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+
+            {!!errorMessage && (
+              <View style={styles.errorBox} accessibilityLiveRegion="polite">
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              </View>
+            )}
 
             <View style={styles.footer}>
               <Pressable
                 onPress={handleSubmit}
-                style={[styles.button, !canSubmit && styles.buttonDisabled]}
+                disabled={!canSubmit}
+                style={({ pressed }) => [
+                  styles.button,
+                  !canSubmit && styles.buttonDisabled,
+                  pressed && canSubmit && styles.buttonPressed,
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel={isSubmitting ? "Logging in" : "Login"}
+                accessibilityState={{ disabled: !canSubmit, busy: isSubmitting }}
               >
-                <Text style={[font, styles.buttonText]}>
-                  {isSubmitting ? "Logging in..." : "Login"}
-                </Text>
+                {isSubmitting ? (
+                  <ActivityIndicator color={colors.textOnDark} />
+                ) : (
+                  <Text style={styles.buttonText}>Login</Text>
+                )}
               </Pressable>
 
-              <Pressable onPress={() => router.push("/auth/register")}>
-                <Text style={[font, styles.switchText]}>Dont Have an account?</Text>
-                <Text style={[font, styles.switchAction]}>Sign Up</Text>
+              <Pressable
+                onPress={() => router.push("/auth/register")}
+                style={({ pressed }) => [styles.switchPressable, pressed && styles.pressed]}
+                accessibilityRole="button"
+                accessibilityLabel="Don't have an account? Sign up"
+              >
+                <Text style={styles.switchText}>Don&apos;t have an account? </Text>
+                <Text style={styles.switchAction}>Sign Up</Text>
               </Pressable>
             </View>
           </View>
@@ -159,32 +195,9 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  input: {
-    marginTop: 10,
-    marginBottom: 12,
-    width: "100%",
-    height: 56,
-    borderColor: "#0E9F6E",
-    borderWidth: 1.5,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    backgroundColor: "#F8FFFC",
-  },
-  title: {
-    fontSize: 30,
-    color: "#065F46",
-    textAlign: "center",
-  },
-  subtitle: {
-    textAlign: "center",
-    color: "#0E9F6E",
-    marginTop: 6,
-    marginBottom: 18,
-    fontSize: 15,
-  },
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.primarySurface,
   },
   keyboardContainer: {
     flex: 1,
@@ -193,68 +206,118 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.md,
   },
   card: {
     width: "100%",
     maxWidth: 460,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "#BFE9D6",
-    paddingHorizontal: 18,
-    paddingVertical: 22,
+    backgroundColor: colors.surface,
+    borderRadius: radii.card,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.xl,
+    ...shadows.elevated,
+  },
+  title: {
+    fontSize: typography.size.display,
+    fontWeight: typography.weight.bold,
+    color: colors.primaryDark,
+    textAlign: "center",
+  },
+  subtitle: {
+    textAlign: "center",
+    color: colors.primaryCTA,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
+    fontSize: typography.size.md,
+    lineHeight: typography.lineHeight.base,
   },
   formArea: {
     width: "100%",
+    gap: spacing.sm,
+  },
+  input: {
+    width: "100%",
+    height: touch.inputHeight,
+    borderColor: colors.borderMedium,
+    borderWidth: 1,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.base,
+    backgroundColor: colors.neutral50,
+    fontSize: typography.size.lg,
+    color: colors.textPrimary,
+  },
+  forgotPressable: {
+    alignSelf: "flex-start",
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  pressed: {
+    opacity: 0.7,
   },
   linkText: {
-    color: "#0E9F6E",
-    textAlign: "left",
-    fontSize: 15,
-    marginLeft: 6,
-    marginBottom: 14,
-    marginTop: 8,
+    color: colors.primaryCTA,
+    fontSize: typography.size.md,
     textDecorationLine: "underline",
+    fontWeight: typography.weight.semibold,
+  },
+  errorBox: {
+    marginTop: spacing.md,
+    backgroundColor: colors.errorBg,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  errorText: {
+    color: colors.error,
+    textAlign: "center",
+    fontSize: typography.size.base,
+    lineHeight: typography.lineHeight.tight,
   },
   footer: {
     flexDirection: "column",
     alignItems: "center",
-    marginTop: 2,
+    marginTop: spacing.base,
+    gap: spacing.sm,
   },
   button: {
-    marginBottom: 20,
-    marginTop: 4,
-    backgroundColor: "#0E9F6E",
-    paddingVertical: 14,
-    borderRadius: 16,
+    height: touch.buttonHeight,
+    backgroundColor: colors.primaryCTA,
+    borderRadius: radii.xl,
     width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonDisabled: {
-    opacity: 0.55,
+    opacity: 0.45,
+  },
+  buttonPressed: {
+    opacity: 0.88,
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: colors.textOnDark,
     textAlign: "center",
-    fontSize: 19,
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
   },
-  errorText: {
-    color: "#B42318",
-    textAlign: "center",
-    marginTop: 2,
-    marginBottom: 2,
-    fontSize: 14,
+  switchPressable: {
+    flexDirection: "row",
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    alignItems: "center",
+    minHeight: touch.minHeight,
+    justifyContent: "center",
   },
   switchText: {
     textAlign: "center",
-    fontSize: 16,
-    color: "#064E3B",
+    fontSize: typography.size.lg,
+    color: colors.primaryDark,
   },
   switchAction: {
-    color: "#0E9F6E",
-    textAlign: "center",
-    fontSize: 18,
+    color: colors.secondaryCTA,
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
     textDecorationLine: "underline",
   },
 });

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -8,16 +8,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "../../services/axios";
 import { router } from "expo-router";
-import { font } from "../../styles/font";
 import PasswordInput from "../../components/inputs/PasswordInput";
-
-// Minor UI
-// Show error when password doesnt match ruleset
-// Show error when email is not valid
+import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
 export default function Register() {
   const [firstName, setFirstName] = useState("");
@@ -26,6 +24,11 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const lastNameRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+
   const isEmailValid = /\S+@\S+\.\S+/.test(email.trim());
   const isPasswordValid = password.length >= 8;
   const canSubmit =
@@ -37,22 +40,19 @@ export default function Register() {
 
   const handleSubmit = async () => {
     if (!canSubmit) {
-      setErrorMessage("Fill all fields, use a valid email, and password of at least 8 characters.");
+      setErrorMessage(
+        "Fill all fields, use a valid email, and a password of at least 8 characters."
+      );
       return;
     }
     try {
       setErrorMessage("");
       setIsSubmitting(true);
-      await axios.post("/auth/register", {
-        firstName,
-        lastName,
-        password,
-        email,
-      });
-      alert(`Signed Up Successfully, Please Verify Email to Continue`);
-      router.push("/auth/verifyEmail");
+      await axios.post("/auth/register", { firstName, lastName, password, email: email.trim() });
+      Alert.alert("Account created", "Please verify your email to continue.", [
+        { text: "OK", onPress: () => router.push("/auth/verifyEmail") },
+      ]);
     } catch (error) {
-      console.log("Sign up error:", error);
       const backendMessage =
         error?.response?.data?.error ||
         error?.response?.data?.message ||
@@ -76,52 +76,103 @@ export default function Register() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.card}>
-            <Text style={[font, styles.title]}>Create your account</Text>
-            <Text style={[font, styles.subtitle]}>Get started with secure shipment tracking.</Text>
+            <Text style={styles.title}>Create your account</Text>
+            <Text style={styles.subtitle}>Get started with secure shipment tracking.</Text>
 
             <View style={styles.form}>
               <TextInput
                 value={firstName}
-                onChangeText={setFirstName}
+                onChangeText={(t) => {
+                  setFirstName(t);
+                  setErrorMessage("");
+                }}
                 style={styles.input}
-                placeholder="Enter your First name"
-                placeholderTextColor="#A6A09B"
-              ></TextInput>
+                placeholder="First name"
+                placeholderTextColor={colors.textPlaceholder}
+                autoCapitalize="words"
+                returnKeyType="next"
+                onSubmitEditing={() => lastNameRef.current?.focus()}
+                accessibilityLabel="First name"
+              />
               <TextInput
+                ref={lastNameRef}
                 value={lastName}
-                onChangeText={setLastName}
+                onChangeText={(t) => {
+                  setLastName(t);
+                  setErrorMessage("");
+                }}
                 style={styles.input}
-                placeholder="Enter your Last name"
-                placeholderTextColor="#A6A09B"
-              ></TextInput>
+                placeholder="Last name"
+                placeholderTextColor={colors.textPlaceholder}
+                autoCapitalize="words"
+                returnKeyType="next"
+                onSubmitEditing={() => emailRef.current?.focus()}
+                accessibilityLabel="Last name"
+              />
               <TextInput
+                ref={emailRef}
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(t) => {
+                  setEmail(t);
+                  setErrorMessage("");
+                }}
                 style={styles.input}
-                placeholder="Enter your Email"
-                placeholderTextColor="#A6A09B"
+                placeholder="Email address"
+                placeholderTextColor={colors.textPlaceholder}
                 keyboardType="email-address"
                 autoCapitalize="none"
-              ></TextInput>
-
-              <PasswordInput setPassword={setPassword} password={password}></PasswordInput>
+                autoCorrect={false}
+                returnKeyType="next"
+                onSubmitEditing={() => passwordRef.current?.focus()}
+                accessibilityLabel="Email address"
+              />
+              <PasswordInput
+                ref={passwordRef}
+                setPassword={(p) => {
+                  setPassword(p);
+                  setErrorMessage("");
+                }}
+                password={password}
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit}
+              />
             </View>
 
-            <Text style={styles.helperText}>By continuing, you agree to terms and policy.</Text>
-            {!!errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+            <Text style={styles.helperText}>By continuing, you agree to our terms and policy.</Text>
+
+            {!!errorMessage && (
+              <View style={styles.errorBox} accessibilityLiveRegion="polite">
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              </View>
+            )}
 
             <Pressable
               onPress={handleSubmit}
-              style={[styles.button, !canSubmit && styles.buttonDisabled]}
+              disabled={!canSubmit}
+              style={({ pressed }) => [
+                styles.button,
+                !canSubmit && styles.buttonDisabled,
+                pressed && canSubmit && styles.buttonPressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel={isSubmitting ? "Creating account" : "Create account"}
+              accessibilityState={{ disabled: !canSubmit, busy: isSubmitting }}
             >
-              <Text style={[font, styles.buttonText]}>
-                {isSubmitting ? "Creating account..." : "Create account"}
-              </Text>
+              {isSubmitting ? (
+                <ActivityIndicator color={colors.textOnDark} />
+              ) : (
+                <Text style={styles.buttonText}>Create account</Text>
+              )}
             </Pressable>
 
-            <Pressable onPress={() => router.push("/auth/login")}>
-              <Text style={[font, styles.switchText]}>Already Have an account?</Text>
-              <Text style={[font, styles.switchAction]}>Login</Text>
+            <Pressable
+              onPress={() => router.push("/auth/login")}
+              style={({ pressed }) => [styles.switchPressable, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Already have an account? Login"
+            >
+              <Text style={styles.switchText}>Already have an account? </Text>
+              <Text style={styles.switchAction}>Login</Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -131,62 +182,9 @@ export default function Register() {
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 30,
-    color: "#065F46",
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 15,
-    color: "#0E9F6E",
-    marginTop: 6,
-    marginBottom: 18,
-    textAlign: "center",
-  },
-  form: {
-    gap: 14,
-    width: "100%",
-  },
-  input: {
-    width: "100%",
-    height: 56,
-    borderColor: "#0E9F6E",
-    borderWidth: 1.5,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    backgroundColor: "#F8FFFC",
-  },
-  button: {
-    marginTop: 15,
-    marginBottom: 20,
-    backgroundColor: "#0E9F6E",
-    paddingVertical: 14,
-    borderRadius: 16,
-    width: "100%",
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    textAlign: "center",
-    fontSize: 19,
-  },
-  buttonDisabled: {
-    opacity: 0.55,
-  },
-  errorText: {
-    color: "#B42318",
-    textAlign: "center",
-    marginTop: 10,
-    fontSize: 14,
-  },
-  helperText: {
-    fontSize: 12,
-    color: "#065F46",
-    marginTop: 14,
-    textAlign: "center",
-  },
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.primarySurface,
   },
   keyboardContainer: {
     flex: 1,
@@ -195,28 +193,109 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.md,
   },
   card: {
     width: "100%",
     maxWidth: 460,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
-    borderWidth: 2,
-    borderColor: "#BFE9D6",
-    paddingHorizontal: 18,
-    paddingVertical: 22,
+    backgroundColor: colors.surface,
+    borderRadius: radii.card,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.xl,
+    ...shadows.elevated,
+  },
+  title: {
+    fontSize: typography.size.display,
+    fontWeight: typography.weight.bold,
+    color: colors.primaryDark,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: typography.size.md,
+    color: colors.primaryCTA,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
+    textAlign: "center",
+    lineHeight: typography.lineHeight.base,
+  },
+  form: {
+    gap: spacing.md,
+    width: "100%",
+  },
+  input: {
+    width: "100%",
+    height: touch.inputHeight,
+    borderColor: colors.borderMedium,
+    borderWidth: 1,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.base,
+    backgroundColor: colors.neutral50,
+    fontSize: typography.size.lg,
+    color: colors.textPrimary,
+  },
+  helperText: {
+    fontSize: typography.size.sm,
+    color: colors.primaryDark,
+    marginTop: spacing.base,
+    textAlign: "center",
+    lineHeight: typography.lineHeight.tight,
+  },
+  errorBox: {
+    marginTop: spacing.md,
+    backgroundColor: colors.errorBg,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  errorText: {
+    color: colors.error,
+    textAlign: "center",
+    fontSize: typography.size.base,
+    lineHeight: typography.lineHeight.tight,
+  },
+  button: {
+    height: touch.buttonHeight,
+    backgroundColor: colors.primaryCTA,
+    borderRadius: radii.xl,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: spacing.base,
+  },
+  buttonDisabled: {
+    opacity: 0.45,
+  },
+  buttonPressed: {
+    opacity: 0.88,
+  },
+  buttonText: {
+    color: colors.textOnDark,
+    textAlign: "center",
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
+  },
+  pressed: {
+    opacity: 0.7,
+  },
+  switchPressable: {
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    alignItems: "center",
+    minHeight: touch.minHeight,
+    marginTop: spacing.xs,
   },
   switchText: {
     textAlign: "center",
-    fontSize: 16,
-    color: "#064E3B",
+    fontSize: typography.size.lg,
+    color: colors.primaryDark,
   },
   switchAction: {
-    color: "#0E9F6E",
-    textAlign: "center",
-    fontSize: 18,
+    color: colors.secondaryCTA,
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
     textDecorationLine: "underline",
   },
 });
