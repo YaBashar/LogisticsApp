@@ -1,9 +1,18 @@
 import { useEffect } from "react";
-import { View, Pressable, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  View,
+  Pressable,
+  Text,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+  type ImageStyle,
+  type TextStyle,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { font } from "../styles/font";
 import { router } from "expo-router";
 import useAuth from "../hooks/useAuth";
+import { colors, spacing, typography, radii, touch, shadows } from "../constants/theme";
 
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -16,8 +25,8 @@ export default function Index() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#007A55"></ActivityIndicator>
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
     );
   }
@@ -25,21 +34,41 @@ export default function Index() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.hero}>
-        <Text style={[font, styles.title]}>Shipping App</Text>
-        <Text style={[font, styles.subtitle]}>Track your packages with ease</Text>
+        <Text style={styles.title} accessibilityRole="header">
+          Shipping App
+        </Text>
+        <Text style={styles.subtitle}>Track your packages with ease</Text>
       </View>
 
-      <View style={styles.imageCard}>
-        <Image source={require("../assets/images/LandingImage.png")} style={styles.image} />
+      <View
+        style={styles.imageCard}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        <Image
+          source={require("../assets/images/LandingImage.png")}
+          style={styles.image as ImageStyle}
+          resizeMode="cover"
+        />
       </View>
 
       <View style={styles.actionArea}>
-        <Pressable onPress={() => router.push("auth/register")} style={styles.buttonLight}>
-          <Text style={[font, styles.primaryButtonText]}>Create account</Text>
+        <Pressable
+          onPress={() => router.push("auth/register")}
+          style={({ pressed }) => [styles.buttonPrimary, pressed && styles.buttonPressed]}
+          accessibilityRole="button"
+          accessibilityLabel="Create account"
+        >
+          <Text style={styles.buttonPrimaryText}>Create account</Text>
         </Pressable>
 
-        <Pressable onPress={() => router.push("auth/login")} style={styles.buttonDark}>
-          <Text style={[font, styles.secondaryButtonText]}>Login</Text>
+        <Pressable
+          onPress={() => router.push("auth/login")}
+          style={({ pressed }) => [styles.buttonOutline, pressed && styles.buttonPressed]}
+          accessibilityRole="button"
+          accessibilityLabel="Login"
+        >
+          <Text style={styles.buttonOutlineText}>Login</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -47,77 +76,92 @@ export default function Index() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.primarySurface,
+  },
   container: {
     flex: 1,
     flexDirection: "column",
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 28,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xxl,
+    backgroundColor: colors.primarySurface,
   },
   hero: {
     alignItems: "center",
-    marginTop: 16,
+    marginTop: spacing.base,
   },
   title: {
-    fontSize: 40,
-    fontFamily: "Inter-Bold",
-    color: "#065F46",
+    fontSize: typography.size.hero,
+    fontWeight: typography.weight.bold as TextStyle["fontWeight"],
+    color: colors.primaryDark,
+    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 16,
-    color: "#0E9F6E",
+    fontSize: typography.size.lg,
+    color: colors.primaryCTA,
     textAlign: "center",
-    marginTop: 8,
+    marginTop: spacing.sm,
+    lineHeight: typography.lineHeight.base,
   },
   imageCard: {
     width: "100%",
     flex: 1,
-    marginTop: 22,
-    marginBottom: 24,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 28,
-    borderWidth: 1,
-    borderColor: "#BFE9D6",
+    marginTop: spacing.xl,
+    marginBottom: spacing.xl,
+    backgroundColor: colors.surface,
+    borderRadius: radii.card + 4,
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
+    ...shadows.float,
   },
   image: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
   },
   actionArea: {
     width: "100%",
     flexDirection: "column",
     alignItems: "center",
-    gap: 12,
+    gap: spacing.md,
   },
-  buttonLight: {
-    backgroundColor: "#0E9F6E",
-    paddingVertical: 14,
-    borderRadius: 16,
+  buttonPrimary: {
+    height: touch.buttonHeight,
+    backgroundColor: colors.primaryCTA,
+    borderRadius: radii.xl,
     width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  buttonDark: {
-    backgroundColor: "#F8FFFC",
-    paddingVertical: 14,
-    borderColor: "#0E9F6E",
-    borderWidth: 1,
-    borderRadius: 16,
+  buttonOutline: {
+    height: touch.buttonHeight,
+    backgroundColor: colors.secondarySurface,
+    borderRadius: radii.xl,
     width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    ...shadows.subtle,
   },
-  primaryButtonText: {
-    color: "#FFFFFF",
-    textAlign: "center",
-    fontSize: 19,
+  buttonPressed: {
+    opacity: 0.88,
   },
-  secondaryButtonText: {
-    color: "#065F46",
+  buttonPrimaryText: {
+    color: colors.textOnDark,
     textAlign: "center",
-    fontSize: 19,
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold as TextStyle["fontWeight"],
+  },
+  buttonOutlineText: {
+    color: colors.secondaryDark,
+    textAlign: "center",
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold as TextStyle["fontWeight"],
   },
 });

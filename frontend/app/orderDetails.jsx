@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, useWindowDimensions } from "react-native";
+import { View, Text, StyleSheet, ScrollView, useWindowDimensions, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams } from "expo-router";
-import { font } from "../styles/font";
+import { useLocalSearchParams, router } from "expo-router";
 import { PackageTimeline } from "../components/PackageTimeline";
 import { coerceShipmentStatus } from "@/constants/shipmentStatus";
 import useAuth from "@/hooks/useAuth";
+import { colors, spacing, typography, radii, shadows, touch } from "../constants/theme";
 
 function formatPackageType(packageType) {
   if (!packageType) return "—";
@@ -33,9 +33,17 @@ export default function OrderDetails() {
   if (!shipmentData?._id) {
     return (
       <SafeAreaView style={styles.screen}>
-        <View style={[styles.card, { width: contentMaxWidth }]}>
-          <Text style={[font, styles.errorTitle]}>Order details unavailable</Text>
-          <Text style={[font, styles.errorText]}>Please go back and open the order again.</Text>
+        <View style={[styles.errorCard, { width: contentMaxWidth }]}>
+          <Text style={styles.errorTitle}>Order details unavailable</Text>
+          <Text style={styles.errorDesc}>Please go back and open the order again.</Text>
+          <Pressable
+            onPress={() => router.back()}
+            style={({ pressed }) => [styles.backButton, pressed && styles.backPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
+            <Text style={styles.backButtonText}>← Go back</Text>
+          </Pressable>
         </View>
       </SafeAreaView>
     );
@@ -53,52 +61,67 @@ export default function OrderDetails() {
         <View style={[styles.card, { width: contentMaxWidth }]}>
           <View style={styles.headerRow}>
             <View style={styles.headerText}>
-              <Text style={[font, styles.orderNumber]}>Order #{shipmentData.orderNumber}</Text>
-              <Text style={[font, styles.title]}>{shipmentData.itemDescription}</Text>
+              <Text style={styles.orderNumber}>Order #{shipmentData.orderNumber}</Text>
+              <Text style={styles.title} numberOfLines={2}>
+                {shipmentData.itemDescription}
+              </Text>
             </View>
             <View style={styles.statusPill}>
-              <Text style={[font, styles.statusPillText]}>{displayStatus}</Text>
+              <Text style={styles.statusPillText}>{displayStatus}</Text>
             </View>
           </View>
 
-          <Text style={[font, styles.metaCompact]}>
+          <Text style={styles.metaCompact}>
             <Text style={styles.metaLabel}>Package: </Text>
             {packageLabel}
             <Text style={styles.metaDivider}> · </Text>
             <Text style={styles.metaLabel}>Weight: </Text>
             {shipmentData.weight} kg
             <Text style={styles.metaDivider}> · </Text>
-            <Text style={styles.metaLabel}>Quantity: </Text>
+            <Text style={styles.metaLabel}>Qty: </Text>
             {shipmentData.quantity ?? "—"}
           </Text>
 
           <View style={styles.routeCard}>
-            <Text style={[font, styles.routeLabel]}>Pickup From</Text>
-            <Text style={[font, styles.routeValue]}>{shipmentData.origin}</Text>
-            <Text style={[font, styles.routeLabel, { marginTop: 10 }]}>Deliver To</Text>
-            <Text style={[font, styles.routeValue]}>{shipmentData.destination}</Text>
+            <Text style={styles.routeLabel}>Pickup from</Text>
+            <Text style={styles.routeValue}>{shipmentData.origin}</Text>
+            <Text style={[styles.routeLabel, { marginTop: spacing.md }]}>Deliver to</Text>
+            <Text style={styles.routeValue}>{shipmentData.destination}</Text>
           </View>
 
           {isAdmin ? (
             <View style={styles.contactCard}>
-              <Text style={[font, styles.routeLabel]}>Sender Contact</Text>
-              <Text style={[font, styles.routeValue]}>
-                {shipmentData.senderEmail || "—"} {shipmentData.senderPhone || "—"}
+              <Text style={styles.routeLabel}>Sender contact</Text>
+              <Text style={styles.routeValue}>
+                {shipmentData.senderEmail || "—"}
+                {"  "}
+                {shipmentData.senderPhone || ""}
               </Text>
-              <Text style={[font, styles.routeLabel, { marginTop: 10 }]}>Recipient Contact</Text>
-              <Text style={[font, styles.routeValue]}>
-                {shipmentData.recipientEmail || "—"} {shipmentData.recipientPhone || "—"}
+              <Text style={[styles.routeLabel, { marginTop: spacing.md }]}>Recipient contact</Text>
+              <Text style={styles.routeValue}>
+                {shipmentData.recipientEmail || "—"}
+                {"  "}
+                {shipmentData.recipientPhone || ""}
               </Text>
             </View>
           ) : null}
 
-          <Text style={[font, styles.timelineTitle]}>Shipment Timeline</Text>
+          <Text style={styles.timelineTitle}>Shipment Timeline</Text>
           <PackageTimeline
             status={displayStatus}
             variant="detailed"
             shipment={shipmentData}
             onStatusChange={setDisplayStatus}
           />
+
+          <Pressable
+            onPress={() => router.back()}
+            style={({ pressed }) => [styles.backLink, pressed && styles.backPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Go back to orders"
+          >
+            <Text style={styles.backLinkText}>← Back to orders</Text>
+          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -108,24 +131,58 @@ export default function OrderDetails() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#CFEFE1",
+    backgroundColor: colors.backgroundAlt,
   },
   scrollContent: {
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.base,
+    paddingBottom: spacing.xxl,
   },
   card: {
-    backgroundColor: "rgba(255,255,255,0.95)",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(15, 23, 42, 0.10)",
-    padding: 14,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    elevation: 4,
+    backgroundColor: colors.surface,
+    borderRadius: radii.xxl,
+    padding: spacing.base,
+    ...shadows.elevated,
+  },
+  errorCard: {
+    alignSelf: "center",
+    marginTop: spacing.xxl,
+    backgroundColor: colors.surface,
+    borderRadius: radii.xxl,
+    padding: spacing.xl,
+    alignItems: "center",
+    ...shadows.float,
+  },
+  errorTitle: {
+    fontSize: typography.size.xl,
+    color: colors.textPrimary,
+    textAlign: "center",
+    fontWeight: typography.weight.bold,
+  },
+  errorDesc: {
+    fontSize: typography.size.md,
+    color: colors.textMuted,
+    textAlign: "center",
+    marginTop: spacing.sm,
+    lineHeight: typography.lineHeight.base,
+  },
+  backButton: {
+    marginTop: spacing.base,
+    height: touch.buttonHeight,
+    backgroundColor: colors.primaryCTA,
+    borderRadius: radii.xl,
+    paddingHorizontal: spacing.xl,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  backPressed: {
+    opacity: 0.8,
+  },
+  backButtonText: {
+    color: colors.textOnDark,
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
   },
   headerRow: {
     flexDirection: "row",
@@ -134,89 +191,91 @@ const styles = StyleSheet.create({
   },
   headerText: {
     flex: 1,
-    paddingRight: 12,
+    paddingRight: spacing.md,
   },
   orderNumber: {
-    fontSize: 11,
-    color: "#64748B",
+    fontSize: typography.size.sm,
+    color: colors.textDisabled,
+    fontWeight: typography.weight.medium,
   },
   title: {
-    fontSize: 20,
-    color: "#0F172A",
-    marginTop: 2,
-    fontWeight: "700",
+    fontSize: typography.size.xxl,
+    color: colors.textPrimary,
+    marginTop: spacing.xs,
+    fontWeight: typography.weight.bold,
+    lineHeight: typography.lineHeight.relaxed,
   },
   statusPill: {
-    backgroundColor: "rgba(30, 158, 115, 0.14)",
-    borderWidth: 1,
-    borderColor: "rgba(30, 158, 115, 0.25)",
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    backgroundColor: colors.primaryLight,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
     alignSelf: "flex-start",
   },
   statusPillText: {
-    fontSize: 12,
-    color: "#0B6B4B",
-    fontWeight: "700",
+    fontSize: typography.size.sm,
+    color: colors.primaryMid,
+    fontWeight: typography.weight.bold,
   },
   metaCompact: {
-    marginTop: 10,
-    fontSize: 13,
-    color: "#334155",
-    lineHeight: 20,
+    marginTop: spacing.md,
+    fontSize: typography.size.base,
+    color: colors.textSecondary,
+    lineHeight: typography.lineHeight.base,
   },
   metaLabel: {
-    fontWeight: "700",
-    color: "#0F172A",
+    fontWeight: typography.weight.bold,
+    color: colors.textPrimary,
   },
   metaDivider: {
-    color: "#94A3B8",
-    fontWeight: "400",
+    color: colors.textDisabled,
+    fontWeight: typography.weight.regular,
   },
   routeCard: {
-    marginTop: 12,
-    borderRadius: 14,
-    backgroundColor: "rgba(16, 185, 129, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.14)",
-    padding: 12,
+    marginTop: spacing.md,
+    borderRadius: radii.lg,
+    backgroundColor: colors.primarySurface,
+    padding: spacing.md,
   },
   routeLabel: {
-    fontSize: 11,
-    color: "#0F172A",
-    fontWeight: "700",
+    fontSize: typography.size.sm,
+    color: colors.textPrimary,
+    fontWeight: typography.weight.bold,
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
   },
   routeValue: {
-    marginTop: 4,
-    fontSize: 12,
-    color: "#475569",
+    marginTop: spacing.xs,
+    fontSize: typography.size.base,
+    color: colors.textMuted,
+    lineHeight: typography.lineHeight.base,
   },
   contactCard: {
-    marginTop: 10,
-    borderRadius: 14,
-    backgroundColor: "rgba(15, 23, 42, 0.05)",
-    borderWidth: 1,
-    borderColor: "rgba(15, 23, 42, 0.10)",
-    padding: 12,
+    marginTop: spacing.md,
+    borderRadius: radii.lg,
+    backgroundColor: colors.secondarySurface,
+    padding: spacing.md,
   },
   timelineTitle: {
-    marginTop: 14,
-    marginBottom: 2,
-    fontSize: 14,
-    color: "#0F172A",
-    fontWeight: "700",
+    marginTop: spacing.base,
+    marginBottom: spacing.xs,
+    fontSize: typography.size.base,
+    color: colors.textPrimary,
+    fontWeight: typography.weight.bold,
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
   },
-  errorTitle: {
-    fontSize: 18,
-    color: "#0F172A",
-    textAlign: "center",
-    fontWeight: "700",
+  backLink: {
+    alignSelf: "center",
+    marginTop: spacing.xl,
+    minHeight: touch.minHeight,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm,
+    justifyContent: "center",
   },
-  errorText: {
-    fontSize: 14,
-    color: "#64748B",
-    textAlign: "center",
-    marginTop: 8,
+  backLinkText: {
+    fontSize: typography.size.lg,
+    color: colors.primaryCTA,
+    fontWeight: typography.weight.semibold,
   },
 });

@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import useAuth from "@/hooks/useAuth";
 import { axiosPrivate } from "@/services/axios";
-import { font } from "../../styles/font";
+import { colors, spacing, typography, radii, touch, shadows } from "@/constants/theme";
 
 export default function LogoutButton({ showSettings = true }) {
   const { logout, role } = useAuth();
@@ -18,7 +18,7 @@ export default function LogoutButton({ showSettings = true }) {
           try {
             await axiosPrivate.post("/auth/logout");
           } catch (error) {
-            console.warn("Logout request failed:", error?.message);
+            // Best-effort logout — proceed regardless
           } finally {
             await logout();
             router.replace("/auth/login");
@@ -33,28 +33,28 @@ export default function LogoutButton({ showSettings = true }) {
   return (
     <View style={styles.container}>
       {role ? (
-        <View style={styles.rolePill}>
-          <Text style={[font, styles.roleText]}>{role}</Text>
+        <View style={styles.rolePill} accessibilityLabel={`Role: ${role}`}>
+          <Text style={styles.roleText}>{role}</Text>
         </View>
       ) : null}
+
       <Pressable
         onPress={handleLogout}
         accessibilityRole="button"
         accessibilityLabel="Log out"
-        hitSlop={6}
-        style={({ pressed }) => [styles.logoutPressable, pressed && styles.pressed]}
+        style={({ pressed }) => [styles.actionButton, pressed && styles.pressed]}
       >
-        <Text style={[font, styles.label]}>Log out</Text>
+        <Text style={styles.logoutLabel}>Log out</Text>
       </Pressable>
+
       {showSettings ? (
         <Pressable
           onPress={goSettings}
           accessibilityRole="button"
           accessibilityLabel="Settings"
-          hitSlop={6}
-          style={({ pressed }) => [styles.settingsPressable, pressed && styles.pressed]}
+          style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}
         >
-          <Ionicons name="settings-outline" size={20} color="#004F3B" />
+          <Ionicons name="settings-outline" size={20} color={colors.secondary} />
         </Pressable>
       ) : null}
     </View>
@@ -65,39 +65,44 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 999,
+    gap: spacing.xs,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: radii.pill,
     backgroundColor: "rgba(255, 255, 255, 0.92)",
-    borderWidth: 1,
-    borderColor: "rgba(15, 23, 42, 0.12)",
+    ...shadows.subtle,
   },
   pressed: {
-    opacity: 0.88,
+    opacity: 0.75,
   },
   rolePill: {
-    backgroundColor: "rgba(30, 158, 115, 0.14)",
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    backgroundColor: colors.secondarySurface,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   roleText: {
-    fontSize: 11,
-    color: "#0B6B4B",
-    fontWeight: "700",
+    fontSize: typography.size.sm,
+    color: colors.secondaryDark,
+    fontWeight: typography.weight.bold,
     textTransform: "capitalize",
   },
-  logoutPressable: {
-    paddingVertical: 2,
+  actionButton: {
+    minHeight: touch.minHeight,
+    minWidth: touch.minHeight,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: spacing.xs,
   },
-  label: {
-    fontSize: 13,
-    color: "#B42318",
-    fontWeight: "700",
+  logoutLabel: {
+    fontSize: typography.size.base,
+    color: colors.error,
+    fontWeight: typography.weight.bold,
   },
-  settingsPressable: {
-    paddingVertical: 2,
-    paddingLeft: 2,
+  iconButton: {
+    minHeight: touch.minHeight,
+    minWidth: touch.minHeight,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

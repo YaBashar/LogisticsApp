@@ -1,10 +1,11 @@
 import usePushNotifs from "../hooks/usePushNotifs";
 import { useState } from "react";
 import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useAuth from "@/hooks/useAuth";
-import { font } from "../styles/font";
 import { AuthenticatedScreenHeader } from "../components/AuthenticatedScreenHeader";
 import { OrdersListSection } from "../components/OrderListSection";
+import { colors, spacing, typography, radii, touch, shadows } from "../constants/theme";
 
 export default function Profile() {
   usePushNotifs();
@@ -12,14 +13,15 @@ export default function Profile() {
   const { role } = useAuth();
   const isAdmin = role === "admin";
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const contentMaxWidth = Math.min(420, width - 32);
 
   const tabs = isAdmin ? ["Active"] : ["Active", "Completed"];
   const [activeTab, setActiveTab] = useState("Active");
 
   return (
-    <View style={styles.screen}>
-      <AuthenticatedScreenHeader title="My Orders" variant="hero" />
+    <View style={[styles.screen, { paddingBottom: insets.bottom }]}>
+      <AuthenticatedScreenHeader variant="hero" />
 
       <View style={[styles.tabsWrap, { width: contentMaxWidth }]}>
         {tabs.map((tab) => {
@@ -31,12 +33,13 @@ export default function Profile() {
               style={({ pressed }) => [
                 styles.tabPill,
                 isActive ? styles.tabPillActive : styles.tabPillInactive,
-                { opacity: pressed ? 0.92 : 1 },
+                pressed && !isActive && styles.tabPillPressed,
               ]}
+              accessibilityRole="tab"
+              accessibilityLabel={`${tab} orders`}
+              accessibilityState={{ selected: isActive }}
             >
-              <Text style={[font, styles.tabText, isActive ? styles.tabTextActive : null]}>
-                {tab} Orders
-              </Text>
+              <Text style={[styles.tabText, isActive && styles.tabTextActive]}>{tab} Orders</Text>
             </Pressable>
           );
         })}
@@ -49,7 +52,7 @@ export default function Profile() {
           emptyMessage={
             isAdmin
               ? "No orders yet. New customer orders will show up here."
-              : "No Orders Yet, Your orders will show up here"
+              : "No orders yet. Your orders will show up here."
           }
           showRefreshControl
           showNewOrderCta={!isAdmin}
@@ -60,7 +63,7 @@ export default function Profile() {
         <OrdersListSection
           key="completed-orders"
           endpoint="/shipments-customer/completed"
-          emptyMessage="Your Completed Orders will show up here"
+          emptyMessage="Your completed orders will show up here."
           showRefreshControl={false}
           showNewOrderCta={false}
         />
@@ -72,46 +75,45 @@ export default function Profile() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#CFEFE1",
+    backgroundColor: colors.backgroundAlt,
     alignItems: "center",
   },
   tabsWrap: {
     flexDirection: "row",
-    gap: 10,
-    padding: 6,
-    borderRadius: 999,
+    gap: spacing.sm,
+    padding: spacing.xs,
+    borderRadius: radii.pill,
     backgroundColor: "rgba(255,255,255,0.65)",
-    borderWidth: 1,
-    borderColor: "rgba(15, 23, 42, 0.08)",
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: spacing.md,
+    marginBottom: spacing.md,
+    ...shadows.subtle,
   },
   tabPill: {
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 999,
+    minHeight: touch.tabHeight,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: radii.pill,
     alignItems: "center",
     justifyContent: "center",
   },
   tabPillActive: {
-    backgroundColor: "#1E9E73",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    elevation: 3,
+    backgroundColor: colors.primaryCTA,
+    ...shadows.card,
   },
   tabPillInactive: {
     backgroundColor: "rgba(255,255,255,0.85)",
   },
+  tabPillPressed: {
+    opacity: 0.75,
+  },
   tabText: {
-    fontSize: 13,
+    fontSize: typography.size.base,
     letterSpacing: 0.2,
-    color: "#0F172A",
-    fontWeight: "700",
+    color: colors.textPrimary,
+    fontWeight: typography.weight.bold,
   },
   tabTextActive: {
-    color: "#FFFFFF",
+    color: colors.textOnDark,
   },
 });

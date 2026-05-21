@@ -8,9 +8,10 @@ import {
   ScrollView,
   Platform,
   useWindowDimensions,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { font } from "../styles/font";
 import AddressInput from "../components/inputs/AddressInput";
 import PackageTypeInput from "../components/inputs/PackageTypeInput";
 import { router } from "expo-router";
@@ -18,42 +19,51 @@ import ItemInfoInput from "../components/inputs/ItemInfoInput";
 import ContactInput from "../components/inputs/ContactInput";
 import { axiosPrivate } from "../services/axios";
 import { AuthenticatedScreenHeader } from "../components/AuthenticatedScreenHeader";
+import { colors, spacing, typography, radii, shadows, touch } from "../constants/theme";
 
 export default function NewOrder() {
   const { width: screenWidth } = useWindowDimensions();
   const contentMaxWidth = Math.min(420, screenWidth - 32);
+
   const [itemDescription, setItemDescription] = useState("");
   const [quantity, setQuantity] = useState("");
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [packageType, setPackageType] = useState("");
-
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
   const [width, setWidth] = useState("");
   const [length, setLength] = useState("");
-
   const [senderEmail, setSenderEmail] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [senderPhone, setSenderPhone] = useState("");
   const [recipientPhone, setRecipientPhone] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  const canSubmit =
+    packageType.trim().length > 0 &&
+    origin.trim().length > 0 &&
+    destination.trim().length > 0 &&
+    itemDescription.trim().length > 0 &&
+    !isSubmitting;
 
   const handleSubmitNewOrder = async () => {
+    if (!canSubmit) {
+      setSubmitError("Please fill in all required fields before submitting.");
+      return;
+    }
     try {
-      const quantityInt = parseInt(quantity, 10);
-      const weightInt = parseInt(weight, 10);
-      const heightInt = parseInt(height, 10);
-      const widthInt = parseInt(width, 10);
-      const lengthInt = parseInt(length, 10);
-
-      const res = await axiosPrivate.post("/shipments-customer/", {
+      setSubmitError("");
+      setIsSubmitting(true);
+      await axiosPrivate.post("/shipments-customer/", {
         packageType,
         itemDescription,
-        quantity: quantityInt,
-        weight: weightInt,
-        height: heightInt,
-        width: widthInt,
-        length: lengthInt,
+        quantity: parseInt(quantity, 10) || 1,
+        weight: parseInt(weight, 10) || 0,
+        height: parseInt(height, 10) || 0,
+        width: parseInt(width, 10) || 0,
+        length: parseInt(length, 10) || 0,
         destination,
         origin,
         senderEmail,
@@ -61,87 +71,85 @@ export default function NewOrder() {
         recipientEmail,
         recipientPhone,
       });
-      alert("Successfully Created New Order", res.data.result);
-      router.push("/profile");
 
-      // Clear Form fields
+      Alert.alert("Order created", "Your shipment request has been submitted.", [
+        { text: "View orders", onPress: () => router.replace("/profile") },
+      ]);
+
       setItemDescription("");
       setQuantity("");
       setWeight("");
       setHeight("");
       setWidth("");
       setLength("");
-
       setOrigin("");
       setDestination("");
       setPackageType("");
-
       setRecipientEmail("");
       setSenderEmail("");
       setRecipientPhone("");
       setSenderPhone("");
     } catch (error) {
-      console.error(error);
-      alert("Failed To Create Order", error.response.data.message);
+      const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to create order. Please try again.";
+      setSubmitError(msg);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }} edges={["left", "right", "bottom"]}>
+    <SafeAreaView style={styles.safe} edges={["left", "right", "bottom"]}>
       <AuthenticatedScreenHeader title="New booking" />
       <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: "white" }}
+        style={styles.keyboardContainer}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
-          contentContainerStyle={{ alignItems: "center", paddingBottom: 32 }}
+          contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text
-            style={[
-              font,
-              {
-                marginTop: 16,
-                fontSize: 22,
-                color: "#004F3B",
-                marginHorizontal: 10,
-              },
-            ]}
-          >
-            Request a shipment
-          </Text>
+          <Text style={[styles.pageTitle, { width: contentMaxWidth }]}>Request a shipment</Text>
+
+          {!!submitError && (
+            <View
+              style={[styles.errorBox, { width: contentMaxWidth }]}
+              accessibilityLiveRegion="polite"
+            >
+              <Text style={styles.errorText}>{submitError}</Text>
+            </View>
+          )}
 
           <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
-            <Text style={[font, styles.sectionTitle]}>Package type</Text>
+            <Text style={styles.sectionTitle}>Package type</Text>
             <PackageTypeInput packageType={packageType} setPackageType={setPackageType} />
           </View>
 
-          {/* Delivery Details */}
           <View style={[styles.sectionCard, styles.layerTop, { width: contentMaxWidth }]}>
-            <Text style={[font, styles.sectionTitle]}>Details</Text>
-
+            <Text style={styles.sectionTitle}>Details</Text>
             <AddressInput
               value={origin}
               onChangeText={setOrigin}
-              style={[styles.mediumInput, { width: "100%" }]}
+              style={styles.addressInput}
               wrapperStyle={styles.pickupAddressWrapper}
-              placeholder="Pickup From"
-              placeholderTextColor="#A6A09B"
+              placeholder="Pickup from"
+              placeholderTextColor={colors.textPlaceholder}
             />
-
             <AddressInput
               value={destination}
               onChangeText={setDestination}
-              style={[styles.mediumInput, { width: "100%" }]}
+              style={styles.addressInput}
               wrapperStyle={styles.destinationAddressWrapper}
-              placeholder="Deliver To"
-              placeholderTextColor="#A6A09B"
+              placeholder="Deliver to"
+              placeholderTextColor={colors.textPlaceholder}
             />
           </View>
 
           <View style={[styles.sectionCard, styles.layerMiddle, { width: contentMaxWidth }]}>
-            <Text style={[font, styles.sectionTitle]}>Item information</Text>
+            <Text style={styles.sectionTitle}>Item information</Text>
             <ItemInfoInput
               itemDescription={itemDescription}
               setItemDescription={setItemDescription}
@@ -159,7 +167,7 @@ export default function NewOrder() {
           </View>
 
           <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
-            <Text style={[font, styles.sectionTitle]}>Contact details</Text>
+            <Text style={styles.sectionTitle}>Contact details</Text>
             <ContactInput
               senderEmail={senderEmail}
               setSenderEmail={setSenderEmail}
@@ -174,12 +182,22 @@ export default function NewOrder() {
 
           <Pressable
             onPress={handleSubmitNewOrder}
+            disabled={!canSubmit}
             style={({ pressed }) => [
               styles.primaryButton,
-              { width: contentMaxWidth, opacity: pressed ? 0.92 : 1 },
+              { width: contentMaxWidth },
+              !canSubmit && styles.buttonDisabled,
+              pressed && canSubmit && styles.buttonPressed,
             ]}
+            accessibilityRole="button"
+            accessibilityLabel={isSubmitting ? "Submitting order" : "Book Now"}
+            accessibilityState={{ disabled: !canSubmit, busy: isSubmitting }}
           >
-            <Text style={[font, styles.primaryButtonText]}>Book Now</Text>
+            {isSubmitting ? (
+              <ActivityIndicator color={colors.textOnDark} />
+            ) : (
+              <Text style={styles.primaryButtonText}>Book Now</Text>
+            )}
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -188,28 +206,46 @@ export default function NewOrder() {
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  safe: {
     flex: 1,
-    backgroundColor: "#CFEFE1",
+    backgroundColor: colors.primarySurface,
+  },
+  keyboardContainer: {
+    flex: 1,
+    backgroundColor: colors.primarySurface,
   },
   scrollContent: {
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingBottom: 36,
+    paddingBottom: spacing.xxl,
+  },
+  pageTitle: {
+    marginTop: spacing.base,
+    marginBottom: spacing.xs,
+    fontSize: typography.size.xxxl,
+    fontWeight: typography.weight.bold,
+    color: colors.primaryDeep,
+    paddingHorizontal: spacing.xs,
+  },
+  errorBox: {
+    marginTop: spacing.sm,
+    backgroundColor: colors.errorBg,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.md,
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: typography.size.base,
+    lineHeight: typography.lineHeight.tight,
+    textAlign: "center",
   },
   sectionCard: {
     position: "relative",
-    marginTop: 10,
-    padding: 12,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.92)",
-    borderWidth: 1,
-    borderColor: "rgba(15, 23, 42, 0.08)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    elevation: 3,
+    marginTop: spacing.md,
+    padding: spacing.md,
+    borderRadius: radii.xxl,
+    backgroundColor: colors.surface,
+    ...shadows.float,
   },
   layerTop: {
     zIndex: 40,
@@ -224,28 +260,22 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   sectionTitle: {
-    fontSize: 14,
-    color: "#0F172A",
-    fontWeight: "700",
-    marginBottom: 10,
+    fontSize: typography.size.base,
+    color: colors.textPrimary,
+    fontWeight: typography.weight.bold,
+    marginBottom: spacing.md,
     letterSpacing: 0.2,
   },
-  input: {
-    width: 250,
-    height: 45,
-    borderColor: "#004F3B",
-    borderWidth: 1.5,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-  },
-  mediumInput: {
-    marginBottom: 10,
-    height: 40,
-    borderColor: "rgba(15, 23, 42, 0.14)",
+  addressInput: {
+    marginBottom: spacing.md,
+    height: touch.inputHeight,
+    borderColor: colors.borderLight,
     borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    backgroundColor: "rgba(248,250,252,0.9)",
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.neutral50,
+    fontSize: typography.size.base,
+    color: colors.textPrimary,
   },
   pickupAddressWrapper: {
     zIndex: 20,
@@ -255,31 +285,26 @@ const styles = StyleSheet.create({
     zIndex: 10,
     elevation: 10,
   },
-  halfInput: {
-    width: 120,
-    height: 50,
-    borderColor: "#004F3B",
-    borderWidth: 1.5,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-  },
   primaryButton: {
-    marginTop: 14,
-    borderRadius: 18,
-    backgroundColor: "#1E9E73",
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.14,
-    shadowRadius: 18,
-    elevation: 5,
+    marginTop: spacing.base,
+    height: touch.buttonHeight,
+    borderRadius: radii.xl,
+    backgroundColor: colors.primaryCTA,
+    alignItems: "center",
+    justifyContent: "center",
+    ...shadows.elevated,
+  },
+  buttonDisabled: {
+    opacity: 0.45,
+  },
+  buttonPressed: {
+    opacity: 0.88,
   },
   primaryButtonText: {
-    color: "#FFFFFF",
+    color: colors.textOnDark,
     textAlign: "center",
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
     letterSpacing: 0.2,
   },
 });

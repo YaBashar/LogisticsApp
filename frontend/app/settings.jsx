@@ -11,10 +11,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { font } from "../styles/font";
 import useAuth from "@/hooks/useAuth";
 import { axiosPrivate } from "@/services/axios";
 import { AuthenticatedScreenHeader } from "../components/AuthenticatedScreenHeader";
+import { colors, spacing, typography, radii, touch } from "../constants/theme";
 
 export default function Settings() {
   const { logout } = useAuth();
@@ -64,7 +64,7 @@ export default function Settings() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[font, styles.lead]}>
+        <Text style={styles.lead}>
           Manage your account. Deleting your account is reversible for 30 days.
         </Text>
 
@@ -76,16 +76,24 @@ export default function Settings() {
           ]}
           onPress={confirmDelete}
           disabled={deleting}
+          accessibilityRole="button"
+          accessibilityLabel="Delete my account"
+          accessibilityState={{ busy: deleting }}
         >
           {deleting ? (
-            <ActivityIndicator color="#FFFFFF" />
+            <ActivityIndicator color={colors.textOnDark} />
           ) : (
-            <Text style={[font, styles.deleteBtnText]}>Delete my account</Text>
+            <Text style={styles.deleteBtnText}>Delete my account</Text>
           )}
         </Pressable>
 
-        <Pressable style={styles.linkBack} onPress={() => router.back()}>
-          <Text style={[font, styles.linkBackText]}>← Back</Text>
+        <Pressable
+          style={({ pressed }) => [styles.linkBack, pressed && styles.linkPressed]}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
+          <Text style={styles.linkBackText}>← Back</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
@@ -95,43 +103,51 @@ export default function Settings() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.primarySurface,
   },
   scroll: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 40,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xxxl,
   },
   lead: {
-    fontSize: 16,
-    color: "#334155",
-    lineHeight: 24,
-    marginBottom: 28,
+    fontSize: typography.size.lg,
+    color: colors.textSecondary,
+    lineHeight: typography.lineHeight.relaxed,
+    marginBottom: spacing.xxl,
   },
   deleteBtn: {
-    backgroundColor: "#B42318",
-    paddingVertical: 16,
-    borderRadius: 14,
+    height: touch.buttonHeight,
+    backgroundColor: colors.error,
+    borderRadius: radii.lg,
     alignItems: "center",
+    justifyContent: "center",
   },
   btnPressed: {
-    opacity: 0.9,
+    opacity: 0.88,
   },
   btnDisabled: {
-    opacity: 0.6,
+    opacity: 0.55,
   },
   deleteBtnText: {
-    color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "700",
+    color: colors.textOnDark,
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
   },
   linkBack: {
-    marginTop: 28,
     alignSelf: "center",
+    marginTop: spacing.xxl,
+    minHeight: touch.minHeight,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm,
+    justifyContent: "center",
+  },
+  linkPressed: {
+    opacity: 0.7,
   },
   linkBackText: {
-    fontSize: 17,
-    color: "#0E9F6E",
-    fontWeight: "600",
+    fontSize: typography.size.xl,
+    color: colors.primaryCTA,
+    fontWeight: typography.weight.semibold,
   },
 });

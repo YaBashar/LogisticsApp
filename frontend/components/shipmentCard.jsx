@@ -1,86 +1,80 @@
-import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from "react-native";
-import { font } from "../styles/font";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { coerceShipmentStatus } from "@/constants/shipmentStatus";
+import { colors, spacing, typography, radii } from "@/constants/theme";
 
 export default function ShipmentCard({ shipment }) {
-  const { width } = useWindowDimensions();
-  const cardWidth = Math.min(420, width - 32);
   const currentStatus = coerceShipmentStatus(shipment.status);
 
   return (
-    <TouchableOpacity
-      key={shipment._id}
-      activeOpacity={0.78}
-      accessibilityRole="button"
-      accessibilityHint="Opens order details and shipment timeline"
+    <Pressable
       onPress={() =>
         router.push({
           pathname: "/orderDetails",
           params: { shipment: JSON.stringify({ ...shipment, status: currentStatus }) },
         })
       }
+      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      accessibilityRole="button"
+      accessibilityLabel={`Order ${shipment.orderNumber}: ${shipment.itemDescription}`}
+      accessibilityHint="Opens order details and shipment timeline"
     >
-      <View style={[styles.card, { width: cardWidth }]}>
-        <View style={styles.cardInner}>
-          <View style={styles.headerRow}>
-            <View style={styles.headerText}>
-              <Text style={[font, styles.orderNumber]}>#{shipment.orderNumber}</Text>
-              <Text numberOfLines={1} style={[font, styles.title]}>
-                {shipment.itemDescription}
-              </Text>
-            </View>
-            <View style={styles.statusPill}>
-              <Text style={[font, styles.statusText]}>{currentStatus}</Text>
-            </View>
-          </View>
-
-          <View style={styles.metaRow}>
-            <Text style={[font, styles.metaText]}>⚖️ {shipment.weight} kg</Text>
-            <Text style={[font, styles.metaText]}>
-              📦 {shipment.packageType.charAt(0).toUpperCase() + shipment.packageType.slice(1)}
+      <View style={styles.cardInner}>
+        <View style={styles.headerRow}>
+          <View style={styles.headerText}>
+            <Text style={styles.orderNumber}>#{shipment.orderNumber}</Text>
+            <Text numberOfLines={1} style={styles.title}>
+              {shipment.itemDescription}
             </Text>
           </View>
-
-          <View style={styles.routeCompact}>
-            <Text numberOfLines={1} style={[font, styles.routeLine]}>
-              {shipment.origin}
-            </Text>
-            <Text style={[font, styles.routeArrow]}>→</Text>
-            <Text numberOfLines={1} style={[font, styles.routeLine]}>
-              {shipment.destination}
-            </Text>
+          <View style={styles.statusPill}>
+            <Text style={styles.statusText}>{currentStatus}</Text>
           </View>
+        </View>
 
-          <View style={styles.footerRow}>
-            <Text style={[font, styles.viewDetailsText]}>View details & timeline</Text>
-            <View style={styles.chevronBadge}>
-              <Text style={styles.chevron}>›</Text>
-            </View>
+        <View style={styles.metaRow}>
+          <Text style={styles.metaText}>⚖️ {shipment.weight} kg</Text>
+          <Text style={styles.metaText}>
+            📦 {shipment.packageType.charAt(0).toUpperCase() + shipment.packageType.slice(1)}
+          </Text>
+        </View>
+
+        <View style={styles.routeCompact}>
+          <Text numberOfLines={1} style={styles.routeLine}>
+            {shipment.origin}
+          </Text>
+          <Text style={styles.routeArrow}>→</Text>
+          <Text numberOfLines={1} style={styles.routeLine}>
+            {shipment.destination}
+          </Text>
+        </View>
+
+        <View style={styles.footerRow}>
+          <Text style={styles.viewDetailsText}>View details & timeline</Text>
+          <View style={styles.chevronBadge}>
+            <Text style={styles.chevron}>›</Text>
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "rgba(255,255,255,0.96)",
-    marginTop: 10,
-    alignSelf: "center",
-    borderRadius: 18,
+    backgroundColor: colors.surface,
+    marginHorizontal: spacing.sm,
+    marginTop: spacing.sm,
+    borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: "rgba(15, 23, 42, 0.10)",
+    borderColor: colors.borderMedium,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    elevation: 3,
+  },
+  cardPressed: {
+    opacity: 0.88,
   },
   cardInner: {
-    padding: 11,
+    padding: spacing.md,
   },
   headerRow: {
     flexDirection: "row",
@@ -89,95 +83,96 @@ const styles = StyleSheet.create({
   },
   headerText: {
     flex: 1,
-    paddingRight: 10,
+    paddingRight: spacing.md,
   },
   orderNumber: {
-    fontSize: 10,
-    color: "#64748B",
-    marginBottom: 4,
+    fontSize: typography.size.sm,
+    color: colors.textDisabled,
+    marginBottom: spacing.xs,
+    fontWeight: typography.weight.medium,
   },
   title: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#0F172A",
-    marginBottom: 2,
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing.xs,
     letterSpacing: 0.1,
+    lineHeight: typography.lineHeight.base,
   },
   statusPill: {
-    backgroundColor: "rgba(30, 158, 115, 0.14)",
-    borderWidth: 1,
-    borderColor: "rgba(30, 158, 115, 0.25)",
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    backgroundColor: colors.primaryLight,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    flexShrink: 0,
   },
   statusText: {
-    fontSize: 11,
-    color: "#0B6B4B",
-    fontWeight: "700",
+    fontSize: typography.size.sm,
+    color: colors.primaryMid,
+    fontWeight: typography.weight.bold,
   },
   metaRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    columnGap: 14,
-    rowGap: 6,
+    columnGap: spacing.base,
+    rowGap: spacing.xs,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: 2,
   },
   metaText: {
-    fontSize: 11,
-    color: "#475569",
+    fontSize: typography.size.sm,
+    color: colors.textMuted,
   },
   routeCompact: {
-    marginTop: 8,
-    borderRadius: 12,
-    backgroundColor: "rgba(16, 185, 129, 0.08)",
+    marginTop: spacing.sm,
+    borderRadius: radii.md,
+    backgroundColor: "rgba(16,185,129,0.08)",
     borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.14)",
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    borderColor: "rgba(16,185,129,0.14)",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
     flexDirection: "row",
     alignItems: "center",
   },
   routeLine: {
     flex: 1,
-    fontSize: 11,
-    color: "#334155",
+    fontSize: typography.size.sm,
+    color: colors.textSecondary,
+    lineHeight: typography.lineHeight.tight,
   },
   routeArrow: {
-    marginHorizontal: 8,
-    color: "#0E9F6E",
-    fontSize: 14,
-    fontWeight: "700",
+    marginHorizontal: spacing.sm,
+    color: colors.primaryCTA,
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
   },
   footerRow: {
-    marginTop: 10,
+    marginTop: spacing.xs,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderTopWidth: 1,
-    borderTopColor: "rgba(15, 23, 42, 0.06)",
-    paddingTop: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderLight,
+    paddingTop: spacing.xs,
   },
   viewDetailsText: {
-    fontSize: 11,
-    color: "#0B6B4B",
-    fontWeight: "600",
+    fontSize: typography.size.sm,
+    color: colors.primaryMid,
+    fontWeight: typography.weight.semibold,
     flex: 1,
   },
   chevronBadge: {
-    width: 26,
-    height: 26,
-    borderRadius: 999,
-    backgroundColor: "rgba(30, 158, 115, 0.12)",
+    width: 28,
+    height: 28,
+    borderRadius: radii.pill,
+    backgroundColor: colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
   chevron: {
     fontSize: 20,
-    lineHeight: 22,
-    color: "#0B6B4B",
-    fontWeight: "700",
-    marginTop: -1,
+    lineHeight: 24,
+    color: colors.primaryMid,
+    fontWeight: typography.weight.bold,
   },
 });
