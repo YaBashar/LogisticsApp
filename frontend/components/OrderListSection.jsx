@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -12,10 +12,10 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { axiosPrivate } from "@/services/axios";
-import { font } from "../styles/font";
 import ShipmentCard from "../components/shipmentCard";
+import { colors, spacing, typography, radii, shadows, touch } from "@/constants/theme";
 
-const PAGE_LIMIT = 3;
+const PAGE_LIMIT = 10;
 
 export function OrdersListSection({ endpoint, emptyMessage, showRefreshControl, showNewOrderCta }) {
   const { width } = useWindowDimensions();
@@ -25,41 +25,41 @@ export function OrdersListSection({ endpoint, emptyMessage, showRefreshControl, 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
 
-  useEffect(() => {
-    let isCancelled = false;
-
-    const fetchShipments = async () => {
-      if (!hasMore) return;
-      if (isCancelled) return;
+  const fetchShipments = useCallback(
+    async (pageNum, append = true) => {
       setLoading(true);
+      setFetchError(false);
       try {
-        const res = await axiosPrivate.get(`${endpoint}?page=${page}&limit=${PAGE_LIMIT}`);
+        const res = await axiosPrivate.get(`${endpoint}?page=${pageNum}&limit=${PAGE_LIMIT}`);
         const result = res.data.result;
-
-        if (isCancelled) return;
-
         if (!result || result.length === 0) {
           setHasMore(false);
         } else {
-          setShipments((prev) => [...prev, ...result]);
+          setShipments((prev) => (append ? [...prev, ...result] : result));
         }
-      } catch (error) {
-        if (!isCancelled) console.error(error);
+      } catch (_error) {
+        setFetchError(true);
       } finally {
-        if (!isCancelled) setLoading(false);
+        setLoading(false);
       }
-    };
+    },
+    [endpoint]
+  );
 
-    fetchShipments();
-    return () => {
-      isCancelled = true;
-    };
-  }, [page, hasMore, endpoint]);
+  useEffect(() => {
+    fetchShipments(1, false);
+  }, [fetchShipments]);
+
+  useEffect(() => {
+    if (page > 1) {
+      fetchShipments(page, true);
+    }
+  }, [page, fetchShipments]);
 
   const loadMore = () => {
     if (loading || !hasMore) return;
-    setLoading(true);
     setPage((prev) => prev + 1);
   };
 
@@ -69,148 +69,253 @@ export function OrdersListSection({ endpoint, emptyMessage, showRefreshControl, 
     setShipments([]);
     setPage(1);
     setHasMore(true);
+    await fetchShipments(1, false);
     setRefreshing(false);
   };
 
-  return (
-    <View style={orderListStyles.screen}>
-      {loading && page === 1 && shipments.length === 0 ? (
-        <View style={orderListStyles.loadingWrap}>
-          <ActivityIndicator size="large" color="#004F3B" />
-          <Text style={[font, orderListStyles.loadingText]}>Loading orders...</Text>
-        </View>
-      ) : (
-        <View style={[orderListStyles.content, { width: contentMaxWidth }]}>
-          <View style={orderListStyles.listCard}>
-            {shipments.length === 0 && !loading ? (
-              <View style={orderListStyles.emptyState}>
-                <Image
-                  source={require("../assets/images/idleBox.png")}
-                  style={orderListStyles.emptyImage}
-                />
-                <Text style={[font, orderListStyles.emptyText]}>{emptyMessage}</Text>
-              </View>
-            ) : null}
+  const handleRetry = () => {
+    setFetchError(false);
+    fetchShipments(page, page > 1);
+  };
 
+  if (loading && page === 1 && shipments.length === 0 && !fetchError) {
+    return (
+      <View style={styles.screen}>
+        <View style={styles.centerWrap}>
+          <ActivityIndicator size="large" color={colors.primaryDeep} />
+          <Text style={styles.loadingText}>Loading orders…</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (fetchError && shipments.length === 0) {
+    return (
+      <View style={styles.screen}>
+        <View style={[styles.errorState, { width: contentMaxWidth }]}>
+          <Text style={styles.errorTitle}>Couldn&apos;t load orders</Text>
+          <Text style={styles.errorDesc}>Check your connection and try again.</Text>
+          <Pressable
+            onPress={handleRetry}
+            style={({ pressed }) => [styles.retryButton, pressed && styles.retryPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Retry loading orders"
+          >
+            <Text style={styles.retryText}>Try again</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.screen}>
+      <View style={[styles.content, { width: contentMaxWidth }]}>
+        <View style={styles.listCard}>
+          {shipments.length === 0 && !loading ? (
+            <View style={styles.emptyState}>
+              <Image
+                source={require("../assets/images/idleBox.png")}
+                style={styles.emptyImage}
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              />
+              <Text style={styles.emptyText}>{emptyMessage}</Text>
+              {showNewOrderCta ? (
+                <Pressable
+                  onPress={() => router.push("/newOrder")}
+                  style={({ pressed }) => [styles.emptyCtaButton, pressed && styles.buttonPressed]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Request new order"
+                >
+                  <Text style={styles.emptyCtaText}>Request New Order</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : (
             <FlatList
               data={shipments}
               renderItem={({ item }) => <ShipmentCard shipment={item} />}
               keyExtractor={(item) => item._id}
               onEndReached={loadMore}
-              onEndReachedThreshold={0.1}
+              onEndReachedThreshold={0.2}
               ListFooterComponent={
-                loading && shipments.length > 0 ? <ActivityIndicator size="large" /> : null
+                loading && shipments.length > 0 ? (
+                  <ActivityIndicator
+                    size="large"
+                    color={colors.primary}
+                    style={styles.footerLoader}
+                  />
+                ) : null
               }
               refreshControl={
                 showRefreshControl ? (
-                  <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    tintColor={colors.primary}
+                    colors={[colors.primary]}
+                  />
                 ) : undefined
               }
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={
-                shipments.length === 0 ? undefined : orderListStyles.listContentContainer
-              }
+              contentContainerStyle={styles.listContentContainer}
             />
-          </View>
-
-          {showNewOrderCta ? (
-            <Pressable
-              onPress={() => router.push("/newOrder")}
-              style={({ pressed }) => [
-                orderListStyles.primaryButton,
-                { opacity: pressed ? 0.92 : 1 },
-              ]}
-            >
-              <Text style={[font, orderListStyles.primaryButtonText]}>Request New Order</Text>
-            </Pressable>
-          ) : null}
+          )}
         </View>
-      )}
+      </View>
+
+      {showNewOrderCta && shipments.length > 0 ? (
+        <Pressable
+          onPress={() => router.push("/newOrder")}
+          style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
+          accessibilityRole="button"
+          accessibilityLabel="Request new order"
+        >
+          <Text style={styles.fabText}>+ New Order</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
 
-const orderListStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   screen: {
     flex: 1,
     width: "100%",
-    backgroundColor: "#CFEFE1",
+    backgroundColor: colors.backgroundAlt,
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 32,
+    paddingHorizontal: spacing.base,
+    paddingTop: 4,
+    paddingBottom: spacing.base,
   },
   content: {
     flex: 1,
     alignSelf: "center",
-    paddingBottom: 22,
   },
-  loadingWrap: {
+  centerWrap: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   loadingText: {
-    marginTop: 10,
-    color: "#666",
-    fontSize: 14,
+    marginTop: spacing.md,
+    color: colors.textMuted,
+    fontSize: typography.size.base,
   },
   listCard: {
     flex: 1,
-    backgroundColor: "rgba(255,255,255,0.92)",
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: "rgba(0,79,59,0.18)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    elevation: 4,
+    backgroundColor: colors.surface,
+    borderRadius: radii.xxl,
+    overflow: "hidden",
+    ...shadows.elevated,
   },
   listContentContainer: {
-    paddingBottom: 10,
+    paddingBottom: 0,
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.border,
+    marginHorizontal: spacing.base,
+  },
+  footerLoader: {
+    marginVertical: spacing.base,
   },
   emptyState: {
-    backgroundColor: "#F8FAFC",
-    borderRadius: 18,
-    paddingVertical: 22,
-    paddingHorizontal: 14,
+    backgroundColor: colors.background,
+    borderRadius: radii.xl,
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.base,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(15, 23, 42, 0.08)",
-    margin: 6,
+    margin: spacing.xs,
   },
   emptyImage: {
-    width: 164,
-    height: 164,
-    borderRadius: 18,
+    width: 160,
+    height: 160,
+    borderRadius: radii.xl,
   },
   emptyText: {
-    fontSize: 18,
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.semibold,
     textAlign: "center",
-    marginTop: 14,
-    paddingHorizontal: 18,
-    color: "#0F172A",
+    marginTop: spacing.base,
+    paddingHorizontal: spacing.base,
+    color: colors.textPrimary,
+    lineHeight: typography.lineHeight.relaxed,
   },
-  primaryButton: {
-    marginTop: 14,
-    marginBottom: 8,
-    borderRadius: 18,
-    backgroundColor: "#1E9E73",
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.14,
-    shadowRadius: 18,
-    elevation: 5,
+  emptyCtaButton: {
+    marginTop: spacing.base,
+    height: touch.buttonHeight,
+    backgroundColor: colors.primaryCTA,
+    borderRadius: radii.xl,
+    paddingHorizontal: spacing.xl,
+    alignItems: "center",
+    justifyContent: "center",
+    ...shadows.subtle,
   },
-  primaryButtonText: {
-    color: "#FFFFFF",
+  emptyCtaText: {
+    color: colors.textOnDark,
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
+  },
+  errorState: {
+    alignSelf: "center",
+    marginTop: spacing.xxl,
+    backgroundColor: colors.errorBg,
+    borderRadius: radii.xxl,
+    padding: spacing.xl,
+    alignItems: "center",
+    ...shadows.subtle,
+  },
+  errorTitle: {
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
+    color: colors.textPrimary,
     textAlign: "center",
-    fontSize: 16,
+  },
+  errorDesc: {
+    marginTop: spacing.sm,
+    fontSize: typography.size.md,
+    color: colors.textSecondary,
+    textAlign: "center",
+    lineHeight: typography.lineHeight.base,
+  },
+  retryButton: {
+    marginTop: spacing.base,
+    height: touch.buttonHeight,
+    backgroundColor: colors.error,
+    borderRadius: radii.xl,
+    paddingHorizontal: spacing.xl,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  retryPressed: {
+    opacity: 0.85,
+  },
+  retryText: {
+    color: colors.textOnDark,
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
+  },
+  fab: {
+    position: "absolute",
+    bottom: 16,
+    right: 16,
+    backgroundColor: colors.primaryCTA,
+    borderRadius: radii.pill,
+    paddingVertical: 12,
+    paddingHorizontal: spacing.base,
+    alignItems: "center",
+    justifyContent: "center",
+    ...shadows.elevated,
+  },
+  fabPressed: {
+    opacity: 0.88,
+  },
+  fabText: {
+    color: colors.textOnDark,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.bold,
     letterSpacing: 0.2,
   },
 });

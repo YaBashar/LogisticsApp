@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { refresh, validate, syncApiUrl, rememberApiUrl } from "@/utils/tokenManager";
 import * as SecureStorage from "expo-secure-store";
 import { AuthContext } from "./AuthContext";
 import { jwtDecode } from "jwt-decode";
+import { colors } from "@/constants/theme";
 
 async function applyTokenClaims(accessToken, setRole, setUserId) {
   const decoded = jwtDecode(accessToken);
@@ -114,7 +116,11 @@ function AuthProvider({ children }) {
   };
 
   if (isLoading) {
-    return null; // or a loading spinner
+    return (
+      <View style={loadingStyles.container}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
   }
 
   const contextValue = {
@@ -130,5 +136,14 @@ function AuthProvider({ children }) {
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
+
+const loadingStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.surface,
+  },
+});
 
 export { AuthProvider };

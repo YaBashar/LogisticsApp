@@ -7,12 +7,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import axios from "../../services/axios";
 import { router } from "expo-router";
-import { font } from "../../styles/font";
+import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
 export default function ResendVerification() {
   const [email, setEmail] = useState("");
@@ -28,10 +29,9 @@ export default function ResendVerification() {
     try {
       setErrorMessage("");
       setIsSubmitting(true);
-      await axios.post("/auth/resend-verification", { email });
+      await axios.post("/auth/resend-verification", { email: email.trim() });
       router.push("/auth/verifyEmail");
-    } catch (error) {
-      console.log("Resend verification error:", error);
+    } catch (_error) {
       setErrorMessage("Failed to resend code. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -50,27 +50,58 @@ export default function ResendVerification() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.card}>
-            <Text style={[font, styles.title]}>Verify Account</Text>
-            <Text style={[font, styles.subtitle]}>Enter the email that you used for signup.</Text>
+            <Text style={styles.title}>Verify Account</Text>
+            <Text style={styles.subtitle}>Enter the email you used when signing up.</Text>
 
             <TextInput
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(t) => {
+                setEmail(t);
+                setErrorMessage("");
+              }}
               style={styles.input}
-              placeholder="Enter your Email"
-              placeholderTextColor="#A6A09B"
+              placeholder="Email address"
+              placeholderTextColor={colors.textPlaceholder}
               keyboardType="email-address"
               autoCapitalize="none"
-            ></TextInput>
+              autoCorrect={false}
+              returnKeyType="done"
+              onSubmitEditing={handleSubmit}
+              accessibilityLabel="Email address"
+            />
 
-            {!!errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+            {!!errorMessage && (
+              <View style={styles.errorBox} accessibilityLiveRegion="polite">
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              </View>
+            )}
+
             <Pressable
               onPress={handleSubmit}
-              style={[styles.button, !canSubmit && styles.buttonDisabled]}
+              disabled={!canSubmit}
+              style={({ pressed }) => [
+                styles.button,
+                !canSubmit && styles.buttonDisabled,
+                pressed && canSubmit && styles.buttonPressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel={isSubmitting ? "Sending code" : "Resend Code"}
+              accessibilityState={{ disabled: !canSubmit, busy: isSubmitting }}
             >
-              <Text style={[font, styles.buttonText]}>
-                {isSubmitting ? "Sending code..." : "Resend Code"}
-              </Text>
+              {isSubmitting ? (
+                <ActivityIndicator color={colors.textOnDark} />
+              ) : (
+                <Text style={styles.buttonText}>Resend Code</Text>
+              )}
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.back()}
+              style={({ pressed }) => [styles.backPressable, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
+              <Text style={styles.backText}>← Back</Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -80,18 +111,9 @@ export default function ResendVerification() {
 }
 
 const styles = StyleSheet.create({
-  input: {
-    width: "100%",
-    height: 56,
-    borderColor: "#0E9F6E",
-    borderWidth: 1.5,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    backgroundColor: "#F8FFFC",
-  },
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.primarySurface,
   },
   keyboardContainer: {
     flex: 1,
@@ -100,50 +122,91 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.md,
   },
   card: {
     width: "100%",
     maxWidth: 460,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
-    borderWidth: 2,
-    borderColor: "#BFE9D6",
-    paddingHorizontal: 18,
-    paddingVertical: 22,
+    backgroundColor: colors.surface,
+    borderRadius: radii.card,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.xl,
+    ...shadows.elevated,
   },
   title: {
-    fontSize: 30,
-    color: "#065F46",
+    fontSize: typography.size.display,
+    fontWeight: typography.weight.bold,
+    color: colors.primaryDark,
     textAlign: "center",
   },
   subtitle: {
-    fontSize: 15,
-    color: "#0E9F6E",
+    fontSize: typography.size.md,
+    color: colors.primaryCTA,
     textAlign: "center",
-    marginBottom: 18,
-    marginTop: 6,
+    marginBottom: spacing.lg,
+    marginTop: spacing.xs,
+    lineHeight: typography.lineHeight.base,
   },
-  button: {
-    backgroundColor: "#0E9F6E",
-    paddingVertical: 14,
-    borderRadius: 16,
+  input: {
     width: "100%",
-    marginTop: 16,
+    height: touch.inputHeight,
+    borderColor: colors.borderMedium,
+    borderWidth: 1,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.base,
+    backgroundColor: colors.neutral50,
+    fontSize: typography.size.lg,
+    color: colors.textPrimary,
   },
-  buttonText: {
-    color: "#FFFFFF",
-    textAlign: "center",
-    fontSize: 19,
-  },
-  buttonDisabled: {
-    opacity: 0.55,
+  errorBox: {
+    marginTop: spacing.md,
+    backgroundColor: colors.errorBg,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   errorText: {
-    color: "#B42318",
+    color: colors.error,
     textAlign: "center",
-    marginTop: 12,
-    fontSize: 14,
+    fontSize: typography.size.base,
+    lineHeight: typography.lineHeight.tight,
+  },
+  button: {
+    height: touch.buttonHeight,
+    backgroundColor: colors.primaryCTA,
+    borderRadius: radii.xl,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: spacing.base,
+  },
+  buttonDisabled: {
+    opacity: 0.45,
+  },
+  buttonPressed: {
+    opacity: 0.88,
+  },
+  buttonText: {
+    color: colors.textOnDark,
+    textAlign: "center",
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
+  },
+  pressed: {
+    opacity: 0.7,
+  },
+  backPressable: {
+    alignSelf: "center",
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    marginTop: spacing.base,
+    minHeight: touch.minHeight,
+    justifyContent: "center",
+  },
+  backText: {
+    fontSize: typography.size.lg,
+    color: colors.secondary,
+    fontWeight: typography.weight.semibold,
   },
 });

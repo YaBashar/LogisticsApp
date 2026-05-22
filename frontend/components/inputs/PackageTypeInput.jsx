@@ -1,36 +1,27 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { colors, spacing, typography, radii, touch, shadows } from "@/constants/theme";
+
+const PACKAGE_TYPES = ["pallet", "crate", "box"];
 
 export default function PackageTypeInput({ packageType, setPackageType }) {
-  const packageTypes = ["pallet", "crate", "box"];
-
-  const getButtonStyle = (type, pressed) => ({
-    width: 90,
-    height: 75,
-    backgroundColor: packageType === type ? "#A4F4CF" : "#E7E5E4",
-    borderRadius: 10,
-    opacity: pressed ? 0.7 : 1,
-    borderWidth: packageType === type ? 2 : 0,
-    borderColor: "#004F3B",
-    justifyContent: "center",
-    alignItems: "center",
-  });
-
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        gap: 10,
-        justifyContent: "center",
-      }}
-    >
-      {packageTypes.map((type) => {
+    <View style={styles.container}>
+      {PACKAGE_TYPES.map((type) => {
+        const isSelected = packageType === type;
         return (
           <Pressable
             key={type}
             onPress={() => setPackageType(type)}
-            style={({ pressed }) => getButtonStyle(type, pressed)}
+            style={({ pressed }) => [
+              styles.typeButton,
+              isSelected ? styles.typeButtonSelected : styles.typeButtonIdle,
+              pressed && styles.typeButtonPressed,
+            ]}
+            accessibilityRole="radio"
+            accessibilityLabel={type}
+            accessibilityState={{ checked: isSelected }}
           >
-            <Text style={{ textAlign: "center" }}>
+            <Text style={[styles.typeLabel, isSelected && styles.typeLabelSelected]}>
               {type.charAt(0).toUpperCase() + type.slice(1)}
             </Text>
           </Pressable>
@@ -39,3 +30,43 @@ export default function PackageTypeInput({ packageType, setPackageType }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    gap: spacing.md,
+    justifyContent: "center",
+  },
+  typeButton: {
+    flex: 1,
+    minHeight: touch.minHeight,
+    paddingVertical: 6,
+    borderRadius: radii.md,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  typeButtonIdle: {
+    backgroundColor: colors.neutral100,
+    borderWidth: 1,
+    borderColor: colors.borderMedium,
+  },
+  typeButtonSelected: {
+    backgroundColor: colors.primarySurface,
+    borderWidth: 2,
+    borderColor: colors.primaryCTA,
+    ...shadows.subtle,
+  },
+  typeButtonPressed: {
+    opacity: 0.75,
+  },
+  typeLabel: {
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
+    color: colors.textSecondary,
+    textAlign: "center",
+  },
+  typeLabelSelected: {
+    color: colors.primaryDeep,
+    fontWeight: typography.weight.bold,
+  },
+});

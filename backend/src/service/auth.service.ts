@@ -19,6 +19,8 @@ import {
   sendResendResetCodeEmail,
   sendResendVerificationEmail,
 } from "./email";
+import { ShipmentModel, ShipmentStatus } from "../models/shipmentsModel";
+import mongoose from "mongoose";
 
 const SECRET = process.env.JWT_ACCESS_SECRET;
 const REFRESH_TOKEN_TTL_DAYS = Number(process.env.REFRESH_TOKEN_TTL_DAYS) || 7;
@@ -451,6 +453,54 @@ export async function changePasswordService(
   );
 
   return { success: true };
+}
+
+export async function userProfile(userId: string) {
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    throw new AuthError("User not found");
+  }
+
+  const shipmentCounts = await getUserShipmentCounts(userId);
+  console.log(shipmentCounts);
+
+  return {
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    shipmentCounts,
+  };
+}
+
+export async function getUserShipmentCounts(userId: string) {
+  const counts = await ShipmentModel.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId), // filter by user
+      },
+    },
+    {
+      $group: {
+        _id: "$status", // group by status field
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  // Reshape into a readable object e.g. { Pending: 3, Shipped: 5, ... }
+  const result = Object.values(ShipmentStatus).reduce(
+    (acc, status) => {
+      acc[status] = 0; // default all statuses to 0
+      return acc;
+    },
+    {} as Record<ShipmentStatus, number>
+  );
+
+  for (const item of counts) {
+    result[item._id as ShipmentStatus] = item.count;
+  }
+
+  return result;
 }
 
 export async function userLogout(userId: string) {
