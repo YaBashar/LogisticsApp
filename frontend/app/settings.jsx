@@ -13,8 +13,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import useAuth from "@/hooks/useAuth";
 import { axiosPrivate } from "@/services/axios";
-import { AuthenticatedScreenHeader } from "../components/AuthenticatedScreenHeader";
 import { colors, spacing, typography, radii, touch } from "../constants/theme";
+import ScreenHeader from "../components/ScreenHeader";
 
 export default function Settings() {
   const { logout } = useAuth();
@@ -58,7 +58,7 @@ export default function Settings() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["left", "right", "bottom"]}>
-      <AuthenticatedScreenHeader title="Settings" showSettings={false} />
+      <ScreenHeader title="Settings" />
       <ScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"

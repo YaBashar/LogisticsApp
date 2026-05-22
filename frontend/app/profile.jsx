@@ -1,119 +1,140 @@
-import usePushNotifs from "../hooks/usePushNotifs";
-import { useState } from "react";
-import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import useAuth from "@/hooks/useAuth";
-import { AuthenticatedScreenHeader } from "../components/AuthenticatedScreenHeader";
-import { OrdersListSection } from "../components/OrderListSection";
+import ScreenHeader from "../components/ScreenHeader";
 import { colors, spacing, typography, radii, touch, shadows } from "../constants/theme";
 
 export default function Profile() {
-  usePushNotifs();
-
   const { role } = useAuth();
-  const isAdmin = role === "admin";
-  const { width } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
-  const contentMaxWidth = Math.min(420, width - 32);
-
-  const tabs = isAdmin ? ["Active"] : ["Active", "Completed"];
-  const [activeTab, setActiveTab] = useState("Active");
 
   return (
-    <View style={[styles.screen, { paddingBottom: insets.bottom }]}>
-      <AuthenticatedScreenHeader variant="hero" />
+    <SafeAreaView style={styles.safe} edges={["left", "right", "bottom"]}>
+      <ScreenHeader title="Profile" />
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View style={styles.avatarWrap}>
+          <View style={styles.avatarCircle}>
+            <Ionicons name="person" size={48} color={colors.primaryMid} />
+          </View>
+          {role ? (
+            <View style={styles.rolePill}>
+              <Text style={styles.roleText}>{role}</Text>
+            </View>
+          ) : null}
+        </View>
 
-      <View style={[styles.tabsWrap, { width: contentMaxWidth }]}>
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab;
-          return (
-            <Pressable
-              key={tab}
-              onPress={() => setActiveTab(tab)}
-              style={({ pressed }) => [
-                styles.tabPill,
-                isActive ? styles.tabPillActive : styles.tabPillInactive,
-                pressed && !isActive && styles.tabPillPressed,
-              ]}
-              accessibilityRole="tab"
-              accessibilityLabel={`${tab} orders`}
-              accessibilityState={{ selected: isActive }}
-            >
-              <Text style={[styles.tabText, isActive && styles.tabTextActive]}>{tab} Orders</Text>
-            </Pressable>
-          );
-        })}
-      </View>
+        <View style={styles.section}>
+          <Pressable
+            style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+            onPress={() => router.push("/settings")}
+            accessibilityRole="button"
+            accessibilityLabel="Settings"
+          >
+            <View style={styles.rowLeft}>
+              <Ionicons name="settings-outline" size={20} color={colors.secondaryDark} />
+              <Text style={styles.rowLabel}>Settings</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+          </Pressable>
+        </View>
 
-      {activeTab === "Active" && role ? (
-        <OrdersListSection
-          key={`active-orders-${role}`}
-          endpoint={isAdmin ? "/shipments-admin/active" : "/shipments-customer/active"}
-          emptyMessage={
-            isAdmin
-              ? "No orders yet. New customer orders will show up here."
-              : "No orders yet. Your orders will show up here."
-          }
-          showRefreshControl
-          showNewOrderCta={!isAdmin}
-        />
-      ) : null}
-
-      {activeTab === "Completed" && !isAdmin && (
-        <OrdersListSection
-          key="completed-orders"
-          endpoint="/shipments-customer/completed"
-          emptyMessage="Your completed orders will show up here."
-          showRefreshControl={false}
-          showNewOrderCta={false}
-        />
-      )}
-    </View>
+        <Pressable
+          style={({ pressed }) => [styles.backLink, pressed && styles.backLinkPressed]}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
+          <Text style={styles.backLinkText}>← Back</Text>
+        </Pressable>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  safe: {
     flex: 1,
-    backgroundColor: colors.backgroundAlt,
+    backgroundColor: colors.primarySurface,
+  },
+  scroll: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xxxl,
     alignItems: "center",
   },
-  tabsWrap: {
-    flexDirection: "row",
+  avatarWrap: {
+    alignItems: "center",
+    marginBottom: spacing.xxl,
     gap: spacing.sm,
-    padding: spacing.xs,
-    borderRadius: radii.pill,
-    backgroundColor: "rgba(255,255,255,0.65)",
-    marginTop: spacing.md,
-    marginBottom: spacing.md,
-    ...shadows.subtle,
   },
-  tabPill: {
-    flex: 1,
-    minHeight: touch.tabHeight,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
-    borderRadius: radii.pill,
+  avatarCircle: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: colors.primaryLight,
+    borderWidth: 2,
+    borderColor: colors.primaryBorder,
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: spacing.xs,
+    ...shadows.subtle,
   },
-  tabPillActive: {
-    backgroundColor: colors.primaryCTA,
-    ...shadows.card,
+  rolePill: {
+    backgroundColor: colors.secondarySurface,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.secondaryBorder,
   },
-  tabPillInactive: {
-    backgroundColor: "rgba(255,255,255,0.85)",
-  },
-  tabPillPressed: {
-    opacity: 0.75,
-  },
-  tabText: {
-    fontSize: typography.size.base,
-    letterSpacing: 0.2,
-    color: colors.textPrimary,
+  roleText: {
+    fontSize: typography.size.sm,
+    color: colors.secondaryDark,
     fontWeight: typography.weight.bold,
+    textTransform: "capitalize",
   },
-  tabTextActive: {
-    color: colors.textOnDark,
+  section: {
+    width: "100%",
+    borderRadius: radii.card,
+    backgroundColor: colors.surface,
+    overflow: "hidden",
+    ...shadows.subtle,
+    marginBottom: spacing.xl,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.lg,
+    minHeight: touch.buttonHeight,
+  },
+  rowPressed: {
+    backgroundColor: colors.primarySurface,
+  },
+  rowLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  rowLabel: {
+    fontSize: typography.size.lg,
+    color: colors.textPrimary,
+    fontWeight: typography.weight.semibold,
+  },
+  backLink: {
+    alignSelf: "center",
+    minHeight: touch.minHeight,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm,
+    justifyContent: "center",
+  },
+  backLinkPressed: {
+    opacity: 0.7,
+  },
+  backLinkText: {
+    fontSize: typography.size.xl,
+    color: colors.primaryCTA,
+    fontWeight: typography.weight.semibold,
   },
 });
