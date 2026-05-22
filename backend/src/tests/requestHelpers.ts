@@ -1,4 +1,5 @@
 import request from "supertest";
+import bcrypt from "bcrypt";
 import { app } from "../app";
 import { UserModel } from "../models/userModel";
 
@@ -71,6 +72,10 @@ export const requestDeleteAccount = async (token: string) => {
 
 export const requestReactivateAccount = async (email: string, password: string) => {
   return await request(app).post("/auth/reactivate").send({ email, password });
+};
+
+export const requestProfile = async (token: string) => {
+  return await request(app).get("/auth/profile").set("Authorization", `Bearer ${token}`);
 };
 
 export async function getToken(
@@ -162,3 +167,78 @@ export const requestUpdateShipmentStatus = async (token: string, shipmentId: str
     .put(`/shipments-admin/${shipmentId}/status`)
     .set("Authorization", `Bearer ${token}`);
 };
+
+export async function getAdminToken(
+  email = "admin@example.com",
+  password = "YourSecurePassword123!"
+): Promise<string> {
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await UserModel.create({
+    name: "Admin User",
+    email,
+    password: hashedPassword,
+    role: "admin",
+    loginAttempts: 0,
+    accountLocked: false,
+    emailVerified: true,
+  });
+
+  const loginResponse = await requestLogin(email, password);
+  expect(loginResponse.status).toBe(200);
+  expect(loginResponse.body.accessToken).toBeDefined();
+  return loginResponse.body.accessToken;
+}
+
+const DEFAULT_SHIPMENT = {
+  packageType: "box",
+  itemDescription: "clothings",
+  quantity: 4,
+  weight: 5,
+  height: 10,
+  width: 10,
+  length: 10,
+  destination: "madinah",
+  origin: "sydney",
+  senderEmail: "sender@example.com",
+  senderPhone: "+61412345678",
+  recipientEmail: "recipient@example.com",
+  recipientPhone: "+61412345679",
+};
+
+export async function createCustomerShipments(token: string, count: number): Promise<string[]> {
+  const shipmentIds: string[] = [];
+
+  for (let i = 0; i < count; i++) {
+    const res = await requestNewShipment(
+      token,
+      DEFAULT_SHIPMENT.packageType,
+      DEFAULT_SHIPMENT.itemDescription,
+      DEFAULT_SHIPMENT.quantity,
+      DEFAULT_SHIPMENT.weight,
+      DEFAULT_SHIPMENT.height,
+      DEFAULT_SHIPMENT.width,
+      DEFAULT_SHIPMENT.length,
+      DEFAULT_SHIPMENT.destination,
+      DEFAULT_SHIPMENT.origin,
+      DEFAULT_SHIPMENT.senderEmail,
+      DEFAULT_SHIPMENT.senderPhone,
+      DEFAULT_SHIPMENT.recipientEmail,
+      DEFAULT_SHIPMENT.recipientPhone
+    );
+    expect(res.statusCode).toBe(200);
+    shipmentIds.push(res.body.result);
+  }
+
+  return shipmentIds;
+}
+
+export async function advanceShipmentStatus(
+  adminToken: string,
+  shipmentId: string,
+  steps: number
+): Promise<void> {
+  for (let i = 0; i < steps; i++) {
+    const res = await requestUpdateShipmentStatus(adminToken, shipmentId);
+    expect(res.statusCode).toBe(200);
+  }
+}

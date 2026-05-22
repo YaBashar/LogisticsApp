@@ -13,6 +13,7 @@ import {
   reactivateAccount,
   deleteAccount,
   changePasswordService,
+  userProfile,
 } from "../service/auth.service";
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
@@ -127,6 +128,16 @@ export const changePassword = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+
+export const profile = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.user!.sub;
+  try {
+    const result = await userProfile(userId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
 
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.user?.sub;
