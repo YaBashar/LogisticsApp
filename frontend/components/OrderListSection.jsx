@@ -163,18 +163,18 @@ export function OrdersListSection({ endpoint, emptyMessage, showRefreshControl, 
             />
           )}
         </View>
-
-        {showNewOrderCta && shipments.length > 0 ? (
-          <Pressable
-            onPress={() => router.push("/newOrder")}
-            style={({ pressed }) => [styles.primaryButton, pressed && styles.buttonPressed]}
-            accessibilityRole="button"
-            accessibilityLabel="Request new order"
-          >
-            <Text style={styles.primaryButtonText}>Request New Order</Text>
-          </Pressable>
-        ) : null}
       </View>
+
+      {showNewOrderCta && shipments.length > 0 ? (
+        <Pressable
+          onPress={() => router.push("/newOrder")}
+          style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
+          accessibilityRole="button"
+          accessibilityLabel="Request new order"
+        >
+          <Text style={styles.fabText}>+ New Order</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -186,8 +186,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundAlt,
     alignItems: "center",
     paddingHorizontal: spacing.base,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.xxl,
+    paddingTop: 4,
+    paddingBottom: spacing.base,
   },
   content: {
     flex: 1,
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     ...shadows.elevated,
   },
   listContentContainer: {
-    paddingBottom: spacing.xs,
+    paddingBottom: 0,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
@@ -297,23 +297,24 @@ const styles = StyleSheet.create({
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
   },
-  primaryButton: {
-    marginTop: spacing.base,
-    marginBottom: spacing.sm,
-    height: touch.buttonHeight,
-    borderRadius: radii.xl,
+  fab: {
+    position: "absolute",
+    bottom: 16,
+    right: 16,
     backgroundColor: colors.primaryCTA,
+    borderRadius: radii.pill,
+    paddingVertical: 12,
+    paddingHorizontal: spacing.base,
     alignItems: "center",
     justifyContent: "center",
     ...shadows.elevated,
   },
-  buttonPressed: {
+  fabPressed: {
     opacity: 0.88,
   },
-  primaryButtonText: {
+  fabText: {
     color: colors.textOnDark,
-    textAlign: "center",
-    fontSize: typography.size.lg,
+    fontSize: typography.size.base,
     fontWeight: typography.weight.bold,
     letterSpacing: 0.2,
   },
