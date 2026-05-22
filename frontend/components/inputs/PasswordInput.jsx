@@ -3,7 +3,14 @@ import { View, TextInput, Pressable, Text, StyleSheet } from "react-native";
 import { colors, spacing, typography, radii, touch } from "@/constants/theme";
 
 const PasswordInput = forwardRef(function PasswordInput(
-  { setPassword, password, returnKeyType = "done", onSubmitEditing },
+  {
+    setPassword,
+    password,
+    returnKeyType = "done",
+    onSubmitEditing,
+    placeholder = "Password",
+    accessibilityLabel = "Password",
+  },
   ref
 ) {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,11 +25,11 @@ const PasswordInput = forwardRef(function PasswordInput(
         secureTextEntry={!showPassword}
         autoCapitalize="none"
         autoCorrect={false}
-        placeholder="Password"
+        placeholder={placeholder}
         placeholderTextColor={colors.textPlaceholder}
         returnKeyType={returnKeyType}
         onSubmitEditing={onSubmitEditing}
-        accessibilityLabel="Password"
+        accessibilityLabel={accessibilityLabel}
       />
       <Pressable
         onPress={() => setShowPassword((v) => !v)}
