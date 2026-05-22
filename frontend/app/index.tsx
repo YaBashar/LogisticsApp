@@ -19,7 +19,7 @@ export default function Index() {
 
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
-      router.replace("/profile");
+      router.replace("/dashboard");
     }
   }, [isAuthenticated, isLoading]);
 
