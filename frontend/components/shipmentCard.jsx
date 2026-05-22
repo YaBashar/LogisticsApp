@@ -32,13 +32,6 @@ export default function ShipmentCard({ shipment }) {
           </View>
         </View>
 
-        <View style={styles.metaRow}>
-          <Text style={styles.metaText}>⚖️ {shipment.weight} kg</Text>
-          <Text style={styles.metaText}>
-            📦 {shipment.packageType.charAt(0).toUpperCase() + shipment.packageType.slice(1)}
-          </Text>
-        </View>
-
         <View style={styles.routeCompact}>
           <Text numberOfLines={1} style={styles.routeLine}>
             {shipment.origin}
@@ -64,7 +57,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     marginHorizontal: spacing.sm,
-    marginTop: spacing.sm,
+    marginTop: 6,
     borderRadius: radii.lg,
     borderWidth: 1,
     borderColor: colors.borderMedium,
@@ -74,7 +67,7 @@ const styles = StyleSheet.create({
     opacity: 0.88,
   },
   cardInner: {
-    padding: spacing.md,
+    padding: 10,
   },
   headerRow: {
     flexDirection: "row",
@@ -117,7 +110,7 @@ const styles = StyleSheet.create({
     columnGap: spacing.base,
     rowGap: spacing.xs,
     alignItems: "center",
-    marginTop: 2,
+    marginTop: 0,
   },
   metaText: {
     fontSize: typography.size.sm,
@@ -130,7 +123,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(16,185,129,0.14)",
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingVertical: 4,
     flexDirection: "row",
     alignItems: "center",
   },
@@ -153,7 +146,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.borderLight,
-    paddingTop: spacing.xs,
+    paddingTop: 4,
   },
   viewDetailsText: {
     fontSize: typography.size.sm,
