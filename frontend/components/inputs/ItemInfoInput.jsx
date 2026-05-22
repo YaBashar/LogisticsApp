@@ -1,4 +1,4 @@
-import { View, TextInput, StyleSheet } from "react-native";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 import { colors, spacing, typography, radii, touch } from "@/constants/theme";
 
 export default function ItemInfoInput({
@@ -50,37 +50,40 @@ export default function ItemInfoInput({
         />
       </View>
 
-      <View style={styles.row}>
-        <TextInput
-          keyboardType="numeric"
-          value={height}
-          onChangeText={setHeight}
-          style={styles.thirdInput}
-          placeholder="H (m)"
-          placeholderTextColor={colors.textPlaceholder}
-          returnKeyType="next"
-          accessibilityLabel="Height in metres"
-        />
-        <TextInput
-          keyboardType="numeric"
-          value={width}
-          onChangeText={setWidth}
-          style={styles.thirdInput}
-          placeholder="W (m)"
-          placeholderTextColor={colors.textPlaceholder}
-          returnKeyType="next"
-          accessibilityLabel="Width in metres"
-        />
-        <TextInput
-          keyboardType="numeric"
-          value={length}
-          onChangeText={setLength}
-          style={styles.thirdInput}
-          placeholder="L (m)"
-          placeholderTextColor={colors.textPlaceholder}
-          returnKeyType="done"
-          accessibilityLabel="Length in metres"
-        />
+      <View>
+        <Text style={styles.dimensionsLabel}>Dimensions (m)</Text>
+        <View style={styles.row}>
+          <TextInput
+            keyboardType="numeric"
+            value={height}
+            onChangeText={setHeight}
+            style={styles.thirdInput}
+            placeholder="H (m)"
+            placeholderTextColor={colors.textPlaceholder}
+            returnKeyType="next"
+            accessibilityLabel="Height in metres"
+          />
+          <TextInput
+            keyboardType="numeric"
+            value={width}
+            onChangeText={setWidth}
+            style={styles.thirdInput}
+            placeholder="W (m)"
+            placeholderTextColor={colors.textPlaceholder}
+            returnKeyType="next"
+            accessibilityLabel="Width in metres"
+          />
+          <TextInput
+            keyboardType="numeric"
+            value={length}
+            onChangeText={setLength}
+            style={styles.thirdInput}
+            placeholder="L (m)"
+            placeholderTextColor={colors.textPlaceholder}
+            returnKeyType="done"
+            accessibilityLabel="Length in metres"
+          />
+        </View>
       </View>
     </View>
   );
@@ -88,43 +91,48 @@ export default function ItemInfoInput({
 
 const styles = StyleSheet.create({
   container: {
-    gap: spacing.sm,
+    gap: 6,
     marginTop: spacing.xs,
   },
   row: {
     flexDirection: "row",
-    gap: spacing.sm,
+    gap: 6,
+  },
+  dimensionsLabel: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginBottom: 4,
   },
   input: {
     width: "100%",
-    height: touch.inputHeight,
-    borderColor: colors.primaryDeep,
-    borderWidth: 1.5,
+    height: 40,
+    borderColor: colors.borderMedium,
+    borderWidth: 1,
     borderRadius: radii.md,
     paddingHorizontal: spacing.md,
-    backgroundColor: colors.primarySurface,
+    backgroundColor: colors.neutral50,
     fontSize: typography.size.base,
     color: colors.textPrimary,
   },
   halfInput: {
     flex: 1,
-    height: touch.inputHeight,
-    borderColor: colors.primaryDeep,
-    borderWidth: 1.5,
+    height: 40,
+    borderColor: colors.borderMedium,
+    borderWidth: 1,
     borderRadius: radii.md,
     paddingHorizontal: spacing.md,
-    backgroundColor: colors.primarySurface,
+    backgroundColor: colors.neutral50,
     fontSize: typography.size.base,
     color: colors.textPrimary,
   },
   thirdInput: {
     flex: 1,
-    height: touch.inputHeight,
-    borderColor: colors.primaryDeep,
-    borderWidth: 1.5,
+    height: 40,
+    borderColor: colors.borderMedium,
+    borderWidth: 1,
     borderRadius: radii.md,
     paddingHorizontal: spacing.sm,
-    backgroundColor: colors.primarySurface,
+    backgroundColor: colors.neutral50,
     fontSize: typography.size.base,
     color: colors.textPrimary,
     textAlign: "center",

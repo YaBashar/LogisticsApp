@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   },
   defaultInput: {
     width: "100%",
-    height: touch.inputHeight,
+    height: 40,
     borderColor: colors.borderMedium,
     borderWidth: 1,
     borderRadius: radii.md,
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   },
   suggestionsContainer: {
     position: "absolute",
-    top: touch.inputHeight + spacing.xs,
+    top: 40 + spacing.xs,
     left: 0,
     right: 0,
     backgroundColor: colors.surface,
@@ -128,12 +128,12 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     maxHeight: 160,
     zIndex: 9999,
-    elevation: 10,
     ...shadows.elevated,
+    elevation: 10,
   },
   suggestion: {
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    paddingVertical: 6,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
     backgroundColor: colors.surface,

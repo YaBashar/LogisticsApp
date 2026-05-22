@@ -18,8 +18,20 @@ import { router } from "expo-router";
 import ItemInfoInput from "../components/inputs/ItemInfoInput";
 import ContactInput from "../components/inputs/ContactInput";
 import { axiosPrivate } from "../services/axios";
-import { AuthenticatedScreenHeader } from "../components/AuthenticatedScreenHeader";
+import ScreenHeader from "../components/ScreenHeader";
 import { colors, spacing, typography, radii, shadows, touch } from "../constants/theme";
+
+const SCROLL_FADE_STEPS = 8;
+
+function ScrollFade() {
+  return (
+    <View style={styles.scrollFade} pointerEvents="none">
+      {Array.from({ length: SCROLL_FADE_STEPS }, (_, i) => (
+        <View key={i} style={[styles.scrollFadeStep, { opacity: (i + 1) / SCROLL_FADE_STEPS }]} />
+      ))}
+    </View>
+  );
+}
 
 export default function NewOrder() {
   const { width: screenWidth } = useWindowDimensions();
@@ -73,7 +85,7 @@ export default function NewOrder() {
       });
 
       Alert.alert("Order created", "Your shipment request has been submitted.", [
-        { text: "View orders", onPress: () => router.replace("/profile") },
+        { text: "View orders", onPress: () => router.replace("/dashboard") },
       ]);
 
       setItemDescription("");
@@ -102,104 +114,105 @@ export default function NewOrder() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["left", "right", "bottom"]}>
-      <AuthenticatedScreenHeader title="New booking" />
+      <ScreenHeader title="New booking" />
       <KeyboardAvoidingView
         style={styles.keyboardContainer}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <Text style={[styles.pageTitle, { width: contentMaxWidth }]}>Request a shipment</Text>
-
-          {!!submitError && (
-            <View
-              style={[styles.errorBox, { width: contentMaxWidth }]}
-              accessibilityLiveRegion="polite"
-            >
-              <Text style={styles.errorText}>{submitError}</Text>
-            </View>
-          )}
-
-          <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
-            <Text style={styles.sectionTitle}>Package type</Text>
-            <PackageTypeInput packageType={packageType} setPackageType={setPackageType} />
-          </View>
-
-          <View style={[styles.sectionCard, styles.layerTop, { width: contentMaxWidth }]}>
-            <Text style={styles.sectionTitle}>Details</Text>
-            <AddressInput
-              value={origin}
-              onChangeText={setOrigin}
-              style={styles.addressInput}
-              wrapperStyle={styles.pickupAddressWrapper}
-              placeholder="Pickup from"
-              placeholderTextColor={colors.textPlaceholder}
-            />
-            <AddressInput
-              value={destination}
-              onChangeText={setDestination}
-              style={styles.addressInput}
-              wrapperStyle={styles.destinationAddressWrapper}
-              placeholder="Deliver to"
-              placeholderTextColor={colors.textPlaceholder}
-            />
-          </View>
-
-          <View style={[styles.sectionCard, styles.layerMiddle, { width: contentMaxWidth }]}>
-            <Text style={styles.sectionTitle}>Item information</Text>
-            <ItemInfoInput
-              itemDescription={itemDescription}
-              setItemDescription={setItemDescription}
-              quantity={quantity}
-              setQuantity={setQuantity}
-              weight={weight}
-              setWeight={setWeight}
-              height={height}
-              setHeight={setHeight}
-              width={width}
-              setWidth={setWidth}
-              length={length}
-              setLength={setLength}
-            />
-          </View>
-
-          <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
-            <Text style={styles.sectionTitle}>Contact details</Text>
-            <ContactInput
-              senderEmail={senderEmail}
-              setSenderEmail={setSenderEmail}
-              senderPhone={senderPhone}
-              setSenderPhone={setSenderPhone}
-              recipientEmail={recipientEmail}
-              setRecipientEmail={setRecipientEmail}
-              recipientPhone={recipientPhone}
-              setRecipientPhone={setRecipientPhone}
-            />
-          </View>
-
-          <Pressable
-            onPress={handleSubmitNewOrder}
-            disabled={!canSubmit}
-            style={({ pressed }) => [
-              styles.primaryButton,
-              { width: contentMaxWidth },
-              !canSubmit && styles.buttonDisabled,
-              pressed && canSubmit && styles.buttonPressed,
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel={isSubmitting ? "Submitting order" : "Book Now"}
-            accessibilityState={{ disabled: !canSubmit, busy: isSubmitting }}
+        <View style={styles.scrollWrapper}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            {isSubmitting ? (
-              <ActivityIndicator color={colors.textOnDark} />
-            ) : (
-              <Text style={styles.primaryButtonText}>Book Now</Text>
-            )}
-          </Pressable>
-        </ScrollView>
+            <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
+              <Text style={styles.sectionTitle}>Package type</Text>
+              <PackageTypeInput packageType={packageType} setPackageType={setPackageType} />
+            </View>
+
+            <View style={[styles.sectionCard, styles.layerTop, { width: contentMaxWidth }]}>
+              <Text style={styles.sectionTitle}>Route</Text>
+              <AddressInput
+                value={origin}
+                onChangeText={setOrigin}
+                style={styles.addressInput}
+                wrapperStyle={styles.pickupAddressWrapper}
+                placeholder="Pickup from"
+                placeholderTextColor={colors.textPlaceholder}
+              />
+              <AddressInput
+                value={destination}
+                onChangeText={setDestination}
+                style={[styles.addressInput, { marginBottom: 0 }]}
+                wrapperStyle={styles.destinationAddressWrapper}
+                placeholder="Deliver to"
+                placeholderTextColor={colors.textPlaceholder}
+              />
+            </View>
+
+            <View style={[styles.sectionCard, styles.layerMiddle, { width: contentMaxWidth }]}>
+              <Text style={styles.sectionTitle}>Item information</Text>
+              <ItemInfoInput
+                itemDescription={itemDescription}
+                setItemDescription={setItemDescription}
+                quantity={quantity}
+                setQuantity={setQuantity}
+                weight={weight}
+                setWeight={setWeight}
+                height={height}
+                setHeight={setHeight}
+                width={width}
+                setWidth={setWidth}
+                length={length}
+                setLength={setLength}
+              />
+            </View>
+
+            <View style={[styles.sectionCard, styles.layerBase, { width: contentMaxWidth }]}>
+              <Text style={styles.sectionTitle}>Contact details</Text>
+              <ContactInput
+                senderEmail={senderEmail}
+                setSenderEmail={setSenderEmail}
+                senderPhone={senderPhone}
+                setSenderPhone={setSenderPhone}
+                recipientEmail={recipientEmail}
+                setRecipientEmail={setRecipientEmail}
+                recipientPhone={recipientPhone}
+                setRecipientPhone={setRecipientPhone}
+              />
+            </View>
+          </ScrollView>
+          <ScrollFade />
+        </View>
+
+        {!!submitError && (
+          <View
+            style={[styles.errorBox, { width: contentMaxWidth, alignSelf: "center" }]}
+            accessibilityLiveRegion="polite"
+          >
+            <Text style={styles.errorText}>{submitError}</Text>
+          </View>
+        )}
+
+        <Pressable
+          onPress={handleSubmitNewOrder}
+          disabled={!canSubmit}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            { width: contentMaxWidth, alignSelf: "center" },
+            !canSubmit && styles.buttonDisabled,
+            pressed && canSubmit && styles.buttonPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={isSubmitting ? "Submitting order" : "Book Now"}
+          accessibilityState={{ disabled: !canSubmit, busy: isSubmitting }}
+        >
+          {isSubmitting ? (
+            <ActivityIndicator color={colors.textOnDark} />
+          ) : (
+            <Text style={styles.primaryButtonText}>Book Now</Text>
+          )}
+        </Pressable>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -214,9 +227,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.primarySurface,
   },
+  scrollWrapper: {
+    flex: 1,
+  },
   scrollContent: {
     alignItems: "center",
-    paddingBottom: spacing.xxl,
+    paddingBottom: spacing.xs,
+  },
+  scrollFade: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 48,
+    flexDirection: "column",
+  },
+  scrollFadeStep: {
+    flex: 1,
+    backgroundColor: colors.primarySurface,
   },
   pageTitle: {
     marginTop: spacing.base,
@@ -241,9 +269,9 @@ const styles = StyleSheet.create({
   },
   sectionCard: {
     position: "relative",
-    marginTop: spacing.md,
-    padding: spacing.md,
-    borderRadius: radii.xxl,
+    marginTop: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: radii.xl,
     backgroundColor: colors.surface,
     ...shadows.float,
   },
@@ -261,15 +289,15 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: typography.size.base,
-    color: colors.textPrimary,
+    color: colors.primaryDeep,
     fontWeight: typography.weight.bold,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
     letterSpacing: 0.2,
   },
   addressInput: {
-    marginBottom: spacing.md,
-    height: touch.inputHeight,
-    borderColor: colors.borderLight,
+    marginBottom: spacing.sm,
+    height: 40,
+    borderColor: colors.borderMedium,
     borderWidth: 1,
     borderRadius: radii.md,
     paddingHorizontal: spacing.md,
@@ -286,7 +314,8 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   primaryButton: {
-    marginTop: spacing.base,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
     height: touch.buttonHeight,
     borderRadius: radii.xl,
     backgroundColor: colors.primaryCTA,

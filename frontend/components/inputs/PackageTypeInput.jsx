@@ -1,5 +1,5 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { colors, spacing, typography, radii, touch } from "@/constants/theme";
+import { colors, spacing, typography, radii, touch, shadows } from "@/constants/theme";
 
 const PACKAGE_TYPES = ["pallet", "crate", "box"];
 
@@ -40,18 +40,21 @@ const styles = StyleSheet.create({
   typeButton: {
     flex: 1,
     minHeight: touch.minHeight,
-    paddingVertical: spacing.md,
+    paddingVertical: 6,
     borderRadius: radii.md,
     alignItems: "center",
     justifyContent: "center",
   },
   typeButtonIdle: {
-    backgroundColor: "#E7E5E4",
+    backgroundColor: colors.neutral100,
+    borderWidth: 1,
+    borderColor: colors.borderMedium,
   },
   typeButtonSelected: {
-    backgroundColor: "#A4F4CF",
+    backgroundColor: colors.primarySurface,
     borderWidth: 2,
-    borderColor: colors.primaryDeep,
+    borderColor: colors.primaryCTA,
+    ...shadows.subtle,
   },
   typeButtonPressed: {
     opacity: 0.75,
@@ -59,7 +62,7 @@ const styles = StyleSheet.create({
   typeLabel: {
     fontSize: typography.size.base,
     fontWeight: typography.weight.semibold,
-    color: colors.textPrimary,
+    color: colors.textSecondary,
     textAlign: "center",
   },
   typeLabelSelected: {
