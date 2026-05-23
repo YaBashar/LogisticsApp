@@ -23,7 +23,7 @@ export interface User extends Document {
   numSuccessfulLogins: number;
   numfailedSinceLastLogin: number;
   passwordHistory: string[];
-  pushTokens: string[];
+  pushToken?: string | null;
 }
 
 const userSchema = new mongoose.Schema(
@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema(
     emailVerified: { type: Boolean, default: false },
     accountExpiresAt: { type: Date, default: null },
     deletedAt: { type: Date, default: null },
-    pushTokens: { type: [String], default: [] },
+    pushToken: { type: String },
   },
   { timestamps: true }
 );
