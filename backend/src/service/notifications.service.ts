@@ -1,7 +1,11 @@
 import { Expo } from "expo-server-sdk";
 import { Types } from "mongoose";
 import { UserModel } from "../models/userModel";
-import { NotificationModel, NotificationType } from "../models/notificationModel";
+import {
+  NOTIFICATION_LIST_LIMIT,
+  NotificationModel,
+  NotificationType,
+} from "../models/notificationModel";
 import { ShipmentModel } from "../models/shipmentsModel";
 
 type NotificationLean = {
@@ -92,6 +96,7 @@ export async function getNotificationsForUser(userId: string) {
 
   const notifications = (await NotificationModel.find({ recipientUserId: userId })
     .sort({ createdAt: -1 })
+    .limit(NOTIFICATION_LIST_LIMIT)
     .lean()) as NotificationLean[];
 
   const shipmentIds = [...new Set(notifications.map((n) => n.shipmentId.toString()))];

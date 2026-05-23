@@ -1,5 +1,11 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 
+/** Notifications older than this are removed by a MongoDB TTL index on `createdAt`. */
+export const NOTIFICATION_RETENTION_DAYS = 30;
+
+/** Maximum notifications returned per user (newest first). */
+export const NOTIFICATION_LIST_LIMIT = 50;
+
 export const NotificationType = {
   NewShipment: "NewShipment",
   StatusUpdate: "StatusUpdate",
@@ -27,5 +33,12 @@ const NotificationSchema = new Schema<Notification>(
   },
   { timestamps: true }
 );
+
+NotificationSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: NOTIFICATION_RETENTION_DAYS * 24 * 60 * 60 }
+);
+
+NotificationSchema.index({ recipientUserId: 1, createdAt: -1 });
 
 export const NotificationModel = mongoose.model<Notification>("Notification", NotificationSchema);
