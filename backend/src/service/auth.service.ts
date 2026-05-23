@@ -462,7 +462,6 @@ export async function userProfile(userId: string) {
   }
 
   const shipmentCounts = await getUserShipmentCounts(userId);
-  console.log(shipmentCounts);
 
   return {
     name: user.name,

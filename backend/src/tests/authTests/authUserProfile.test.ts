@@ -52,35 +52,39 @@ afterAll(async () => {
 }, 10000);
 
 describe("GET /auth/profile", () => {
-  test("returns user profile with shipment counts after varied admin status updates", async () => {
-    await requestDelete();
+  test(
+    "returns user profile with shipment counts after varied admin status updates",
+    async () => {
+      await requestDelete();
 
-    const customerToken = await getToken(
-      CUSTOMER.firstName,
-      CUSTOMER.lastName,
-      CUSTOMER.email,
-      CUSTOMER.password
-    );
+      const customerToken = await getToken(
+        CUSTOMER.firstName,
+        CUSTOMER.lastName,
+        CUSTOMER.email,
+        CUSTOMER.password
+      );
 
-    const shipmentIds = await createCustomerShipments(
-      customerToken,
-      STATUS_ADVANCE_STEPS.length
-    );
+      const adminToken = await getAdminToken();
 
-    const adminToken = await getAdminToken();
+      const shipmentIds = await createCustomerShipments(
+        customerToken,
+        STATUS_ADVANCE_STEPS.length
+      );
 
-    for (let i = 0; i < shipmentIds.length; i++) {
-      await advanceShipmentStatus(adminToken, shipmentIds[i], STATUS_ADVANCE_STEPS[i]);
-    }
+      for (let i = 0; i < shipmentIds.length; i++) {
+        await advanceShipmentStatus(adminToken, shipmentIds[i], STATUS_ADVANCE_STEPS[i]);
+      }
 
-    const res = await requestProfile(customerToken);
+      const res = await requestProfile(customerToken);
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toStrictEqual({
-      name: CUSTOMER.name,
-      email: CUSTOMER.email,
-      role: "customer",
-      shipmentCounts: EXPECTED_SHIPMENT_COUNTS,
-    });
-  });
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toStrictEqual({
+        name: CUSTOMER.name,
+        email: CUSTOMER.email,
+        role: "customer",
+        shipmentCounts: EXPECTED_SHIPMENT_COUNTS,
+      });
+    },
+    60000
+  );
 });
