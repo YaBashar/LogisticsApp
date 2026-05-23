@@ -1,13 +1,14 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import {
+  getNotificationsForUser,
+  markAllNotificationsRead,
   registerPushToken,
   removePushToken,
-  sendNotification,
 } from "../service/notifications.service";
 
 export const registerToken = async (req: Request, res: Response) => {
   const { token } = req.body;
-  const userId = req.userId;
+  const userId = req.user!.sub;
 
   try {
     const result = await registerPushToken(userId, token);
@@ -17,26 +18,30 @@ export const registerToken = async (req: Request, res: Response) => {
   }
 };
 
-export const sendNotif = async (req: Request, res: Response) => {
-  const { title, body, data } = req.body;
-  const userId = req.params.userId as string;
-
+export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const result = await sendNotification(userId, {
-      title,
-      body,
-      data,
-    });
-
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    const userId = req.user!.sub;
+    const notifications = await getNotificationsForUser(userId);
+    res.status(200).json({ success: true, notifications });
+  } catch (err) {
+    next(err);
   }
-};
+}
+
+export async function readAll(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const userId = req.user!.sub;
+    const updatedCount = await markAllNotificationsRead(userId);
+    res.status(200).json({ success: true, updatedCount });
+  } catch (err) {
+    next(err);
+  }
+}
+
 
 export const removeToken = async (req: Request, res: Response) => {
   const { token } = req.body;
-  const userId = req.userId;
+  const userId = req.user!.sub;
 
   try {
     const result = await removePushToken(userId, token);
