@@ -9,7 +9,8 @@ import {
   validatePhoneNumber,
   validateEmail,
 } from "../utils/shipmentsHelper";
-import { sendNotification } from "./notifications.service";
+import { createNotification } from "./notifications.service";
+import { NotificationType } from "../models/notificationModel";
 
 // Endpoints
 // 1 -> Create new shipment order
@@ -78,10 +79,11 @@ async function userCreateShipment(
 
   const admin = await UserModel.findOne({ role: "admin" });
   if (admin) {
-    await sendNotification(admin._id.toString(), {
-      title: "New Shipment Created",
-      body: `A new shipment order ${shipment.orderNumber} has been created.`,
-      data: { shipmentId: shipment._id.toString() },
+    await createNotification({
+      recipientUserId: admin._id.toString(),
+      shipmentId: shipment._id.toString(),
+      type: NotificationType.NewShipment,
+      message: `A new shipment order ${shipment.orderNumber} has been created.`,
     });
   } else {
     console.warn("No admin user found to notify about new shipment.");

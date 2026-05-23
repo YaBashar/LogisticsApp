@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { axiosPrivate } from "@/services/axios";
+import { refreshUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import ShipmentCard from "../components/shipmentCard";
 import { colors, spacing, typography, radii, shadows, touch } from "@/constants/theme";
 
@@ -39,6 +40,7 @@ export function OrdersListSection({ endpoint, emptyMessage, showRefreshControl, 
         } else {
           setShipments((prev) => (append ? [...prev, ...result] : result));
         }
+        refreshUnreadNotifications();
       } catch (_error) {
         setFetchError(true);
       } finally {

@@ -2,13 +2,14 @@ import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-na
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import LogoutButton from "./auth/LogoutButton";
+import useUnreadNotifications from "@/hooks/useUnreadNotifications";
 import { colors, spacing, typography, radii } from "../constants/theme";
 
 export default function ScreenHeader({ title, left }) {
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const contentMaxWidth = Math.min(420, screenWidth - 32);
+  const { hasUnread } = useUnreadNotifications();
 
   return (
     <View style={[styles.header, { paddingTop: insets.top }]}>
@@ -30,6 +31,19 @@ export default function ScreenHeader({ title, left }) {
         )}
         <View style={styles.headerActions}>
           <Pressable
+            onPress={() => router.push("/notifications")}
+            accessibilityRole="button"
+            accessibilityLabel={hasUnread ? "Notifications, unread items" : "Notifications"}
+            style={({ pressed }) => [styles.headerBtn, pressed && styles.headerBtnPressed]}
+          >
+            <Ionicons
+              name={hasUnread ? "notifications" : "notifications-outline"}
+              size={18}
+              color={colors.textOnDark}
+            />
+            {hasUnread ? <View style={styles.unreadBadge} /> : null}
+          </Pressable>
+          <Pressable
             onPress={() => router.push("/settings")}
             accessibilityRole="button"
             accessibilityLabel="Settings"
@@ -37,7 +51,6 @@ export default function ScreenHeader({ title, left }) {
           >
             <Ionicons name="settings-outline" size={18} color={colors.textOnDark} />
           </Pressable>
-          <LogoutButton style={styles.headerBtn} />
         </View>
       </View>
     </View>
@@ -83,5 +96,16 @@ const styles = StyleSheet.create({
   },
   headerBtnPressed: {
     backgroundColor: "rgba(255,255,255,0.25)",
+  },
+  unreadBadge: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.warning400,
+    borderWidth: 1.5,
+    borderColor: colors.primaryDark,
   },
 });

@@ -11,7 +11,7 @@ NotificationRouter.post("/register-token", requireAuth, NotificationsController.
 // Remove token (when user logs out)
 NotificationRouter.post("/remove-token", requireAuth, NotificationsController.removeToken);
 
-// Send notification to a user
-NotificationRouter.post("/send/:userId", requireAuth, NotificationsController.sendNotif);
+NotificationRouter.get("/", requireAuth, NotificationsController.list);
+NotificationRouter.patch("/read-all", requireAuth, NotificationsController.readAll);
 
 export default NotificationRouter;
