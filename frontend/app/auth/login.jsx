@@ -1,4 +1,4 @@
-import axios from "@/services/axios";
+import axios from "../../services/axios";
 import { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -13,12 +13,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import useAuth from "@/hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 import { router, useLocalSearchParams } from "expo-router";
-import PasswordInput from "../../components/inputs/PasswordInput";
+import { PasswordInput } from "../../components/inputs/PasswordInput";
 import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
-export default function Login() {
+export function Login() {
   const params = useLocalSearchParams();
   const [email, setEmail] = useState(typeof params.email === "string" ? params.email : "");
   const [password, setPassword] = useState("");

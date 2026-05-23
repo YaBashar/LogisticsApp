@@ -2,10 +2,10 @@ import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-na
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import useUnreadNotifications from "@/hooks/useUnreadNotifications";
+import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
 import { colors, spacing, typography, radii } from "../constants/theme";
 
-export default function ScreenHeader({ title, left }) {
+export function ScreenHeader({ title, left }) {
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const contentMaxWidth = Math.min(420, screenWidth - 32);

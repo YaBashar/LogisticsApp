@@ -11,10 +11,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import useAuth from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 import { colors, spacing, typography, radii, touch, shadows } from "../constants/theme";
 
-export default function Index() {
+export function Index() {
   const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {

@@ -1,7 +1,8 @@
-import { refresh, clearAuthStorage } from "@/utils/tokenManager";
-import { axiosPrivate } from "@/services/axios";
+import { refresh } from "../utils/tokenManager";
+import { axiosPrivate } from "../services/axios";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStorage from "expo-secure-store";
 
 let isRefreshing = false;
 let failedQueue = [];

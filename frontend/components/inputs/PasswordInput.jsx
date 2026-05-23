@@ -1,8 +1,8 @@
 import { forwardRef, useState } from "react";
 import { View, TextInput, Pressable, Text, StyleSheet } from "react-native";
-import { colors, spacing, typography, radii, touch } from "@/constants/theme";
+import { colors, spacing, typography, radii, touch } from "../../constants/theme";
 
-const PasswordInput = forwardRef(function PasswordInput(
+export const PasswordInput = forwardRef(function PasswordInput(
   {
     setPassword,
     password,
@@ -43,8 +43,6 @@ const PasswordInput = forwardRef(function PasswordInput(
     </View>
   );
 });
-
-export default PasswordInput;
 
 const styles = StyleSheet.create({
   wrapper: {

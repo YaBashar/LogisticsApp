@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
 import { View, TextInput, StyleSheet } from "react-native";
-import { colors, spacing, typography, radii } from "@/constants/theme";
+import { colors, spacing, typography, radii } from "../../constants/theme";
 
-const NumericalCodeInput = ({ code, setCode }) => {
+export const NumericalCodeInput = ({ code, setCode }) => {
   const inputRefs = useRef([]);
 
   const handleChangeText = (text, index) => {
@@ -40,8 +40,6 @@ const NumericalCodeInput = ({ code, setCode }) => {
     </View>
   );
 };
-
-export default NumericalCodeInput;
 
 const styles = StyleSheet.create({
   row: {

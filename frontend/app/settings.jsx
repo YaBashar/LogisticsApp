@@ -13,10 +13,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import useAuth from "@/hooks/useAuth";
-import { axiosPrivate } from "@/services/axios";
+import { useAuth } from "../hooks/useAuth";
+import { axiosPrivate } from "../services/axios";
 import { colors, spacing, typography, radii, touch } from "../constants/theme";
-import ScreenHeader from "../components/ScreenHeader";
+import { ScreenHeader } from "../components/ScreenHeader";
 
 const cardBorder = {
   borderWidth: 1,
@@ -75,7 +75,7 @@ function SettingsMenuRow({
   );
 }
 
-export default function Settings() {
+export function Settings() {
   const { logout } = useAuth();
   const [deleting, setDeleting] = useState(false);
   const { width: screenWidth } = useWindowDimensions();

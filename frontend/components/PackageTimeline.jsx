@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import useAuth from "@/hooks/useAuth";
-import useAdvanceShipmentStatus from "@/hooks/useAdvanceShipmentStatus";
-import { ShipmentStatus, STATES_ORDERED } from "@/constants/shipmentStatus";
+import useAuth from "../hooks/useAuth";
+import useAdvanceShipmentStatus from "../hooks/useAdvanceShipmentStatus";
+import { ShipmentStatus, STATES_ORDERED } from "../constants/shipmentStatus";
 import { font } from "../styles/font";
 
 /** Maps each status step to Shipment date fields (matches shipmentsModel). */

@@ -13,11 +13,11 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import NumericalCodeInput from "../../components/inputs/NumericalCodeInput";
+import { NumericalCodeInput } from "../../components/inputs/NumericalCodeInput";
 import axios from "../../services/axios";
 import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
-export default function VerifyResetCode() {
+export function VerifyResetCode() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

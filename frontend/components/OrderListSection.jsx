@@ -11,10 +11,10 @@ import {
   RefreshControl,
 } from "react-native";
 import { router } from "expo-router";
-import { axiosPrivate } from "@/services/axios";
-import { refreshUnreadNotifications } from "@/hooks/useUnreadNotifications";
-import ShipmentCard from "../components/shipmentCard";
-import { colors, spacing, typography, radii, shadows, touch } from "@/constants/theme";
+import { axiosPrivate } from "../services/axios";
+import { refreshUnreadNotifications } from "../hooks/useUnreadNotifications";
+import { ShipmentCard } from "../components/shipmentCard";
+import { colors, spacing, typography, radii, shadows, touch } from "../constants/theme";
 
 const PAGE_LIMIT = 10;
 

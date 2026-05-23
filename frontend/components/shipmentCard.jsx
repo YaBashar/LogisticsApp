@@ -1,9 +1,9 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
-import { coerceShipmentStatus } from "@/constants/shipmentStatus";
-import { colors, spacing, typography, radii } from "@/constants/theme";
+import { coerceShipmentStatus } from "../constants/shipmentStatus";
+import { colors, spacing, typography, radii } from "../constants/theme";
 
-export default function ShipmentCard({ shipment }) {
+export function ShipmentCard({ shipment }) {
   const currentStatus = coerceShipmentStatus(shipment.status);
 
   return (

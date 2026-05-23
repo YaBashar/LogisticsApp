@@ -1,9 +1,9 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { colors, spacing, typography, radii, touch, shadows } from "@/constants/theme";
+import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
 const PACKAGE_TYPES = ["pallet", "crate", "box"];
 
-export default function PackageTypeInput({ packageType, setPackageType }) {
+export function PackageTypeInput({ packageType, setPackageType }) {
   return (
     <View style={styles.container}>
       {PACKAGE_TYPES.map((type) => {

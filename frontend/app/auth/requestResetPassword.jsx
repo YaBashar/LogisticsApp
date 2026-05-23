@@ -15,7 +15,7 @@ import axios from "../../services/axios";
 import { router } from "expo-router";
 import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
-export default function RequestResetPassword() {
+export function RequestResetPassword() {
   const [email, setEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

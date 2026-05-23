@@ -13,11 +13,11 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import { router } from "expo-router";
-import NumericalCodeInput from "../../components/inputs/NumericalCodeInput";
+import { NumericalCodeInput } from "../../components/inputs/NumericalCodeInput";
 import axios from "../../services/axios";
 import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
-export default function VerifyEmail() {
+export function VerifyEmail() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +36,7 @@ export default function VerifyEmail() {
       Alert.alert("Email verified", "You can now log in.", [
         { text: "Log in", onPress: () => router.push("/auth/login") },
       ]);
-    } catch (error) {
+    } catch (_error) {
       setErrorMessage("Verification failed. Please check the code and try again.");
     } finally {
       setIsSubmitting(false);

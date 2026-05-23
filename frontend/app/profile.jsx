@@ -13,9 +13,9 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { axiosPrivate } from "@/services/axios";
-import useAuth from "@/hooks/useAuth";
-import { STATES_ORDERED } from "@/constants/shipmentStatus";
+import { axiosPrivate } from "../services/axios";
+import { useAuth } from "../hooks/useAuth";
+import { STATES_ORDERED } from "../constants/shipmentStatus";
 import { colors, spacing, typography, radii, touch } from "../constants/theme";
 
 function formatRole(role) {
@@ -80,7 +80,7 @@ function MenuRow({ icon, iconColor, iconBg, label, onPress, showChevron = true, 
   );
 }
 
-export default function Profile() {
+export function Profile() {
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const contentMaxWidth = Math.min(420, screenWidth - 32);

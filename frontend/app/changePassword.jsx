@@ -12,13 +12,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import useAuth from "@/hooks/useAuth";
-import { axiosPrivate } from "@/services/axios";
-import PasswordInput from "@/components/inputs/PasswordInput";
-import ScreenHeader from "../components/ScreenHeader";
+import { useAuth } from "../hooks/useAuth";
+import { axiosPrivate } from "../services/axios";
+import { PasswordInput } from "../components/inputs/PasswordInput";
+import { ScreenHeader } from "../components/ScreenHeader";
 import { colors, spacing, typography, radii, touch } from "../constants/theme";
 
-export default function ChangePassword() {
+export function ChangePassword() {
   const { logout } = useAuth();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");

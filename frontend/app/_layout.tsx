@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { AuthProvider } from "../components/auth/AuthProvider";
-import "@/services/axiosConfig";
+import "../services/axiosConfig";
 import * as SplashScreen from "expo-splash-screen";
 
 SplashScreen.preventAutoHideAsync();

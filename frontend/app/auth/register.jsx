@@ -14,10 +14,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "../../services/axios";
 import { router } from "expo-router";
-import PasswordInput from "../../components/inputs/PasswordInput";
+import { PasswordInput } from "../../components/inputs/PasswordInput";
 import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
-export default function Register() {
+export function Register() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");

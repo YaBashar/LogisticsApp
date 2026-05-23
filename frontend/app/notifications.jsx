@@ -12,11 +12,11 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { axiosPrivate } from "@/services/axios";
-import useAuth from "@/hooks/useAuth";
-import ScreenHeader from "../components/ScreenHeader";
-import { setUnreadNotifications } from "@/hooks/useUnreadNotifications";
-import { coerceShipmentStatus } from "@/constants/shipmentStatus";
+import { axiosPrivate } from "../services/axios";
+import { useAuth } from "../hooks/useAuth";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { setUnreadNotifications } from "../hooks/useUnreadNotifications";
+import { coerceShipmentStatus } from "../constants/shipmentStatus";
 import { colors, spacing, typography, radii, shadows } from "../constants/theme";
 
 function timeAgo(dateStr) {
@@ -93,7 +93,7 @@ async function findShipmentById(shipmentId, isAdmin) {
   return null;
 }
 
-export default function Notifications() {
+export function Notifications() {
   const { role } = useAuth();
   const isAdmin = role === "admin";
   const { width } = useWindowDimensions();

@@ -1,11 +1,11 @@
 import { useState, useCallback } from "react";
 import { Alert } from "react-native";
-import { axiosPrivate } from "@/services/axios";
-import { STATES_ORDERED, coerceShipmentStatus } from "@/constants/shipmentStatus";
+import { axiosPrivate } from "../services/axios";
+import { STATES_ORDERED, coerceShipmentStatus } from "../constants/shipmentStatus";
 
 export { coerceShipmentStatus };
 
-export default function useAdvanceShipmentStatus(shipmentId, initialStatus) {
+export function useAdvanceShipmentStatus(shipmentId, initialStatus) {
   const [status, setStatus] = useState(() => coerceShipmentStatus(initialStatus));
   const [updating, setUpdating] = useState(false);
 
