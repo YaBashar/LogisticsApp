@@ -12,6 +12,15 @@ import {
 import { createNotification } from "./notifications.service";
 import { NotificationType } from "../models/notificationModel";
 
+export class ShipmentError extends Error {
+  statusCode: number;
+
+  constructor(message: string, statusCode = 400) {
+    super(message);
+    this.statusCode = statusCode;
+  }
+}
+
 // Endpoints
 // 1 -> Create new shipment order
 
@@ -33,7 +42,7 @@ async function userCreateShipment(
 ) {
   const user = await UserModel.findById(userId);
   if (!user) {
-    throw new Error("User Not Found");
+    throw new ShipmentError("User not found", 404);
   }
 
   const sanitisedDescription = itemDescription.trim().replace(/[<>]/g, "");
@@ -44,16 +53,18 @@ async function userCreateShipment(
   const sanitisedSenderPhone = senderPhone.trim().replace(/[^\d+]/g, "");
   const sanitisedRecipientPhone = recipientPhone.trim().replace(/[^\d+]/g, "");
 
-  validateItemDescription(sanitisedDescription);
-  validateQuantity(quantity);
-  validateWeight(weight);
-  validateEmail(sanitisedRecipientEmail);
-  validateEmail(sanitisedSenderEmail);
-
-  validatePhoneNumber(sanitisedSenderPhone);
-  validatePhoneNumber(sanitisedRecipientPhone);
-
-  validateLocations(sanitisedOrigin, sanitisedDestination);
+  try {
+    validateItemDescription(sanitisedDescription);
+    validateQuantity(quantity);
+    validateWeight(weight);
+    validateEmail(sanitisedRecipientEmail);
+    validateEmail(sanitisedSenderEmail);
+    validatePhoneNumber(sanitisedSenderPhone);
+    validatePhoneNumber(sanitisedRecipientPhone);
+    validateLocations(sanitisedOrigin, sanitisedDestination);
+  } catch (error) {
+    throw new ShipmentError(error instanceof Error ? error.message : "Validation failed");
+  }
 
   const shipment = new ShipmentModel({
     userId: user._id,
@@ -99,7 +110,7 @@ async function userGetActiveOrders(
 ) {
   const user = await UserModel.findById(userId);
   if (!user) {
-    throw new Error("User not found");
+    throw new ShipmentError("User not found", 404);
   }
 
   const shipments = await ShipmentModel.find({
@@ -121,7 +132,7 @@ async function userGetCompletedOrders(
 ) {
   const user = await UserModel.findById(userId);
   if (!user) {
-    throw new Error("User not found");
+    throw new ShipmentError("User not found", 404);
   }
 
   const shipments = await ShipmentModel.find({

@@ -1,11 +1,11 @@
-import { Response, Request } from "express";
+import { Response, Request, NextFunction } from "express";
 import {
   userCreateShipment,
   userGetActiveOrders,
   userGetCompletedOrders,
 } from "../service/shipmentsCustomer";
 
-export const createShipment = async (req: Request, res: Response) => {
+export const createShipment = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.user!.sub;
   const {
     packageType,
@@ -43,11 +43,11 @@ export const createShipment = async (req: Request, res: Response) => {
 
     res.status(200).json({ result });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
 
-export const getActiveOrders = async (req: Request, res: Response) => {
+export const getActiveOrders = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.user!.sub;
   const page = parseInt(req.query.page as string);
   const limit = parseInt(req.query.limit as string);
@@ -56,11 +56,11 @@ export const getActiveOrders = async (req: Request, res: Response) => {
     const result = await userGetActiveOrders(userId, page, limit);
     res.status(200).json({ result });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
 
-export const getCompletedOrders = async (req: Request, res: Response) => {
+export const getCompletedOrders = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.user!.sub;
   const page = parseInt(req.query.page as string);
   const limit = parseInt(req.query.limit as string);
@@ -69,6 +69,6 @@ export const getCompletedOrders = async (req: Request, res: Response) => {
     const result = await userGetCompletedOrders(userId, page, limit);
     res.status(200).json({ result });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
