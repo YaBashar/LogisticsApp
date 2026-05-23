@@ -251,7 +251,7 @@ export default function Profile() {
             iconBg={colors.accent50}
             label="Notifications"
             showChevron={false}
-            onPress={() => {}}
+            onPress={() => router.push("/notifications")}
           />
           <View style={styles.menuDivider} />
           <MenuRow

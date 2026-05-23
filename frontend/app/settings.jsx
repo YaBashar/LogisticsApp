@@ -81,6 +81,26 @@ export default function Settings() {
   const { width: screenWidth } = useWindowDimensions();
   const contentMaxWidth = Math.min(420, screenWidth - 32);
 
+  const handleLogout = () => {
+    Alert.alert("Log out", "You will need to sign in again to continue.", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Log out",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await axiosPrivate.post("/auth/logout");
+          } catch {
+            // Best-effort logout
+          } finally {
+            await logout();
+            router.replace("/auth/login");
+          }
+        },
+      },
+    ]);
+  };
+
   const confirmDelete = () => {
     if (deleting) return;
     const message =
@@ -152,12 +172,22 @@ export default function Settings() {
             iconBg={colors.accent50}
             label="Notifications"
             subtitle="Manage alerts & preferences"
-            onPress={() => {}}
+            onPress={() => router.push("/notifications")}
           />
         </View>
 
         <View style={styles.dangerCard}>
           <Text style={styles.dangerLabel}>DANGER ZONE</Text>
+          <SettingsMenuRow
+            icon="log-out-outline"
+            iconColor={colors.error600}
+            iconBg={colors.error50}
+            label="Log out"
+            showChevron={false}
+            destructive
+            onPress={handleLogout}
+          />
+          <View style={styles.menuDivider} />
           <SettingsMenuRow
             icon="trash-outline"
             iconColor={colors.error600}
