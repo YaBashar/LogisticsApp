@@ -3,7 +3,7 @@ import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
-import { axiosPrivate } from "@/services/axios";
+import { axiosPrivate } from "../services/axios";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -15,7 +15,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export default function usePushNotifs() {
+export function usePushNotifs() {
   const [expoPushToken, setExpoPushToken] = useState("");
 
   async function registerForPushNotificationsAsync() {

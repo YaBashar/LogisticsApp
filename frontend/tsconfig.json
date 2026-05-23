@@ -3,15 +3,17 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx"
-, "app/auth/register.jsapp/auth/login.jsxn.jsx", "hooks/usePushNotifications.ts", "hooks/usePushNotifs.js"  ],
+    "**/*.tsx",
+    "app/auth/register.js",
+    "app/auth/login.jsx",
+    "hooks/usePushNotifications.ts",
+    "hooks/usePushNotifs.js"
+  ],
   "exclude": [
     "node_modules"
   ]

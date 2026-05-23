@@ -12,13 +12,13 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import AddressInput from "../components/inputs/AddressInput";
-import PackageTypeInput from "../components/inputs/PackageTypeInput";
+import { AddressInput } from "../components/inputs/AddressInput";
+import { PackageTypeInput } from "../components/inputs/PackageTypeInput";
 import { router } from "expo-router";
-import ItemInfoInput from "../components/inputs/ItemInfoInput";
-import ContactInput from "../components/inputs/ContactInput";
+import { ItemInfoInput } from "../components/inputs/ItemInfoInput";
+import { ContactInput } from "../components/inputs/ContactInput";
 import { axiosPrivate } from "../services/axios";
-import ScreenHeader from "../components/ScreenHeader";
+import { ScreenHeader } from "../components/ScreenHeader";
 import { colors, spacing, typography, radii, shadows, touch } from "../constants/theme";
 
 const SCROLL_FADE_STEPS = 8;
@@ -33,7 +33,7 @@ function ScrollFade() {
   );
 }
 
-export default function NewOrder() {
+export function NewOrder() {
   const { width: screenWidth } = useWindowDimensions();
   const contentMaxWidth = Math.min(420, screenWidth - 32);
 

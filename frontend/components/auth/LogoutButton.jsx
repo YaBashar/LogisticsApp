@@ -1,11 +1,11 @@
 import { Pressable, Alert, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import useAuth from "@/hooks/useAuth";
-import { axiosPrivate } from "@/services/axios";
-import { touch } from "@/constants/theme";
+import useAuth from "../../hooks/useAuth";
+import { axiosPrivate } from "../../services/axios";
+import { touch } from "../../constants/theme";
 
-export default function LogoutButton({ style }) {
+export function LogoutButton({ style }) {
   const { logout } = useAuth();
 
   const handleLogout = () => {

@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { View, TextInput, Text, Pressable, StyleSheet, ScrollView } from "react-native";
 import axios from "axios";
 import Constants from "expo-constants";
-import { colors, spacing, typography, radii, touch, shadows } from "@/constants/theme";
+import { colors, spacing, typography, radii, shadows } from "../../constants/theme";
 
-export default function AddressInput({
+export function AddressInput({
   value,
   onChangeText,
   style,
@@ -42,7 +42,7 @@ export default function AddressInput({
         params: { text, apiKey: API_KEY, filter: countryFilter },
       });
       setSuggestions(response.data.features || []);
-    } catch (error) {
+    } catch (_error) {
       setSuggestions([]);
     }
   };

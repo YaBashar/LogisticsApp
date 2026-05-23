@@ -1,12 +1,12 @@
 import { useState, useEffect, useContext } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { refresh, validate, syncApiUrl, rememberApiUrl } from "@/utils/tokenManager";
+import { refresh, validate, syncApiUrl, rememberApiUrl } from "../../utils/tokenManager";
 import * as SecureStorage from "expo-secure-store";
 import { AuthContext } from "./AuthContext";
 import { jwtDecode } from "jwt-decode";
-import { colors } from "@/constants/theme";
-import { useUnreadNotificationSync } from "@/hooks/useUnreadNotifications";
+import { colors } from "../../constants/theme";
+import { useUnreadNotificationSync } from "../../hooks/useUnreadNotifications";
 
 async function applyTokenClaims(accessToken, setRole, setUserId) {
   const decoded = jwtDecode(accessToken);

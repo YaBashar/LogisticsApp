@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AppState } from "react-native";
 import { useFocusEffect } from "expo-router";
 import * as Notifications from "expo-notifications";
-import { axiosPrivate } from "@/services/axios";
+import { axiosPrivate } from "../services/axios";
 
 const POLL_INTERVAL_MS = 20_000;
 
@@ -29,7 +29,7 @@ export async function refreshUnreadNotifications() {
 }
 
 /** Subscribe to unread state for UI (e.g. header bell). */
-export default function useUnreadNotifications() {
+export function useUnreadNotifications() {
   const [hasUnread, setHasUnread] = useState(cachedHasUnread);
 
   useEffect(() => {

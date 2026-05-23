@@ -14,10 +14,10 @@ import { useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "../../services/axios";
-import PasswordInput from "../../components/inputs/PasswordInput";
+import { PasswordInput } from "../../components/inputs/PasswordInput";
 import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
-export default function ResetPassword() {
+export function ResetPassword() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +36,7 @@ export default function ResetPassword() {
       Alert.alert("Password reset", "Your password has been updated. You can now log in.", [
         { text: "Log in", onPress: () => router.push("/auth/login") },
       ]);
-    } catch (error) {
+    } catch (_error) {
       setErrorMessage("Password reset failed. Please try again.");
     } finally {
       setIsSubmitting(false);

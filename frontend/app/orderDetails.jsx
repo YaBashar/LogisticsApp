@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, ScrollView, useWindowDimensions, Pressable } fr
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { PackageTimeline } from "../components/PackageTimeline";
-import { coerceShipmentStatus } from "@/constants/shipmentStatus";
-import useAuth from "@/hooks/useAuth";
+import { coerceShipmentStatus } from "../constants/shipmentStatus";
+import { useAuth } from "../hooks/useAuth";
 import { colors, spacing, typography, radii, shadows, touch } from "../constants/theme";
 
 function formatPackageType(packageType) {
@@ -12,7 +12,7 @@ function formatPackageType(packageType) {
   return packageType.charAt(0).toUpperCase() + packageType.slice(1);
 }
 
-export default function OrderDetails() {
+export function OrderDetails() {
   const { role } = useAuth();
   const isAdmin = role === "admin";
   const { width } = useWindowDimensions();

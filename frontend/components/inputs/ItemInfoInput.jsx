@@ -1,7 +1,7 @@
 import { View, Text, TextInput, StyleSheet } from "react-native";
-import { colors, spacing, typography, radii, touch } from "@/constants/theme";
+import { colors, spacing, typography, radii } from "../../constants/theme";
 
-export default function ItemInfoInput({
+export function ItemInfoInput({
   itemDescription,
   setItemDescription,
   quantity,

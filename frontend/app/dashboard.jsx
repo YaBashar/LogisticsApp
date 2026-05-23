@@ -1,11 +1,11 @@
-import usePushNotifs from "../hooks/usePushNotifs";
+import { usePushNotifs } from "../hooks/usePushNotifs";
 import { useState } from "react";
 import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import useAuth from "@/hooks/useAuth";
-import ScreenHeader from "../components/ScreenHeader";
+import { useAuth } from "../hooks/useAuth";
+import { ScreenHeader } from "../components/ScreenHeader";
 import { OrdersListSection } from "../components/OrderListSection";
 import { colors, spacing, typography, radii, touch } from "../constants/theme";
 
