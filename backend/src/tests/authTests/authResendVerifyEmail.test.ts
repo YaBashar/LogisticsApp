@@ -23,7 +23,7 @@ afterAll(async () => {
 beforeAll(async () => {
   // Ensure DB is connected
   if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGODB_URI!, MONGO_OPTIONS);
+    await mongoose.connect(process.env.MONGODB_URI_TEST!, MONGO_OPTIONS);
   }
 }, 15000);
 
