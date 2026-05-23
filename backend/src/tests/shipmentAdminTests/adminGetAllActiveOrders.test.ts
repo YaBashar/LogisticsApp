@@ -1,22 +1,38 @@
 import {
   requestAllActiveShipments,
-  requestLogin,
   requestDelete,
   requestNewShipment,
   getToken,
+  getAdminToken,
 } from "../requestHelpers";
 import mongoose from "mongoose";
 
-const MONGO_OPTIONS = { serverSelectionTimeoutMS: 5000 };
-import { UserModel } from "../../models/userModel";
-import bcrypt from "bcrypt";
+jest.setTimeout(30000);
+
+const MONGO_OPTIONS = { serverSelectionTimeoutMS: 8000 };
 
 let customerToken: string;
 let adminToken: string;
 
+function uniqueEmail(prefix: string): string {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}@example.com`;
+}
+
+const SHIPMENT_CONTACT = {
+  senderEmail: "sender@example.com",
+  senderPhone: "+61412345678",
+  recipientEmail: "recipient@example.com",
+  recipientPhone: "+61412345679",
+};
+
 beforeEach(async () => {
   await requestDelete();
-  customerToken = await getToken("Mubashir", "Hussain", "example@gmail.com", "Abcdefgh1234$");
+
+  const customerEmail = uniqueEmail("customer");
+  const adminEmail = uniqueEmail("admin");
+
+  customerToken = await getToken("Mubashir", "Hussain", customerEmail, "Abcdefgh1234$");
+  adminToken = await getAdminToken(adminEmail, "YourSecurePassword123!");
 
   await requestNewShipment(
     customerToken,
@@ -29,10 +45,10 @@ beforeEach(async () => {
     10,
     "madinah",
     "sydney",
-    "mubashirmh04457@gmail.com",
-    "+61412345678",
-    "mubashirmh04@gmail.com",
-    "+61412345679"
+    SHIPMENT_CONTACT.senderEmail,
+    SHIPMENT_CONTACT.senderPhone,
+    SHIPMENT_CONTACT.recipientEmail,
+    SHIPMENT_CONTACT.recipientPhone
   );
   await requestNewShipment(
     customerToken,
@@ -45,26 +61,11 @@ beforeEach(async () => {
     10,
     "madinah",
     "sydney",
-    "mubashirmh04457@gmail.com",
-    "+61412345678",
-    "mubashirmh04@gmail.com",
-    "+61412345679"
+    SHIPMENT_CONTACT.senderEmail,
+    SHIPMENT_CONTACT.senderPhone,
+    SHIPMENT_CONTACT.recipientEmail,
+    SHIPMENT_CONTACT.recipientPhone
   );
-
-  // Create admin user directly in database
-  const hashedPassword = await bcrypt.hash("YourSecurePassword123!", 10);
-  await UserModel.create({
-    name: "Admin User",
-    email: "mubashirmh04@gmail.com",
-    password: hashedPassword,
-    role: "admin",
-    loginAttempts: 0,
-    accountLocked: false,
-    emailVerified: true,
-  });
-
-  const res2 = await requestLogin("mubashirmh04@gmail.com", "YourSecurePassword123!");
-  adminToken = res2.body.accessToken;
 });
 
 afterEach(async () => {
@@ -78,13 +79,13 @@ afterAll(async () => {
 }, 10000);
 
 beforeAll(async () => {
-  if (!process.env.MONGODB_URI) {
+  if (!process.env.MONGODB_URI_TEST) {
     throw new Error(
-      "MONGODB_URI is not set. Copy backend/.env.example to backend/.env and set MONGODB_URI."
+      "MONGODB_URI_TEST is not set. Copy backend/.env.example to backend/.env and set MONGODB_URI_TEST."
     );
   }
   if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGODB_URI, MONGO_OPTIONS);
+    await mongoose.connect(process.env.MONGODB_URI_TEST, MONGO_OPTIONS);
   }
 }, 10000);
 
@@ -124,10 +125,10 @@ describe("Success", () => {
           destination: "madinah",
           origin: "sydney",
           packageType: "box",
-          senderEmail: "mubashirmh04457@gmail.com",
-          senderPhone: "+61412345678",
-          recipientEmail: "mubashirmh04@gmail.com",
-          recipientPhone: "+61412345679",
+          senderEmail: SHIPMENT_CONTACT.senderEmail,
+          senderPhone: SHIPMENT_CONTACT.senderPhone,
+          recipientEmail: SHIPMENT_CONTACT.recipientEmail,
+          recipientPhone: SHIPMENT_CONTACT.recipientPhone,
           completed: false,
           _id: expect.any(String),
           userId: expect.objectContaining({
@@ -147,10 +148,10 @@ describe("Success", () => {
           destination: "madinah",
           origin: "sydney",
           packageType: "crate",
-          senderEmail: "mubashirmh04457@gmail.com",
-          senderPhone: "+61412345678",
-          recipientEmail: "mubashirmh04@gmail.com",
-          recipientPhone: "+61412345679",
+          senderEmail: SHIPMENT_CONTACT.senderEmail,
+          senderPhone: SHIPMENT_CONTACT.senderPhone,
+          recipientEmail: SHIPMENT_CONTACT.recipientEmail,
+          recipientPhone: SHIPMENT_CONTACT.recipientPhone,
           completed: false,
           _id: expect.any(String),
           userId: expect.objectContaining({

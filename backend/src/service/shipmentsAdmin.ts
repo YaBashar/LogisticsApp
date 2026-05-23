@@ -2,6 +2,7 @@ import { ShipmentModel, ShipmentStatus } from "../models/shipmentsModel";
 import { UserModel } from "../models/userModel";
 import { createNotification } from "./notifications.service";
 import { NotificationType } from "../models/notificationModel";
+import { ShipmentError } from "./shipmentsCustomer";
 
 async function allActiveOrders(page: number, limit: number) {
   const shipments = await ShipmentModel.find({ completed: false })
@@ -19,7 +20,7 @@ async function updateShipmentStatus(shipmentId: string) {
   });
 
   if (!shipment) {
-    throw new Error("Shipment doesnt exist");
+    throw new ShipmentError("Shipment doesnt exist");
   }
 
   const currentStatus = shipment.status;
@@ -38,9 +39,9 @@ async function updateShipmentStatus(shipmentId: string) {
     shipment.dateReceived = new Date();
     shipment.completed = true;
   } else if (currentStatus === ShipmentStatus.Received) {
-    throw new Error("Cannot update status for a completed shipment");
+    throw new ShipmentError("Cannot update status for a completed shipment");
   } else {
-    throw new Error("Invalid status type");
+    throw new ShipmentError("Invalid status type");
   }
 
   await shipment.save();

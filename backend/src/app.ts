@@ -9,6 +9,8 @@ import { authRouter } from "./routes/auth.route";
 import { shipmentsCustomerRouter } from "./routes/shipmentsCustomer";
 import { shipmentsAdminRouter } from "./routes/shipmentsAdmin";
 import { AuthError } from "./service/auth.service";
+import { NotificationError } from "./service/notifications.service";
+import { ShipmentError } from "./service/shipmentsCustomer";
 import NotificationRouter from "./routes/notifications";
 
 // Load dotenv FIRST, but only if vars aren't already set (e.g., in CI)
@@ -53,6 +55,10 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     const body: { error: string; code?: string } = { error: err.message };
     if (err.code) body.code = err.code;
     return res.status(err.statusCode).json(body);
+  }
+
+  if (err instanceof NotificationError || err instanceof ShipmentError) {
+    return res.status(err.statusCode).json({ error: err.message });
   }
 
   console.error(err);

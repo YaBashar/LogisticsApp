@@ -20,13 +20,13 @@ let refreshToken: string;
 let userId: string;
 
 beforeAll(async () => {
-  if (!process.env.MONGODB_URI) {
+  if (!process.env.MONGODB_URI_TEST) {
     throw new Error(
-      "MONGODB_URI is not set. Copy backend/.env.example to backend/.env and set MONGODB_URI."
+      "MONGODB_URI_TEST is not set. Copy backend/.env.example to backend/.env and set MONGODB_URI_TEST."
     );
   }
   if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGODB_URI, MONGO_OPTIONS);
+    await mongoose.connect(process.env.MONGODB_URI_TEST, MONGO_OPTIONS);
   }
 }, 15000);
 

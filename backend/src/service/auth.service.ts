@@ -174,7 +174,6 @@ export async function userLogin(input: LoginInput) {
 
   const accessToken = createAccessToken(user);
   const refreshToken = await createRefreshToken(user);
-  await user.save();
 
   return {
     accessToken,
@@ -462,7 +461,6 @@ export async function userProfile(userId: string) {
   }
 
   const shipmentCounts = await getUserShipmentCounts(userId);
-  console.log(shipmentCounts);
 
   return {
     name: user.name,
