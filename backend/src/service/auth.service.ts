@@ -174,7 +174,6 @@ export async function userLogin(input: LoginInput) {
 
   const accessToken = createAccessToken(user);
   const refreshToken = await createRefreshToken(user);
-  await user.save();
 
   return {
     accessToken,

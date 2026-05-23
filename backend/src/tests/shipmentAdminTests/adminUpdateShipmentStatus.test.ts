@@ -1,39 +1,34 @@
 import {
   requestAllActiveShipments,
-  requestLogin,
   requestDelete,
   requestNewShipment,
   requestUpdateShipmentStatus,
   getToken,
+  getAdminToken,
 } from "../requestHelpers";
 import mongoose from "mongoose";
-
-const MONGO_OPTIONS = { serverSelectionTimeoutMS: 5000 };
-import { UserModel } from "../../models/userModel";
 import { ShipmentModel, ShipmentStatus } from "../../models/shipmentsModel";
-import bcrypt from "bcrypt";
+
+jest.setTimeout(30000);
+
+const MONGO_OPTIONS = { serverSelectionTimeoutMS: 8000 };
 
 let customerToken: string;
 let adminToken: string;
 let shipmentId: string;
 
+function uniqueEmail(prefix: string): string {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}@example.com`;
+}
+
 beforeEach(async () => {
   await requestDelete();
-  customerToken = await getToken("Mubashir", "Hussain", "example@gmail.com", "Abcdefgh1234$");
 
-  const hashedPassword = await bcrypt.hash("YourSecurePassword123!", 10);
-  await UserModel.create({
-    name: "Admin User",
-    email: "mubashirmh04@gmail.com",
-    password: hashedPassword,
-    role: "admin",
-    loginAttempts: 0,
-    accountLocked: false,
-    emailVerified: true,
-  });
+  const customerEmail = uniqueEmail("customer");
+  const adminEmail = uniqueEmail("admin");
 
-  const res2 = await requestLogin("mubashirmh04@gmail.com", "YourSecurePassword123!");
-  adminToken = res2.body.accessToken;
+  customerToken = await getToken("Mubashir", "Hussain", customerEmail, "Abcdefgh1234$");
+  adminToken = await getAdminToken(adminEmail, "YourSecurePassword123!");
 
   await requestNewShipment(
     customerToken,
@@ -46,9 +41,9 @@ beforeEach(async () => {
     10,
     "madinah",
     "sydney",
-    "mubashirmh04457@gmail.com",
+    "sender@example.com",
     "+61412345678",
-    "mubashirmh04@gmail.com",
+    "recipient@example.com",
     "+61412345679"
   );
 
@@ -88,57 +83,53 @@ describe("Success", () => {
 describe("Status progression", () => {
   const getShipment = () => ShipmentModel.findById(shipmentId);
 
-  test(
-    "advances status through each step until shipment is completed",
-    async () => {
-      let shipment = await getShipment();
-      expect(shipment?.status).toStrictEqual(ShipmentStatus.Pending);
-      expect(shipment?.completed).not.toBe(true);
-      expect(shipment?.datePicked).toBeUndefined();
-      expect(shipment?.dateShipped).toBeUndefined();
-      expect(shipment?.dateDelivered).toBeUndefined();
-      expect(shipment?.dateReceived).toBeUndefined();
+  test("advances status through each step until shipment is completed", async () => {
+    let shipment = await getShipment();
+    expect(shipment?.status).toStrictEqual(ShipmentStatus.Pending);
+    expect(shipment?.completed).not.toBe(true);
+    expect(shipment?.datePicked).toBeUndefined();
+    expect(shipment?.dateShipped).toBeUndefined();
+    expect(shipment?.dateDelivered).toBeUndefined();
+    expect(shipment?.dateReceived).toBeUndefined();
 
-      let res = await requestUpdateShipmentStatus(adminToken, shipmentId);
-      expect(res.statusCode).toStrictEqual(200);
-      expect(res.body).toStrictEqual({ result: { success: true } });
+    let res = await requestUpdateShipmentStatus(adminToken, shipmentId);
+    expect(res.statusCode).toStrictEqual(200);
+    expect(res.body).toStrictEqual({ result: { success: true } });
 
-      shipment = await getShipment();
-      expect(shipment?.status).toStrictEqual(ShipmentStatus.Picked);
-      expect(shipment?.datePicked).toBeInstanceOf(Date);
-      expect(shipment?.dateShipped).toBeUndefined();
+    shipment = await getShipment();
+    expect(shipment?.status).toStrictEqual(ShipmentStatus.Picked);
+    expect(shipment?.datePicked).toBeInstanceOf(Date);
+    expect(shipment?.dateShipped).toBeUndefined();
 
-      res = await requestUpdateShipmentStatus(adminToken, shipmentId);
-      expect(res.statusCode).toStrictEqual(200);
+    res = await requestUpdateShipmentStatus(adminToken, shipmentId);
+    expect(res.statusCode).toStrictEqual(200);
 
-      shipment = await getShipment();
-      expect(shipment?.status).toStrictEqual(ShipmentStatus.Shipped);
-      expect(shipment?.dateShipped).toBeInstanceOf(Date);
-      expect(shipment?.dateDelivered).toBeUndefined();
+    shipment = await getShipment();
+    expect(shipment?.status).toStrictEqual(ShipmentStatus.Shipped);
+    expect(shipment?.dateShipped).toBeInstanceOf(Date);
+    expect(shipment?.dateDelivered).toBeUndefined();
 
-      res = await requestUpdateShipmentStatus(adminToken, shipmentId);
-      expect(res.statusCode).toStrictEqual(200);
+    res = await requestUpdateShipmentStatus(adminToken, shipmentId);
+    expect(res.statusCode).toStrictEqual(200);
 
-      shipment = await getShipment();
-      expect(shipment?.status).toStrictEqual(ShipmentStatus.Delivered);
-      expect(shipment?.dateDelivered).toBeInstanceOf(Date);
-      expect(shipment?.dateReceived).toBeUndefined();
-      expect(shipment?.completed).not.toBe(true);
+    shipment = await getShipment();
+    expect(shipment?.status).toStrictEqual(ShipmentStatus.Delivered);
+    expect(shipment?.dateDelivered).toBeInstanceOf(Date);
+    expect(shipment?.dateReceived).toBeUndefined();
+    expect(shipment?.completed).not.toBe(true);
 
-      res = await requestUpdateShipmentStatus(adminToken, shipmentId);
-      expect(res.statusCode).toStrictEqual(200);
+    res = await requestUpdateShipmentStatus(adminToken, shipmentId);
+    expect(res.statusCode).toStrictEqual(200);
 
-      shipment = await getShipment();
-      expect(shipment?.status).toStrictEqual(ShipmentStatus.Received);
-      expect(shipment?.dateReceived).toBeInstanceOf(Date);
-      expect(shipment?.completed).toBe(true);
+    shipment = await getShipment();
+    expect(shipment?.status).toStrictEqual(ShipmentStatus.Received);
+    expect(shipment?.dateReceived).toBeInstanceOf(Date);
+    expect(shipment?.completed).toBe(true);
 
-      res = await requestUpdateShipmentStatus(adminToken, shipmentId);
-      expect(res.statusCode).toStrictEqual(400);
-      expect(res.body).toStrictEqual({ error: expect.any(String) });
-    },
-    30000
-  );
+    res = await requestUpdateShipmentStatus(adminToken, shipmentId);
+    expect(res.statusCode).toStrictEqual(400);
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+  });
 });
 
 describe("Error", () => {

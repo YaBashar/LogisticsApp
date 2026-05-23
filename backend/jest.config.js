@@ -12,3 +12,5 @@ export const transform = {
   }]
 };
 export const moduleFileExtensions = ['ts', 'js', 'json'];
+/** Atlas-backed integration tests need more time per test and hook in CI */
+export const testTimeout = 30000;
