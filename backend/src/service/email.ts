@@ -1,19 +1,11 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  family: 4, // 👈 force IPv4, Render doesn't support IPv6 outbound
-} as nodemailer.TransportOptions);
+const resend = new Resend(process.env.RESEND_API_KEY);
+const FROM = '"Logistics App" <onboarding@resend.dev>';
 
 export async function sendOnboardingEmail(to: string, verificationCode: string): Promise<void> {
-  await transporter.sendMail({
-    from: `"Logistics App" <${process.env.EMAIL_USER}>`,
+  await resend.emails.send({
+    from: FROM,
     to,
     subject: "Welcome to Logistics App",
     text: `Welcome to Logistics App!\n\nYour verification code is: ${verificationCode}\n\nTo get started:\n1. Open the Logistics App\n2. Enter the code above to verify your account`,
@@ -38,12 +30,9 @@ export async function sendOnboardingEmail(to: string, verificationCode: string):
   });
 }
 
-export async function sendResendVerificationEmail(
-  to: string,
-  verificationCode: string
-): Promise<void> {
-  await transporter.sendMail({
-    from: `"Logistics App" <${process.env.EMAIL_USER}>`,
+export async function sendResendVerificationEmail(to: string, verificationCode: string): Promise<void> {
+  await resend.emails.send({
+    from: FROM,
     to,
     subject: "Your new verification code",
     text: `You requested a new verification code.\n\nYour verification code is: ${verificationCode}\n\nTo get started:\n1. Open the Logistics App\n2. Enter the code above to verify your account\n\nIf you didn't request this, you can safely ignore this email.`,
@@ -52,7 +41,6 @@ export async function sendResendVerificationEmail(
         <h2>New Verification Code</h2>
         <p>You requested a new verification code. Use the code below to verify your account.</p>
         <p>Your code expires in 15 minutes</p>
-        <p>Your verification code is:</p>
         <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 16px; background: #f4f4f4; border-radius: 8px; text-align: center;">
           ${verificationCode}
         </div>
@@ -70,8 +58,8 @@ export async function sendResendVerificationEmail(
 }
 
 export async function sendForgotPasswordEmail(to: string, resetCode: string): Promise<void> {
-  await transporter.sendMail({
-    from: `"Logistics App" <${process.env.EMAIL_USER}>`,
+  await resend.emails.send({
+    from: FROM,
     to,
     subject: "Your password reset code",
     text: `You requested a password reset.\n\nYour reset code is: ${resetCode}\n\nThis code expires in 15 minutes.\n\nTo reset your password:\n1. Open the Logistics App\n2. Enter the code above when prompted\n3. Choose a new password\n\nIf you didn't request this, you can safely ignore this email.`,
@@ -80,7 +68,6 @@ export async function sendForgotPasswordEmail(to: string, resetCode: string): Pr
         <h2>Password Reset</h2>
         <p>You requested a password reset. Use the code below to reset your password.</p>
         <p style="color: #888; font-size: 14px;">This code expires in 15 minutes.</p>
-        <p>Your reset code is:</p>
         <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 16px; background: #f4f4f4; border-radius: 8px; text-align: center;">
           ${resetCode}
         </div>
@@ -92,20 +79,15 @@ export async function sendForgotPasswordEmail(to: string, resetCode: string): Pr
             <li>Choose a new password</li>
           </ol>
         </div>
-        <p style="margin-top: 24px; color: #888; font-size: 12px;">If you didn't request a password reset, you can safely ignore this email. Your password will not be changed.</p>
+        <p style="margin-top: 24px; color: #888; font-size: 12px;">If you didn't request a password reset, you can safely ignore this email.</p>
       </div>
     `,
   });
 }
 
-export async function sendEventInviteEmail(
-  to: string,
-  inviteCode: string,
-  eventTitle: string,
-  organiserName: string
-): Promise<void> {
-  await transporter.sendMail({
-    from: `"Logistics App" <${process.env.EMAIL_USER}>`,
+export async function sendEventInviteEmail(to: string, inviteCode: string, eventTitle: string, organiserName: string): Promise<void> {
+  await resend.emails.send({
+    from: FROM,
     to,
     subject: `You've been invited to ${eventTitle}`,
     text: `${organiserName} has invited you to join "${eventTitle}" on Logistics App.\n\nYour invite code is: ${inviteCode}\n\nTo respond:\n1. Open the Logistics App\n2. Enter the invite code above`,
@@ -131,8 +113,8 @@ export async function sendEventInviteEmail(
 }
 
 export async function sendResendResetCodeEmail(to: string, resetCode: string): Promise<void> {
-  await transporter.sendMail({
-    from: `"Logistics App" <${process.env.EMAIL_USER}>`,
+  await resend.emails.send({
+    from: FROM,
     to,
     subject: "Your new password reset code",
     text: `You requested a new password reset code.\n\nYour reset code is: ${resetCode}\n\nThis code expires in 15 minutes.\n\nTo reset your password:\n1. Open the Logistics App\n2. Enter the code above when prompted\n3. Choose a new password\n\nIf you didn't request this, you can safely ignore this email.`,
@@ -141,7 +123,6 @@ export async function sendResendResetCodeEmail(to: string, resetCode: string): P
         <h2>New Password Reset Code</h2>
         <p>You requested a new password reset code. Use the code below to reset your password.</p>
         <p style="color: #888; font-size: 14px;">This code expires in 15 minutes.</p>
-        <p>Your new reset code is:</p>
         <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 16px; background: #f4f4f4; border-radius: 8px; text-align: center;">
           ${resetCode}
         </div>
@@ -153,7 +134,7 @@ export async function sendResendResetCodeEmail(to: string, resetCode: string): P
             <li>Choose a new password</li>
           </ol>
         </div>
-        <p style="margin-top: 24px; color: #888; font-size: 12px;">If you didn't request a new reset code, you can safely ignore this email. Your password will not be changed.</p>
+        <p style="margin-top: 24px; color: #888; font-size: 12px;">If you didn't request a new reset code, you can safely ignore this email.</p>
       </div>
     `,
   });
