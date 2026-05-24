@@ -8,7 +8,8 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-});
+  family: 4, // 👈 force IPv4, Render doesn't support IPv6 outbound
+} as nodemailer.TransportOptions);
 
 export async function sendOnboardingEmail(to: string, verificationCode: string): Promise<void> {
   await transporter.sendMail({
