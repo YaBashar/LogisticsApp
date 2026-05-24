@@ -17,7 +17,7 @@ import { NumericalCodeInput } from "../../components/inputs/NumericalCodeInput";
 import axios from "../../services/axios";
 import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
-export function VerifyResetCode() {
+export default function VerifyResetCode() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

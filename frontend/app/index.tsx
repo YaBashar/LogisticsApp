@@ -14,7 +14,7 @@ import { router } from "expo-router";
 import { useAuth } from "../hooks/useAuth";
 import { colors, spacing, typography, radii, touch, shadows } from "../constants/theme";
 
-export function Index() {
+export default function Index() {
   const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {

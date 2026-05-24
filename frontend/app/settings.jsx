@@ -75,7 +75,7 @@ function SettingsMenuRow({
   );
 }
 
-export function Settings() {
+export default function Settings() {
   const { logout } = useAuth();
   const [deleting, setDeleting] = useState(false);
   const { width: screenWidth } = useWindowDimensions();

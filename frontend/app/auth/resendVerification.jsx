@@ -15,7 +15,7 @@ import axios from "../../services/axios";
 import { router } from "expo-router";
 import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
-export function ResendVerification() {
+export default function ResendVerification() {
   const [email, setEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

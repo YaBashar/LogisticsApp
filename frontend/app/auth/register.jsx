@@ -17,7 +17,7 @@ import { router } from "expo-router";
 import { PasswordInput } from "../../components/inputs/PasswordInput";
 import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
-export function Register() {
+export default function Register() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");

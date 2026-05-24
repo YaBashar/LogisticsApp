@@ -33,7 +33,7 @@ function ScrollFade() {
   );
 }
 
-export function NewOrder() {
+export default function NewOrder() {
   const { width: screenWidth } = useWindowDimensions();
   const contentMaxWidth = Math.min(420, screenWidth - 32);
 

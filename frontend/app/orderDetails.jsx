@@ -12,7 +12,7 @@ function formatPackageType(packageType) {
   return packageType.charAt(0).toUpperCase() + packageType.slice(1);
 }
 
-export function OrderDetails() {
+export default function OrderDetails() {
   const { role } = useAuth();
   const isAdmin = role === "admin";
   const { width } = useWindowDimensions();

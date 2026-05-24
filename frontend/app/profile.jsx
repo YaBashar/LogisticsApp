@@ -80,7 +80,7 @@ function MenuRow({ icon, iconColor, iconBg, label, onPress, showChevron = true, 
   );
 }
 
-export function Profile() {
+export default function Profile() {
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const contentMaxWidth = Math.min(420, screenWidth - 32);

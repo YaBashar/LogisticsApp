@@ -18,7 +18,7 @@ import { PasswordInput } from "../components/inputs/PasswordInput";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { colors, spacing, typography, radii, touch } from "../constants/theme";
 
-export function ChangePassword() {
+export default function ChangePassword() {
   const { logout } = useAuth();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");

@@ -18,7 +18,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { PasswordInput } from "../../components/inputs/PasswordInput";
 import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
-export function Login() {
+export default function Login() {
   const params = useLocalSearchParams();
   const [email, setEmail] = useState(typeof params.email === "string" ? params.email : "");
   const [password, setPassword] = useState("");

@@ -93,7 +93,7 @@ async function findShipmentById(shipmentId, isAdmin) {
   return null;
 }
 
-export function Notifications() {
+export default function Notifications() {
   const { role } = useAuth();
   const isAdmin = role === "admin";
   const { width } = useWindowDimensions();

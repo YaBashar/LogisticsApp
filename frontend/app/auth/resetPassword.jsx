@@ -17,7 +17,7 @@ import axios from "../../services/axios";
 import { PasswordInput } from "../../components/inputs/PasswordInput";
 import { colors, spacing, typography, radii, touch, shadows } from "../../constants/theme";
 
-export function ResetPassword() {
+export default function ResetPassword() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
